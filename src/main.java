@@ -7,5 +7,6 @@ public class main {
 		//Eaton 2
 		//Kristo
 		System.out.println("Test");
+		System.out.println("Test22");
 	}
 }
