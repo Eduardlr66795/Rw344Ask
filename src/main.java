@@ -9,4 +9,9 @@ public class main {
 		System.out.println("Test");
 		System.out.println("Test22");
 	}
+	
+	
+	void testClient() {
+		
+	}
 }
