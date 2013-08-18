@@ -6,5 +6,6 @@ public class main {
 		//sadsadsad
 		//Eaton
 		//Kristo
+		System.out.println("Test");
 	}
 }
