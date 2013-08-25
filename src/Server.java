@@ -17,13 +17,16 @@ public class Server {
 
     //does this mean anything specific?
     //take away comments if so please.
-    /*public static void main(String[] args) {
+    // Eddie: Its just one way of doing  it, the current implementation will work. If you leave comments just leave your name...
+    
+    
+    public static void main(String[] args) {
         try {
             new Server();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }*/
+    }
     
     
 
@@ -32,6 +35,7 @@ public class Server {
         try {
             server = new ServerSocket(port);
         } catch (IOException ex) {
+        	ex.printStackTrace();
             Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             //could not open to the specifeid port.
         }

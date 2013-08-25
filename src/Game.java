@@ -7,6 +7,7 @@ public class Game extends Thread {
     private String name;
     private Server server;
     //private int players;
+    
     private HashSet<HandleClient> clientsList = new HashSet<HandleClient>();
     
     public Game(String name) {
@@ -19,6 +20,9 @@ public class Game extends Thread {
         //assuming clientsList will always be empty at first:
         clientsList.add(creator);
     }
+    
+    
+    
     Game(String gameName, Server server) {
         name = gameName;
         this.server = server;
