@@ -12,6 +12,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JButton;
@@ -27,22 +28,20 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-
 /**
  * 
  * @author //Ask
- *
+ * 
  */
 @SuppressWarnings("serial")
-public class Server extends JDialog implements ActionListener  {
+public class Server extends JDialog implements ActionListener {
 	private ServerSocket server;
 	private Socket Soket;
 	private int port = 9119;
 	private boolean islistening;
-	
-	
+
 	HashSet<HandleClient> clientsList = new HashSet<HandleClient>();
-	HashSet<Game> gamesList = new HashSet<Game>();
+	Hashtable<Integer, Game> gamesList = new Hashtable<Integer, Game>();
 	HandleClient client;
 
 	// Gui
@@ -55,9 +54,9 @@ public class Server extends JDialog implements ActionListener  {
 	private JPanel panelGame;
 	private JTextField textField;
 	private JButton button;
-	private int EddieTest = 0;
-	
-	
+	private int EddieTest = 1;
+	private int globalCount;
+
 	public static void main(String[] args) {
 		try {
 			new Server().process();
@@ -72,7 +71,7 @@ public class Server extends JDialog implements ActionListener  {
 	 * different games.
 	 */
 	public void buildGui() {
-		
+		globalCount = 0;
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -89,7 +88,6 @@ public class Server extends JDialog implements ActionListener  {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		
 
 		JTabbedPane tab = new JTabbedPane();
 		frameMain = new JFrame();
@@ -104,13 +102,11 @@ public class Server extends JDialog implements ActionListener  {
 		panelServer = new JPanel();
 		panelServer.setSize(frameMain.getWidth(), frameMain.getHeight());
 		panelServer.setLayout(null);
-		
-		
+
 		panelGame = new JPanel();
 		panelGame.setSize(frameMain.getWidth(), frameMain.getHeight());
 		panelGame.setLayout(null);
 
-		
 		// TextArea for server
 		textAreaServer = new JTextArea();
 		textAreaServer.setEditable(false);
@@ -125,17 +121,15 @@ public class Server extends JDialog implements ActionListener  {
 		textAreaGame = new JTextArea();
 		textAreaGame.setEditable(false);
 		textAreaGame.setSize(frameMain.getWidth(), frameMain.getHeight());
-		
-		
+
 		// Scrolepane for server
-				JScrollPane spMain = new JScrollPane(textAreaServer,
-						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				spMain.setSize(frameMain.getWidth(), frameMain.getHeight());
-				spMain.setLocation(0, 0);
-				panelServer.add(spMain);
-				
-				
+		JScrollPane spMain = new JScrollPane(textAreaServer,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		spMain.setSize(frameMain.getWidth(), frameMain.getHeight());
+		spMain.setLocation(0, 0);
+		panelServer.add(spMain);
+
 		// Scrolepane for clients
 		JScrollPane spClient = new JScrollPane(textAreaClient,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -144,8 +138,6 @@ public class Server extends JDialog implements ActionListener  {
 		spClient.setLocation(0, 0);
 		panelClient.add(spClient);
 
-		
-		
 		// Scrolepane for Game
 		JScrollPane spGame = new JScrollPane(textAreaGame,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -153,22 +145,19 @@ public class Server extends JDialog implements ActionListener  {
 		spGame.setSize(frameMain.getWidth(), frameMain.getHeight());
 		spGame.setLocation(0, 0);
 		panelGame.add(spGame);
-		
 
 		tab.add("Server", panelServer);
 		tab.add("Clients", panelClient);
 		tab.add("Games", panelGame);
-		
-		
-		if(EddieTest == 1) {
+
+		if (EddieTest == 1) {
 			textField = new JTextField();
-			textField.setBounds(200,200,100,70);
+			textField.setBounds(200, 200, 100, 70);
 			button = new JButton("TEST");
 			button.addActionListener(this);
 			frameMain.add(textField, BorderLayout.SOUTH);
 			frameMain.add(button, BorderLayout.WEST);
 		}
-
 
 		frameMain.add(tab, BorderLayout.CENTER);
 		frameMain.setVisible(true);
@@ -182,12 +171,11 @@ public class Server extends JDialog implements ActionListener  {
 		});
 	}
 
-	
 	public void process() {
-		//Build the GUI
+		// Build the GUI
 		buildGui();
-		
-		//Open server port for communication
+
+		// Open server port for communication
 		try {
 			islistening = true;
 			server = new ServerSocket(port);
@@ -195,8 +183,8 @@ public class Server extends JDialog implements ActionListener  {
 					+ port + "\n");
 			textAreaClient.append("Clients Connected to server:\n");
 			textAreaGame.append("Active games  : # Clients:\n");
-		
-			//Run - accept the connection
+
+			// Run - accept the connection
 			run();
 
 		} catch (IOException ex) {
@@ -211,36 +199,37 @@ public class Server extends JDialog implements ActionListener  {
 		}
 	}
 
-	
 	/**
-	 * Method : Run
-	 * This method accepts the connections and handles the clients
+	 * Method : Run This method accepts the connections and handles the clients
 	 */
 	public void run() {
 		while (islistening) {
 			try {
 				Soket = server.accept();
-				
-				//Send msg to client that server is ready
-				PrintWriter output = new PrintWriter(Soket.getOutputStream(), true);
-				output.println("RD");			
-			
-				// Handle clients in game
-				 client = new HandleClient(Soket, null, this);
 
-				 if(clientsList.contains(client) == false) {
-					 clientsList.add(client);
-					 textAreaClient.append(client.getName() + "\n");
-					 textAreaServer.append("new client : " + client.getName() + " : " +getTimeAndDate() + "\n");
-				 } else {
-						JOptionPane.showMessageDialog(null, "Server : Client NOT!! Unique");
-						client.closeConnection();
-				 }
+				// Send msg to client that server is ready
+				PrintWriter output = new PrintWriter(Soket.getOutputStream(),
+						true);
+				output.println("RD");
+
+				// Handle clients in game
+				client = new HandleClient(Soket, null, this);
+
+				if (clientsList.contains(client) == false) {
+					clientsList.add(client);
+					textAreaClient.append(client.getName() + "\n");
+					textAreaServer.append("new client : " + client.getName()
+							+ " : " + getTimeAndDate() + "\n");
+				} else {
+					JOptionPane.showMessageDialog(null,
+							"Server : Client NOT!! Unique");
+					client.closeConnection();
+				}
 			} catch (IOException ex) {
 			}
 		}
 	}
-	
+
 	public String getTimeAndDate() {
 		DateFormat dateFormat = new SimpleDateFormat("dd MMM hh:mm");
 		Calendar cal = Calendar.getInstance();
@@ -248,22 +237,32 @@ public class Server extends JDialog implements ActionListener  {
 		return dateAndTime;
 	}
 
-
+	
+	/**
+	 * 
+	 * @param gameName
+	 * @param creator
+	 * @return
+	 */
 	public boolean createGame(String gameName, HandleClient creator) {
 		// handle the creation of a game object and add to the HashSet.
 		Game newGame = new Game(gameName, creator, this);
-		if (gamesList.add(newGame) == false) {
+		if (!gamesList.contains(gameName)) {
+
 			// game is unique and was created
+			gamesList.put(globalCount, newGame);
+			
+			// Add one game to global game count
+			globalCount++;
+			
 			return true;
 		} else {
 			// game is not unique and was not created
 			return false;
 		}
 	}
-	
-	
-	public void quit()
-	{
+
+	public void quit() {
 		try {
 			server.close();
 			islistening = false;
@@ -275,11 +274,11 @@ public class Server extends JDialog implements ActionListener  {
 	}
 
 	public void actionPerformed(ActionEvent evt) {
-		if(evt.getSource() == button) {
+		if (evt.getSource() == button) {
 			String text = textField.getText();
-			text = text+ "sad";
+			text = text + "sad";
 			System.out.println(text);
-			 textField.setText(" ");
+			textField.setText(" ");
 		}
 	}
 }

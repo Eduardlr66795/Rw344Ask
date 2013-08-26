@@ -7,14 +7,17 @@ public class Game extends Thread {
     private String name;
     private Server server;
     //private int players;
+    public int numberOfGames;
+   
     
     private HashSet<HandleClient> clientsList = new HashSet<HandleClient>();
+
     
     public Game(String name) {
         this.name = name;
     }
 
-    Game(String gameName, HandleClient creator, Server server) {
+    public Game(String gameName, HandleClient creator, Server server) {
         name = gameName;
         this.server = server;
         //assuming clientsList will always be empty at first:
@@ -23,7 +26,7 @@ public class Game extends Thread {
     
     
     
-    Game(String gameName, Server server) {
+   public Game(String gameName, Server server) {
         name = gameName;
         this.server = server;
         //assuming clientsList will always be empty at first:

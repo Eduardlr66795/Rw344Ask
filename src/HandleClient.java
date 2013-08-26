@@ -3,6 +3,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.HashSet;
+
 import javax.swing.JOptionPane;
 
 public class HandleClient extends Thread {
@@ -57,6 +60,7 @@ public class HandleClient extends Thread {
 	public void setSoket(Socket Soket) {
 		this.Soket = Soket;
 	}
+	
 
 	public String getUserName() {
 		return userName;
@@ -85,14 +89,41 @@ public class HandleClient extends Thread {
 
 	public void run() {
 		while (listening) {
-
 			String line;
 			try {
 				line = input.readLine();
-				JOptionPane.showMessageDialog(null, line);
+				
 				if (EddieTest == 1) {
 					JOptionPane.showMessageDialog(null, line);
 				}
+				
+				if(line.equals("GameR")){
+					
+					//No games are av. so user has to create a game
+					if(game.numberOfGames == 0){
+						//Send new game
+						
+						
+						
+					//User should have options (join or create)
+					} else {
+						//Client can join a game. Send a list of games 
+						for (int x =0; x<game.numberOfGames; x++) {
+//							output.println(game.getName(x));
+//							HashSet<Game> f = server.gamesList;
+							
+							
+						}
+						
+					}
+					
+					
+					
+				}
+				
+				
+				
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
