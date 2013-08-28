@@ -3,30 +3,29 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import javax.swing.JOptionPane;
 
 public class HandleClient extends Thread {
 	private Server server;
 	private Game game;
-	private Socket Soket;
+	private Socket socket;
 	private String userName;
 	private boolean listening;
 	public BufferedReader input;
 	public PrintWriter output;
 	private int EddieTest = 0;
 
-	public HandleClient(Socket Soket, Game game, Server server) {
+	public HandleClient(Socket socket, Server server) {
 		this.server = server;
-		this.game = game;
-		this.Soket = Soket;
+		//Removed the game from the constructor, thought that at the moment a client
+		//connects to server it wont yet know what game it will join/create
+		this.socket = socket;
 
 		try {
 			input = new BufferedReader(new InputStreamReader(
-					Soket.getInputStream()));
-			output = new PrintWriter(Soket.getOutputStream(), true);
+					socket.getInputStream()));
+			output = new PrintWriter(socket.getOutputStream(), true);
 			this.userName = input.readLine();
 
 			if (!server.clientsList.contains(userName)) {
@@ -53,12 +52,12 @@ public class HandleClient extends Thread {
 		output.println(uname + " : " + msg);
 	}
 
-	public Socket getSoket() {
-		return Soket;
+	public Socket getSocket() {
+		return socket;
 	}
 
-	public void setSoket(Socket Soket) {
-		this.Soket = Soket;
+	public void setSocket(Socket Socket) {
+		this.socket = Socket;
 	}
 	
 
@@ -100,7 +99,7 @@ public class HandleClient extends Thread {
 				if(line.equals("GameR")){
 					
 					//No games are av. so user has to create a game
-					if(game.numberOfGames == 0){
+					if(Server.gamesCount == 0){
 						//Send new game
 						
 						
@@ -108,7 +107,7 @@ public class HandleClient extends Thread {
 					//User should have options (join or create)
 					} else {
 						//Client can join a game. Send a list of games 
-						for (int x =0; x<game.numberOfGames; x++) {
+						for (int x =0; x<Server.gamesCount; x++) {
 //							output.println(game.getName(x));
 //							HashSet<Game> f = server.gamesList;
 							
