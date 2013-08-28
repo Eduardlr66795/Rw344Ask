@@ -36,13 +36,14 @@ import javax.swing.UIManager.LookAndFeelInfo;
 @SuppressWarnings("serial")
 public class Server extends JDialog implements ActionListener {
 	private ServerSocket server;
-	private Socket Soket;
+	private Socket socket;
 	private int port = 9119;
 	private boolean islistening;
 
 	HashSet<HandleClient> clientsList = new HashSet<HandleClient>();
 	Hashtable<Integer, Game> gamesList = new Hashtable<Integer, Game>();
 	HandleClient client;
+	public static int gamesCount;
 
 	// Gui
 	private JFrame frameMain;
@@ -54,11 +55,12 @@ public class Server extends JDialog implements ActionListener {
 	private JPanel panelGame;
 	private JTextField textField;
 	private JButton button;
-	private int EddieTest = 1;
-	private int globalCount;
+	public int EddieTest = 1;
+	
 
 	public static void main(String[] args) {
 		try {
+			gamesCount = 0;
 			new Server().process();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -71,7 +73,6 @@ public class Server extends JDialog implements ActionListener {
 	 * different games.
 	 */
 	public void buildGui() {
-		globalCount = 0;
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -205,15 +206,15 @@ public class Server extends JDialog implements ActionListener {
 	public void run() {
 		while (islistening) {
 			try {
-				Soket = server.accept();
+				socket = server.accept();
 
 				// Send msg to client that server is ready
-				PrintWriter output = new PrintWriter(Soket.getOutputStream(),
+				PrintWriter output = new PrintWriter(socket.getOutputStream(),
 						true);
 				output.println("RD");
 
 				// Handle clients in game
-				client = new HandleClient(Soket, null, this);
+				client = new HandleClient(socket, this);
 
 				if (clientsList.contains(client) == false) {
 					clientsList.add(client);
@@ -244,16 +245,16 @@ public class Server extends JDialog implements ActionListener {
 	 * @param creator
 	 * @return
 	 */
-	public boolean createGame(String gameName, HandleClient creator) {
+	public boolean createGame(String gameName, String creator) {
 		// handle the creation of a game object and add to the HashSet.
-		Game newGame = new Game(gameName, creator, this);
+		Game newGame = new Game(gameName, creator, this, gamesCount);
 		if (!gamesList.contains(gameName)) {
 
 			// game is unique and was created
-			gamesList.put(globalCount, newGame);
+			gamesList.put(gamesCount, newGame);
 			
 			// Add one game to global game count
-			globalCount++;
+			gamesCount++;
 			
 			return true;
 		} else {
