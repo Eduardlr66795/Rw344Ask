@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 
 public class HandleClient extends Thread {
 	private Server server;
-	private Game game;
+	private String gameName;
 	private Socket socket;
 	private String userName;
 	private boolean listening;
@@ -27,6 +27,7 @@ public class HandleClient extends Thread {
 					socket.getInputStream()));
 			output = new PrintWriter(socket.getOutputStream(), true);
 			this.userName = input.readLine();
+			start();
 
 			if (!server.clientsList.contains(userName)) {
 				if (EddieTest == 1) {
@@ -65,12 +66,12 @@ public class HandleClient extends Thread {
 		return userName;
 	}
 
-	public Game getGame() {
-		return game;
+	public String getGame() {
+		return gameName;
 	}
 
-	public void setGame(Game game) {
-		this.game = game;
+	public void setGame(String game) {
+		this.gameName = game;
 	}
 
 	public Server getServer() {
@@ -96,31 +97,53 @@ public class HandleClient extends Thread {
 					JOptionPane.showMessageDialog(null, line);
 				}
 				
-				if(line.equals("GameR")){
+				if(line.equals("GL;")){
 					
 					//No games are av. so user has to create a game
-					if(Server.gamesCount == 0){
-						//Send new game
-						
+					if(server.gamesCount == 0){
+						//Send "no games available, do u want to start a new game?"
+			
 						
 						
 					//User should have options (join or create)
 					} else {
 						//Client can join a game. Send a list of games 
-						for (int x =0; x<Server.gamesCount; x++) {
+						for (int x = 0; x<server.gamesCount; x++) {
 //							output.println(game.getName(x));
 //							HashSet<Game> f = server.gamesList;
 							
 							
-						}
-						
+						}	
 					}
-					
-					
+									
+				}
+				
+				//Create a game for the player
+				else if (line.substring(0,2).equals("GS")) {
+					if (server.gameNameExists(line.substring(2, line.length()-1))) {
+						//send error 120 to client
+						System.out.println("Error, game name taken");
+					} else {
+						gameName = line.substring(2, line.length()-1);
+						server.createGame(gameName, userName);
+					}
+				}
+				
+				//Allow another player to join the game
+				else if (line.equals("GN;")) {
+					server.allowAddPlayerToGame(gameName);
 					
 				}
 				
+				//Game is full, game will start
+				else if (line.equals("GF;")) {
+					
+				}
 				
+				//Kick a player out
+				else if (line.substring(0,2).equals("GO")) {
+					
+				}
 				
 				
 			} catch (IOException e) {
