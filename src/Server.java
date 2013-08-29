@@ -41,7 +41,7 @@ public class Server extends JDialog implements ActionListener {
 	private boolean islistening;
 
 	HashSet<HandleClient> clientsList = new HashSet<HandleClient>();
-	Hashtable<Integer, Game> gamesList = new Hashtable<Integer, Game>();
+	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
 	HandleClient client;
 	public static int gamesCount;
 
@@ -245,22 +245,49 @@ public class Server extends JDialog implements ActionListener {
 	 * @param creator
 	 * @return
 	 */
-	public boolean createGame(String gameName, String creator) {
+	public Game createGame(String gameName, String creator) {
 		// handle the creation of a game object and add to the HashSet.
 		Game newGame = new Game(gameName, creator, this, gamesCount);
-		if (!gamesList.contains(gameName)) {
 
-			// game is unique and was created
-			gamesList.put(gamesCount, newGame);
+		// game is unique and was created
+		gamesList.put(gameName, newGame);
 			
-			// Add one game to global game count
-			gamesCount++;
-			
+		// Add one game to global game count
+		gamesCount++;
+		
+		return newGame;
+		
+	}
+	
+	//Checking if game name exists
+	public boolean gameNameExists(String gameName) {
+		if (gamesList.contains(gameName)) {
 			return true;
-		} else {
-			// game is not unique and was not created
-			return false;
 		}
+		
+		return false;
+	}
+	
+	//Remove a player from a game, return false if player not part of game TODO
+	public boolean kickPlayerFromGame(String gameName, String playerName) {
+		return false;
+	}
+	
+	//This is for the GN command, and because its synchronous
+	public void allowAddPlayerToGame(String gameName) {
+		Game game = gamesList.get(gameName);
+		game.addAnotherPlayer = true;
+		gamesList.put(gameName, game);
+	}
+	
+	//Adding a player to game
+	public boolean addPlayerToGame(String gameName, String playerName) {
+		Game game = gamesList.get(gameName);
+		game.playerList.put(playerName, game.playerCount);
+		game.playerCount++;
+		game.addAnotherPlayer = false;
+		gamesList.put(gameName, game);
+		return true;
 	}
 
 	public void quit() {
