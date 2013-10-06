@@ -33,7 +33,9 @@ public class HandleClient extends Thread {
                     socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
             run();
-
+        //Removed login, should also be in thread since it wont happen immediately nesicarily.
+        //Can make client to only connect when logging in, but it may not
+        //support other clients.
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -116,32 +118,26 @@ public class HandleClient extends Thread {
                     if (line.equals("GL;")) {
 
                         //No games are av. so user has to create a game
-                        if (server.gamesCount == 0) {
+                        if (server.getGamesCount() == 0) {
                             //Send "no games available, do u want to start a new game?"
                             //User should have options (join or create)
                         } else {
                             //Client can join a game. Send a list of games 
-                            for (int x = 0; x < server.gamesCount; x++) {
+                            for (int x = 0; x < server.getGamesCount(); x++) {
 
-                                HashSet<String> f = server.getGamesList();
+                                String[] gamesList = server.getGamesList();
                                 output.print("GU");
-                                Iterator<String> itr = f.iterator();
-                                while (itr.hasNext()) {
-                                    if (true) {   
-                                        //TODO: should do this only when not the last element....
-                                        output.print(itr.next() + ":");
-                                    } else {
-                                        output.println(itr.next() + ";");
-                                        //I made this a println and the others a print because it should be in the sam line, Is this right?
-                                    }
+                                for(int xg = 0; xg < gamesList.length-1; xg++){
+                                    output.print(gamesList[xg]+":");
                                 }
+                                output.println(gamesList[(gamesList.length-1)]+";");
                             }
                         }
 
                     } //Create a game for the player
                     else if (line.substring(0, 2).equals("GS")) {
-                        gameName = line.substring(2, line.length() - 1);
-                        if (server.gameNameExists(gameName)) {
+                        String tempGameName = line.substring(2, line.length() - 1);
+                        if (server.gameNameExists(tempGameName)) {
                             //send error 120 to client
                             output.println("ER120"); 
                             System.out.println("Error, game name taken");
@@ -149,12 +145,13 @@ public class HandleClient extends Thread {
                             //send acknowledgement to client
                             output.println("GK;");
                             //create game
-                            server.createGame(gameName, userName);
+                            server.createGame(tempGameName, userName);
+                            gameName = tempGameName;
                         }
                     } //Allow another player to join the game
                     else if (line.equals("GN;")) {
                         server.allowAddPlayerToGame(gameName);
-
+                        
                     } //Game is full, game will start
                     else if (line.equals("GF;")) {
                     } //Kick a player out

@@ -13,20 +13,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.*;
 
 /**
  * 
@@ -35,6 +26,8 @@ import javax.swing.UIManager.LookAndFeelInfo;
  */
 @SuppressWarnings("serial")
 public class Server extends JDialog implements ActionListener {
+
+    
 	private ServerSocket server;
 	private Socket socket;
 	private int port = 9119;
@@ -43,7 +36,6 @@ public class Server extends JDialog implements ActionListener {
 	HashSet<HandleClient> clientsList = new HashSet<HandleClient>();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
 	HandleClient client;
-	public static int gamesCount;
 
 	// Gui
 	private JFrame frameMain;
@@ -60,7 +52,6 @@ public class Server extends JDialog implements ActionListener {
 
 	public static void main(String[] args) {
 		try {
-			gamesCount = 0;
 			new Server().process();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -179,9 +170,9 @@ public class Server extends JDialog implements ActionListener {
 		// Open server port for communication
 		try {
 			islistening = true;
-			server = new ServerSocket(port);
+			server = new ServerSocket(getPort());
 			textAreaServer.append("Server Successfully Started - port# : "
-					+ port + "\n");
+					+ getPort() + "\n");
 			textAreaClient.append("Clients Connected to server:\n");
 			textAreaGame.append("Active games  : # Clients:\n");
 
@@ -205,17 +196,17 @@ public class Server extends JDialog implements ActionListener {
          * This method accepts the connections and handles the clients
 	 */
 	public void run() {
-		while (islistening) {
+		while (isIslistening()) {
 			try {
-				socket = server.accept();
+				socket = getServer().accept();
 
 				// Send msg to client that server is ready
-				PrintWriter output = new PrintWriter(socket.getOutputStream(),
+				PrintWriter output = new PrintWriter(getSocket().getOutputStream(),
 						true);
 				output.println("RD");
 
 				// Handle clients in game
-				client = new HandleClient(socket, this);
+				client = new HandleClient(getSocket(), this);
 
 				if (clientsList.contains(client) == false) {
 					clientsList.add(client);
@@ -249,14 +240,12 @@ public class Server extends JDialog implements ActionListener {
 	 */
 	public Game createGame(String gameName, String creator) {
 		// handle the creation of a game object and add to the HashSet.
-		Game newGame = new Game(gameName, creator, this, gamesCount);
+		Game newGame = new Game(gameName, creator, this, getGamesCount());
 
 		// game is unique and was created
 		gamesList.put(gameName, newGame);
-			
-		// Add one game to global game count
-		gamesCount++;
-		
+		//removed gamesCount variable, replaced with method call of 
+                //getGamesCount() Directly related to the HashTable		
 		return newGame;
 		
 	}
@@ -295,7 +284,7 @@ public class Server extends JDialog implements ActionListener {
 
 	public void quit() {
 		try {
-			server.close();
+			getServer().close();
 			islistening = false;
 			frameMain.dispose();
 			System.exit(0);
@@ -314,7 +303,51 @@ public class Server extends JDialog implements ActionListener {
 		}
 	}
 
-    HashSet<String> getGamesList() {
-        throw new UnsupportedOperationException("Not yet implemented");
+    String[] getGamesList() {
+        String[] stringGamesList;
+        int length = gamesList.size();
+        int counter = 0;
+        stringGamesList = new String[length];
+        Iterator<String> itr = gamesList.keySet().iterator();
+        while (itr.hasNext()) {
+            stringGamesList[counter] = itr.next();
+            counter++;
+        }
+        return stringGamesList;
+    }
+
+    /**
+     * @return the server
+     */
+    public ServerSocket getServer() {
+        return server;
+    }
+
+    /**
+     * @return the socket
+     */
+    public Socket getSocket() {
+        return socket;
+    }
+
+    /**
+     * @return the port
+     */
+    public int getPort() {
+        return port;
+    }
+
+    /**
+     * @return the islistening
+     */
+    public boolean isIslistening() {
+        return islistening;
+    }
+    
+    /**
+     * @return the Number of games currently in gamesList HashTable
+     */
+    public int getGamesCount() {
+        return gamesList.size();
     }
 }
