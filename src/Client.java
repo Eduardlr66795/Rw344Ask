@@ -259,6 +259,13 @@ public class Client extends JDialog implements ActionListener {
         updateGame("Friendly",test3,null);
         updateGame("Fun",test1,null);
         updateGame("G3",test2,null);
+        endGame("G3");
+        newGameGui("Test2",names2);
+        newGameGui("Test3",names1);
+        updateGame("Test2",test1,null);
+        updateGame("Test3",test2,null);
+        endGame("Test3");
+        endGame("Friendly");
         //------------------------------------------------------------------------------------
     
 	}
@@ -303,6 +310,7 @@ public class Client extends JDialog implements ActionListener {
             bigframe[gameNumber].add(cards[gameNumber][k]);
         }
         //Add new game panel
+        bigframe[gameNumber].setName(gName);
         tabs.addTab(gName,bigframe[gameNumber]);
     }
     public void updateGame(String gName,String[] pCards,int[] pScores){
@@ -327,6 +335,27 @@ public class Client extends JDialog implements ActionListener {
             cards[gameNumber][k].setVisible(false);
         }
         //tabs.updateUI();
+    }
+    public void endGame(String gName){
+		//find gameNumber
+		int gameNumber=0;
+		for(int i=0;i<15;i++){
+			if(games[i].equals(gName)){
+				gameNumber=i;
+				games[gameNumber]="empty";
+			}
+		}
+		int temp=tabs.getTabCount();
+		System.out.println(gName);
+		System.out.println(temp);
+		for(int i=0;i<temp;i++){
+			System.out.println(i);
+			if(tabs.getComponentAt(i).getName().equals(gName)){
+				tabs.removeTabAt(i);
+				break;
+				
+			}
+		}
     }
 	
 	public void quit()
