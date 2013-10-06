@@ -69,8 +69,8 @@ public class Client extends JDialog implements ActionListener {
 	}
 
 	public Client() {
-		//welcomeScreen();
-		clientGui();
+		welcomeScreen();
+		//clientGui();
 	}
 
 	/*
@@ -374,7 +374,7 @@ public class Client extends JDialog implements ActionListener {
 				// Check if user name is unique
 				if (brufferReader.readLine().compareTo("LK") == 0) {
 					clientGui();
-					ff.append("Client and server ready...");
+					//ff.append("Client and server ready...");
 					threadMessage = new MessagesThread();
 					threadMessage.start();
 				} else {
