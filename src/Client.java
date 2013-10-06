@@ -69,8 +69,8 @@ public class Client extends JDialog implements ActionListener {
 	}
 
 	public Client() {
-		//welcomeScreen();
-		clientGui();
+		welcomeScreen();
+		//clientGui();
 	}
 
 	/*
