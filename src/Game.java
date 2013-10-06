@@ -37,6 +37,14 @@ public class Game extends Thread {
     void deal(){
         //iterate through all users and add card into hands
     }
+
+    void allowNewPlayer() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    void startGame(String gameName) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
     
     
 }

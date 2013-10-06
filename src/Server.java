@@ -50,14 +50,16 @@ public class Server extends JDialog implements ActionListener {
 	public int EddieTest = 1;
 	
 
-	public static void main(String[] args) {
+	
+        private final int MAX_PLAYERS = 7;
+
+        public static void main(String[] args) {
 		try {
 			new Server().process();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 	/**
 	 * Method : buildGui Builds the interface of server, clients and games. This
 	 * is a graphical representation of activity on server, clients and the
@@ -266,11 +268,17 @@ public class Server extends JDialog implements ActionListener {
 	
 	//This is for the GN command, and because its synchronous
         //EDIT: Made it so it returns true if not full yet.
-	public void allowAddPlayerToGame(String gameName) {
-		Game game = gamesList.get(gameName);
-//		game.addAnotherPlayer = true;
-		gamesList.put(gameName, game);
+	public boolean allowAddPlayerToGame(String gameName) {
+            boolean isNotFull = true;
+            if(gameIsFull(gameName)){
+                gamesList.get(gameName).allowNewPlayer();
+            }
+            return isNotFull;
 	}
+        
+        public boolean gameIsFull(String gameName){
+            return (gamesList.get(gameName).playerList.size() <= MAX_PLAYERS);
+        }
 	
 	//Adding a player to game
 	public boolean addPlayerToGame(String gameName, String playerName) {
@@ -349,5 +357,9 @@ public class Server extends JDialog implements ActionListener {
      */
     public int getGamesCount() {
         return gamesList.size();
+    }
+
+    Game getGame(String gameName) {
+        return gamesList.get(gameName);
     }
 }

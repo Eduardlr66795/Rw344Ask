@@ -14,6 +14,7 @@ public class HandleClient extends Thread {
 
     private Server server;
     private String gameName;
+    private Game game;
     private Socket socket;
     private String userName;
     private boolean listening;
@@ -138,7 +139,7 @@ public class HandleClient extends Thread {
                     else if (line.substring(0, 2).equals("GS")) {
                         String tempGameName = line.substring(2, line.length() - 1);
                         if (server.gameNameExists(tempGameName)) {
-                            //send error 120 to client
+                            //send error 120 to client "Game Already Exists"
                             output.println("ER120"); 
                             System.out.println("Error, game name taken");
                         } else {
@@ -146,14 +147,26 @@ public class HandleClient extends Thread {
                             output.println("GK;");
                             //create game
                             server.createGame(tempGameName, userName);
+                            //set chosenGameName as current game
                             gameName = tempGameName;
+                            //set curreent game pointer as game in server, to 
+                            //bypass unesiccary calls to server class
+                            game = server.getGame(gameName);
                         }
                     } //Allow another player to join the game
                     else if (line.equals("GN;")) {
-                        server.allowAddPlayerToGame(gameName);
-                        
-                    } //Game is full, game will start
+                        if(server.allowAddPlayerToGame(gameName)){//if game is not full.
+                            //request has been sent, Server will send a connecting players name later on
+                        }
+                        else{
+                            //tell client "Game Is Full"
+                            output.println("ER130");
+                        }
+                    } //if game is full, game will start when requested
                     else if (line.equals("GF;")) {
+                        if(server.gameIsFull(gameName)){
+                            game.startGame(gameName);
+                        }
                     } //Kick a player out
                     else if (line.substring(0, 2).equals("GO")) {
                     }
