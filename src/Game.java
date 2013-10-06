@@ -37,5 +37,7 @@ public class Game extends Thread {
     void deal(){
         //iterate through all users and add card into hands
     }
+    
+    
 }
 

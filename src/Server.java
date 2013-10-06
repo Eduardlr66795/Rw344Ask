@@ -185,7 +185,7 @@ public class Server extends JDialog implements ActionListener {
 			textAreaClient.append("Clients Connected to server:\n");
 			textAreaGame.append("Active games  : # Clients:\n");
 
-			// Run - accept the connection
+			// Run - accept the opening of server port
 			run();
 
 		} catch (IOException ex) {
@@ -201,7 +201,8 @@ public class Server extends JDialog implements ActionListener {
 	}
 
 	/**
-	 * Method : Run This method accepts the connections and handles the clients
+	 * Method : Run.
+         * This method accepts the connections and handles the clients
 	 */
 	public void run() {
 		while (islistening) {
@@ -223,10 +224,11 @@ public class Server extends JDialog implements ActionListener {
 							+ " : " + getTimeAndDate() + "\n");
 				} else {
 					JOptionPane.showMessageDialog(null,
-							"Server : Client NOT!! Unique");
+							"Server : Client NOT!! Unique\n");
 					client.closeConnection();
 				}
 			} catch (IOException ex) {
+                            textAreaClient.append("Error handling a socket connection request\n");
 			}
 		}
 	}
@@ -274,9 +276,10 @@ public class Server extends JDialog implements ActionListener {
 	}
 	
 	//This is for the GN command, and because its synchronous
+        //EDIT: Made it so it returns true if not full yet.
 	public void allowAddPlayerToGame(String gameName) {
 		Game game = gamesList.get(gameName);
-		game.addAnotherPlayer = true;
+//		game.addAnotherPlayer = true;
 		gamesList.put(gameName, game);
 	}
 	
@@ -285,7 +288,7 @@ public class Server extends JDialog implements ActionListener {
 		Game game = gamesList.get(gameName);
 		game.playerList.put(playerName, game.playerCount);
 		game.playerCount++;
-		game.addAnotherPlayer = false;
+//		game.addAnotherPlayer = false;
 		gamesList.put(gameName, game);
 		return true;
 	}
@@ -297,6 +300,7 @@ public class Server extends JDialog implements ActionListener {
 			frameMain.dispose();
 			System.exit(0);
 		} catch (IOException e1) {
+                    //If there is something wrong, quit anyway.
 			System.exit(0);
 		}
 	}
@@ -309,4 +313,8 @@ public class Server extends JDialog implements ActionListener {
 			textField.setText(" ");
 		}
 	}
+
+    HashSet<String> getGamesList() {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
 }
