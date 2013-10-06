@@ -70,6 +70,7 @@ public class Client extends JDialog implements ActionListener {
 
 	public Client() {
 		welcomeScreen();
+		//To test gui, comment out welcomeScreen() and run clientGui()
 		//clientGui();
 	}
 
