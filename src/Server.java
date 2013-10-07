@@ -198,7 +198,7 @@ public class Server extends JDialog implements ActionListener {
          * This method accepts the connections and handles the clients
 	 */
 	public void run() {
-		while (isIslistening()) {
+		while (isListening()) {
 			try {
 				socket = getServer().accept();
 
@@ -263,17 +263,42 @@ public class Server extends JDialog implements ActionListener {
 	
 	//Remove a player from a game, return false if player not part of game TODO
 	public boolean kickPlayerFromGame(String gameName, String playerName) {
-		return false;
+		Game game = gamesList.get(gameName);
+		
+		if (game.playerList.contains(playerName)) {
+			game.playerList.remove(playerName);
+		} else {
+			return false;
+		}
+		game.playerCount--;
+		gamesList.put(gameName, game);
+		return true;
+	}
+	
+	//Start the game TODO
+	public boolean startGame(String gameName) {
+		return true;
+	}
+	
+	public int getTotalPlayers(String gameName) {
+		Game game  = gamesList.get(gameName);
+		
+		return game.playerCount;
 	}
 	
 	//This is for the GN command, and because its synchronous
-        //EDIT: Made it so it returns true if not full yet.
-	public boolean allowAddPlayerToGame(String gameName) {
-            boolean isNotFull = true;
-            if(gameIsFull(gameName)){
-                gamesList.get(gameName).allowNewPlayer();
+        //EDIT: Shouldnt return boolean if game is full or not
+	public void allowAddPlayerToGame(String gameName) {
+            Game game = gamesList.get(gameName);
+            if (game.nextPlayersToJoin.isEmpty()) {
+            	game.addAnotherPlayer = true;
+            } else {
+            	game.playerList.put(game.nextPlayersToJoin.pop(), game.playerCount+1);
+            	game.playerCount++;
+            	game.addAnotherPlayer = false;
             }
-            return isNotFull;
+            gamesList.put(gameName, game);
+            
 	}
         
         public boolean gameIsFull(String gameName){
@@ -285,9 +310,20 @@ public class Server extends JDialog implements ActionListener {
 		Game game = gamesList.get(gameName);
 		game.playerList.put(playerName, game.playerCount);
 		game.playerCount++;
-//		game.addAnotherPlayer = false;
+		game.addAnotherPlayer = false;
 		gamesList.put(gameName, game);
 		return true;
+	}
+	
+	public void joinGame(String gameName, String playerName) {
+		Game game = gamesList.get(gameName);
+		
+		if (game.addAnotherPlayer) {
+			game.playerList.put(game.nextPlayersToJoin.pop(), game.playerCount+1);
+			game.playerCount++;
+		} else {
+			game.nextPlayersToJoin.add(playerName);
+		}
 	}
 
 	public void quit() {
@@ -311,6 +347,8 @@ public class Server extends JDialog implements ActionListener {
 		}
 	}
 
+	
+	//Get games list as string array for client to choose a game
     String[] getGamesList() {
         String[] stringGamesList;
         int length = gamesList.size();
@@ -320,6 +358,28 @@ public class Server extends JDialog implements ActionListener {
         while (itr.hasNext()) {
             stringGamesList[counter] = itr.next();
             counter++;
+        }
+        return stringGamesList;
+    }
+    
+    //Same as above function but takes in a prefix parameter
+    String[] getGamesList(String prefix) {
+        String[] stringGamesList;
+        int length = gamesList.size();
+        int counter = 0;
+        stringGamesList = new String[length];
+        Iterator<String> itr = gamesList.keySet().iterator();
+        String tmpGameName;
+        while (itr.hasNext()) {
+            tmpGameName = itr.next();
+            if (tmpGameName.startsWith(prefix)) {
+            	stringGamesList[counter] = tmpGameName;
+            	counter++;
+            }
+            
+        }
+        if (counter == 0) {
+        	stringGamesList[counter] = "";
         }
         return stringGamesList;
     }
@@ -348,7 +408,7 @@ public class Server extends JDialog implements ActionListener {
     /**
      * @return the islistening
      */
-    public boolean isIslistening() {
+    public boolean isListening() {
         return islistening;
     }
     
