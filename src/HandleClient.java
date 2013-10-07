@@ -135,7 +135,9 @@ public class HandleClient extends Thread {
                             }
                         }
 
-                    } //Create a game for the player
+                    } 
+                    
+                    //Create a game for the player
                     else if (line.substring(0, 2).equals("GS")) {
                         String tempGameName = line.substring(2, line.length() - 1);
                         if (server.gameNameExists(tempGameName)) {
@@ -143,32 +145,97 @@ public class HandleClient extends Thread {
                             output.println("ER120"); 
                             System.out.println("Error, game name taken");
                         } else {
-                            //send acknowledgement to client
-                            output.println("GK;");
+                            
                             //create game
                             server.createGame(tempGameName, userName);
                             //set chosenGameName as current game
                             gameName = tempGameName;
-                            //set curreent game pointer as game in server, to 
-                            //bypass unesiccary calls to server class
+                            //set current game pointer as game in server, to 
+                            //bypass uneccesary calls to server class
                             game = server.getGame(gameName);
+                          //send acknowledgement to client
+                            output.println("GK;");
                         }
-                    } //Allow another player to join the game
+                    } 
+                    
+                    //Allow another player to join the game
                     else if (line.equals("GN;")) {
-                        if(server.allowAddPlayerToGame(gameName)){//if game is not full.
-                            //request has been sent, Server will send a connecting players name later on
-                        }
-                        else{
-                            //tell client "Game Is Full"
-                            output.println("ER130");
-                        }
-                    } //if game is full, game will start when requested
+                        server.allowAddPlayerToGame(gameName);
+                        //TODO response, we going to need a hashtable of sockets
+                        
+                    } 
+                    
+                    //if game has enough players, and not too much, game will start
                     else if (line.equals("GF;")) {
-                        if(server.gameIsFull(gameName)){
-                            game.startGame(gameName);
+                    	int totalplayers = server.getTotalPlayers(gameName);
+                    	
+                        if (totalplayers < 3) {
+                        	output.println("ER131");
+                            continue;
                         }
-                    } //Kick a player out
+                        else if (totalplayers > 7) {
+                        	output.println("ER130");
+                        	continue;
+                        }
+                        else {
+                        	server.startGame(gameName);
+                        	//Game full OK response
+                        	output.println("GM");
+                        }
+                        
+                    } 
+                    
+                    //Kick a player out
                     else if (line.substring(0, 2).equals("GO")) {
+                    	if(server.kickPlayerFromGame(gameName, line.substring(2))) {
+                    		//player removed
+                    		output.println("GQ");
+                    	} else {
+                    		//No such player error
+                    		output.println("ER132");
+                    	}
+                    }
+                    
+                    //Prefixed game search
+                    else if (line.substring(0, 2).equals("GG")) {
+                    	String prefix = line.substring(2);
+                    	
+                    	if (server.getGamesCount() == 0) {
+                            //Send "no games available, do u want to start a new game?"
+                            //User should have options (join or create)
+                    		output.println("GU");
+                    		//Empty list should be handled on client
+                        } else {
+                            //Client can join a game. Send a list of games 
+                            for (int x = 0; x < server.getGamesCount(); x++) {
+
+                                String[] gamesList = server.getGamesList(prefix);
+                                if (gamesList[0].equals("")) {
+                                	output.println("GU");
+                                	continue;
+                                }
+                                output.print("GU");
+                                for (int xg = 0; xg < gamesList.length-1; xg++){
+                                    output.print(gamesList[xg]+":");
+                                }
+                                output.println(gamesList[(gamesList.length-1)]+";");
+                            }
+                        }
+                    	
+                    }
+                    
+                    //Request to join game
+                    else if (line.substring(0, 2).equals("GJ")) {
+                    	server.joinGame(gameName, line.substring(2));
+                    	output.println("GX");
+                    	
+                    }
+                    
+                    
+                    
+                    //Command not understood
+                    else {
+                    	output.println("ER901");
                     }
 
 
