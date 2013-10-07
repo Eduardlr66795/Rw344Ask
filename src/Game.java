@@ -1,4 +1,5 @@
 import java.util.Hashtable;
+import java.util.LinkedList;
 
 public class Game extends Thread {
 
@@ -11,6 +12,9 @@ public class Game extends Thread {
     public String trumpCard;
     //Not sure if we need but we can always remove later
     public String nextPlayerToPlay;
+    //Player joins have to be handled this way
+    public LinkedList<String> nextPlayersToJoin = new LinkedList<String>() ;
+    public boolean addAnotherPlayer;
     
     //Hardcoded to 7 (max players) we can change this but hardcoding it to 7 wont really
     //lead to any inefficiency
@@ -30,20 +34,13 @@ public class Game extends Thread {
         this.playerCount = 1;
         this.round = 1;
         this.gameNumber = gameNumber;
+        this.addAnotherPlayer = false;
     }
    
 
     // deals all cards to users
     void deal(){
         //iterate through all users and add card into hands
-    }
-
-    void allowNewPlayer() {
-        throw new UnsupportedOperationException("Not yet implemented");
-    }
-
-    void startGame(String gameName) {
-        throw new UnsupportedOperationException("Not yet implemented");
     }
     
     
