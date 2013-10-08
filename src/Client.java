@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -9,11 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -25,9 +24,10 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
-@SuppressWarnings("serial")
-public class Client extends JDialog implements ActionListener {
 
+
+public class Client implements ActionListener {
+	
 	// Global Variables
 	private Socket client;
 	private int port = 9119;
@@ -53,6 +53,7 @@ public class Client extends JDialog implements ActionListener {
 	private JLabel gameName;
 	private JLabel[] players;
 	private JTabbedPane tabs;
+	private JFrame guiFrame;
 	
 	
 	//keep----
@@ -71,7 +72,7 @@ public class Client extends JDialog implements ActionListener {
 	public Client() {
 		welcomeScreen();
 		//To test gui, comment out welcomeScreen() and run clientGui()
-		//clientGui();
+//		clientGui();
 	}
 
 	/*
@@ -104,11 +105,39 @@ public class Client extends JDialog implements ActionListener {
 		panel = new JPanel();
 		panel.setSize(frameWelcome.getWidth(), frameWelcome.getHeight());
 		panel.setLayout(null);
-		panel.setBackground(Color.black);
+		panel.setBackground(Color.white);
 
-		JLabel heading = new JLabel();
-		heading.setText("///Ask");
-		heading.setForeground(Color.WHITE);
+	
+		
+		//////////////////////////
+		
+		// Button
+		JLabel heading = new JLabel ("") {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (new ImageIcon(
+						Client.class.getResource("/images/ask-logo.png")) != null) {
+					int width = getWidth();
+					int height = getHeight();
+					if (width > height)
+						width = height;
+					else
+						height = width;
+					g.drawImage(
+							new ImageIcon(Client.class.getResource("/images/ask-logo.png")).getImage(), 5, 5, width+20 , height+10, null);
+				}
+			}
+		};
+		
+		
+		
+		///////////////////////////////
+		
+		
+		
+		
+//		heading.setText("///Ask");
+//		heading.setForeground(Color.WHITE);
 		heading.setFont(new Font("Serif", Font.BOLD, 45));
 		heading.setBounds(100, 20, panel.getWidth(), 100);
 
@@ -160,10 +189,12 @@ public class Client extends JDialog implements ActionListener {
 		frameWelcome.setResizable(false);
 		frameWelcome.setVisible(true);
 
-		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
+		frameWelcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frameWelcome.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				//TODO: create window event
+				frameWelcome.dispose();
 				System.exit(0);
 			}
 		});
@@ -173,6 +204,28 @@ public class Client extends JDialog implements ActionListener {
 	 * 
 	 */
 	void clientGui() {
+		
+		// This try and catch is just a GUI theme. Looks cool
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+		
 		games=new String[15];
         for(int k=0;k<15;k++){
             games[k]="empty";
@@ -183,12 +236,27 @@ public class Client extends JDialog implements ActionListener {
         chatBox=new JTextField();
         tabs=new JTabbedPane();
         helpers=new JButton[6];
-        JFrame guiFrame = new JFrame();
+        guiFrame = new JFrame();
         
         guiFrame.setSize(1000,390);
         guiFrame.setLayout(null);
         //make sure the program exits when the frame closes
-        guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        guiFrame.setResizable(false);
+        
+        guiFrame. setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        guiFrame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				guiFrame.dispose();
+				//TODO : Create an exit event
+			}
+		});
+        
+        
+        
+        
         guiFrame.setTitle("Example GUI");
         //Add helper buttons
         helpers[0]=new JButton("Send");//To send chat message
@@ -264,8 +332,8 @@ public class Client extends JDialog implements ActionListener {
         newGameGui("Test3",names1);
         updateGame("Test2",test1,null);
         updateGame("Test3",test2,null);
-        endGame("Test3");
-        endGame("Friendly");
+//        endGame("Test3");
+//        endGame("Friendly");
         //------------------------------------------------------------------------------------
     
 	}
@@ -428,7 +496,9 @@ public class Client extends JDialog implements ActionListener {
 					ff.append("Server--> " + line + "\n");
 				} catch (Exception e) {
 					e.printStackTrace();
-					dispose();
+					//TODO : What frame are we disposing here??
+//					dispose();
+					
 					System.exit(0);
 				}
 			}
