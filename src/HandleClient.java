@@ -14,7 +14,6 @@ public class HandleClient extends Thread {
 
     private Server server;
     private String gameName;
-    private Game game;
     private Socket socket;
     private String userName;
     private boolean listening;
@@ -113,10 +112,26 @@ public class HandleClient extends Thread {
                         JOptionPane.showMessageDialog(null, line);
                     }
                     /*
+                     * LO---------------------------------------------------------
+                     */
+                    if(line.equals("LO;")){
+                    	if(server.logoffClient(userName)){
+                    		output.println("LM;");
+                    		listening = false;
+                    		
+                    	}
+                    	else{
+                    		output.println("ER102;");
+                    	}
+                    }
+                    /*
                     * ...or we could do this as one function with server returning
                     * a string for data to be sent to client...
                     */
-                    if (line.equals("GL;")) {
+                    /*
+                     * GL---------------------------------------------------------
+                     */
+                    else if (line.equals("GL;")) {
 
                         //No games are av. so user has to create a game
                         if (server.getGamesCount() == 0) {
@@ -136,35 +151,40 @@ public class HandleClient extends Thread {
                         }
 
                     } 
-                    
+                    /*
+                     * GS-----------------------------------------------------------
+                     * */
                     //Create a game for the player
                     else if (line.substring(0, 2).equals("GS")) {
                         String tempGameName = line.substring(2, line.length() - 1);
                         if (server.gameNameExists(tempGameName)) {
                             //send error 120 to client "Game Already Exists"
                             output.println("ER120"); 
-                            System.out.println("Error, game name taken");
+                            System.out.println("Error, game name taken"); 
                         } else {
                             
                             //create game
-                            server.createGame(tempGameName, userName);
+                            server.createGame(tempGameName, userName, this);
                             //set chosenGameName as current game
                             gameName = tempGameName;
-                            //set current game pointer as game in server, to 
-                            //bypass uneccesary calls to server class
-                            game = server.getGame(gameName);
                           //send acknowledgement to client
                             output.println("GK;");
                         }
                     } 
-                    
-                    //Allow another player to join the game
-                    else if (line.equals("GN;")) {
-                        server.allowAddPlayerToGame(gameName);
+                    /*
+                     * GN------------------------------------------------------------
+                     */
+                    //Client asks if there is a new client joined in.
+                    else if (line.equals("GN")) {
+                        if(server.hasNewPlayer(line.substring(2))){
+                        	output.println("GP" + server.getPlayerAdded(line.substring(2)) + ";");
+                        }
                         //TODO response, we going to need a hashtable of sockets
                         
                     } 
-                    
+                    /*
+                     * GF-----------------------------------------------------------
+                     */
                     //if game has enough players, and not too much, game will start
                     else if (line.equals("GF;")) {
                     	int totalplayers = server.getTotalPlayers(gameName);
@@ -184,6 +204,9 @@ public class HandleClient extends Thread {
                         }
                         
                     } 
+                    /*
+                     * GO-----------------------------------------------------------
+                     */
                     
                     //Kick a player out
                     else if (line.substring(0, 2).equals("GO")) {
@@ -195,7 +218,9 @@ public class HandleClient extends Thread {
                     		output.println("ER132");
                     	}
                     }
-                    
+                    /*
+                     * GG----------------------------------------------------------
+                     */
                     //Prefixed game search
                     else if (line.substring(0, 2).equals("GG")) {
                     	String prefix = line.substring(2);
@@ -203,7 +228,7 @@ public class HandleClient extends Thread {
                     	if (server.getGamesCount() == 0) {
                             //Send "no games available, do u want to start a new game?"
                             //User should have options (join or create)
-                    		output.println("GU");
+                    		output.println("GU;");
                     		//Empty list should be handled on client
                         } else {
                             //Client can join a game. Send a list of games 
@@ -211,7 +236,7 @@ public class HandleClient extends Thread {
 
                                 String[] gamesList = server.getGamesList(prefix);
                                 if (gamesList[0].equals("")) {
-                                	output.println("GU");
+                                	output.println("GU;");
                                 	continue;
                                 }
                                 output.print("GU");
@@ -223,11 +248,14 @@ public class HandleClient extends Thread {
                         }
                     	
                     }
-                    
+                    /*
+                     * GJ-----------------------------------------------------------
+                     * */
                     //Request to join game
                     else if (line.substring(0, 2).equals("GJ")) {
-                    	server.joinGame(gameName, line.substring(2));
-                    	output.println("GX");
+                    	if(server.joinGame(line.substring(2), userName)){
+                    		output.println("GX;");
+                    	}
                     	
                     }
                     
@@ -244,5 +272,15 @@ public class HandleClient extends Thread {
                 }
             }//if(isLoggedIn)
         }//while(listening)
+        /*
+         * close the connections if not listening anymore
+         */
+        output.close();
+        try {
+			input.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }//run()
 }

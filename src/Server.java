@@ -240,9 +240,9 @@ public class Server extends JDialog implements ActionListener {
 	 * @param creator
 	 * @return
 	 */
-	public Game createGame(String gameName, String creator) {
+	public Game createGame(String gameName, String creator, HandleClient client) {
 		// handle the creation of a game object and add to the HashSet.
-		Game newGame = new Game(gameName, creator, this, getGamesCount());
+		Game newGame = new Game(gameName, creator, client ,this);
 
 		// game is unique and was created
 		gamesList.put(gameName, newGame);
@@ -265,13 +265,11 @@ public class Server extends JDialog implements ActionListener {
 	public boolean kickPlayerFromGame(String gameName, String playerName) {
 		Game game = gamesList.get(gameName);
 		
-		if (game.playerList.contains(playerName)) {
-			game.playerList.remove(playerName);
+		if (game.containsPlayer(playerName)) {
+			game.removePlayer(playerName);
 		} else {
 			return false;
 		}
-		game.playerCount--;
-		gamesList.put(gameName, game);
 		return true;
 	}
 	
@@ -283,47 +281,48 @@ public class Server extends JDialog implements ActionListener {
 	public int getTotalPlayers(String gameName) {
 		Game game  = gamesList.get(gameName);
 		
-		return game.playerCount;
+		return game.amountOfPlayers();
 	}
 	
 	//This is for the GN command, and because its synchronous
         //EDIT: Shouldnt return boolean if game is full or not
 	public void allowAddPlayerToGame(String gameName) {
             Game game = gamesList.get(gameName);
-            if (game.nextPlayersToJoin.isEmpty()) {
-            	game.addAnotherPlayer = true;
+            if (!game.hasNewPlayer()) {
+            	game.setAddAnotherPlayer(true);
             } else {
-            	game.playerList.put(game.nextPlayersToJoin.pop(), game.playerCount+1);
-            	game.playerCount++;
-            	game.addAnotherPlayer = false;
+            	game.addPlayerToGame();
             }
             gamesList.put(gameName, game);
             
 	}
         
-        public boolean gameIsFull(String gameName){
-            return (gamesList.get(gameName).playerList.size() <= MAX_PLAYERS);
-        }
+    public boolean gameIsFull(String gameName){
+        return (gamesList.get(gameName).amountOfPlayers() <= MAX_PLAYERS);
+    }
+    
+    public String getPlayerAdded(String gameName){
+    	return gamesList.get(gameName).getAddedPlayer();
+    }
+    
+    public boolean hasNewPlayer(String gameName){
+    	return gamesList.get(gameName).hasNewPlayer();
+    }
+    
 	
 	//Adding a player to game
-	public boolean addPlayerToGame(String gameName, String playerName) {
+        //Not using this anymore, protocol changed
+	/*public boolean addPlayerToGame(String gameName, String playerName) {
 		Game game = gamesList.get(gameName);
 		game.playerList.put(playerName, game.playerCount);
 		game.playerCount++;
 		game.addAnotherPlayer = false;
 		gamesList.put(gameName, game);
 		return true;
-	}
+	}*/
 	
-	public void joinGame(String gameName, String playerName) {
-		Game game = gamesList.get(gameName);
-		
-		if (game.addAnotherPlayer) {
-			game.playerList.put(game.nextPlayersToJoin.pop(), game.playerCount+1);
-			game.playerCount++;
-		} else {
-			game.nextPlayersToJoin.add(playerName);
-		}
+	public boolean joinGame(String gameName, String playerName) {
+		return (gamesList.get(gameName).addPlayer(playerName));
 	}
 
 	public void quit() {
@@ -422,4 +421,28 @@ public class Server extends JDialog implements ActionListener {
     Game getGame(String gameName) {
         return gamesList.get(gameName);
     }
+    
+	public boolean logoffClient(String userName) {
+		HandleClient client = getHandle(userName);
+		if(clientsList.contains(client)){
+			clientsList.remove(client);
+			return true;
+		}
+		return false;
+	}
+	
+	public HandleClient getHandle(String playerName){
+		Iterator<HandleClient> itr = clientsList.iterator();
+		HandleClient tempClient, client = null;
+		
+		while(itr.hasNext()){
+			tempClient = itr.next();
+			if(tempClient.getName().equals(playerName)){
+				//there is such a user that can be kicked.
+				client = tempClient;
+				break;
+			}
+		}
+		return client;
+	}
 }
