@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import java.util.Hashtable;
 import java.util.LinkedList;
 
@@ -13,24 +16,33 @@ public class Game extends Thread {
     //Not sure if we need but we can always remove later
     private String nextPlayerToPlay;
     //Player joins have to be handled this way
-    private LinkedList<String> nextPlayersToJoin = new LinkedList<String>() ;
+    private LinkedList<ObjectOutputStream> nextPlayersToJoin = new LinkedList<ObjectOutputStream>() ;
     private boolean addAnotherPlayer;
     
     //Hardcoded to 7 (max players) we can change this but hardcoding it to 7 wont really
     //lead to any inefficiency
     private int [] playerBets = new int [7];
     private int [] playerScores = new int [7];
+    private int max_players;
     //Also hardcoded to 10 (max cards)
     private String [][] playerCards = new String [7][10];
    
     
-    private Hashtable<String, HandleClient> playerList = new Hashtable<String, HandleClient>();
+    private Hashtable<ObjectOutputStream, String> playerList = new Hashtable<ObjectOutputStream, String>();
 
-    //Dont think we need more than one constructor?? Because theres only one way a game can be started
-    public Game(String gameName, String creator, HandleClient client, Server server) {
+    //Don't think we need more than one constructor?? Because there's only one way a game can be started
+    public Game(String gameName, Socket creator, Server server, int max_players) {
         this.name = gameName;
+        this.max_players = max_players;
         this.server = server;
-        this.playerList.put(creator, client);
+        ObjectOutputStream o = null;
+		try {
+			o = (ObjectOutputStream) creator.getOutputStream();
+		} catch (IOException e) {
+			System.out.println("error in creating a game " + e);
+		}
+        String creatorName = server.getName(o);
+        this.playerList.put(o, creatorName);
         //this.playerCount = 1;
         this.round = 1;
         this.addAnotherPlayer = false;
@@ -69,6 +81,20 @@ public class Game extends Thread {
 	
 	public void setAddAnotherPlayer(boolean addAnotherPlayer){
 		this.addAnotherPlayer = addAnotherPlayer;
+	}
+	
+	public void addPlayerToGame(){
+		ObjectOutputStream addUser = nextPlayersToJoin.getLast();
+		playerList.put(addUser , server.getName(addUser));
+	}
+	
+	public ObjectOutputStream getAddedPlayer(){
+		addPlayerToGame();
+		return nextPlayersToJoin.getLast();
+	}
+	
+	public boolean gameIsFull(){
+		return (playerList.size()+ nextPlayersToJoin.size()) >= max_players;
 	}
 
 }
