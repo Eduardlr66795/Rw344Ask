@@ -71,17 +71,4 @@ public class Game extends Thread {
 		this.addAnotherPlayer = addAnotherPlayer;
 	}
 
-/**
- * This method adds the player in the nextPlayersToJoin list to the hashtable.
- * */
-	public void addPlayerToGame() {
-		String addUser = nextPlayersToJoin.getLast();
-		playerList.put(addUser, server.getHandle(addUser));
-		
-	}
-    
-	public String getAddedPlayer(){
-		addPlayerToGame();
-		return nextPlayersToJoin.getLast();
-	}
 }
