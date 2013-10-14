@@ -214,11 +214,7 @@ public class Server {
 		// handle the creation of a game object and add to the HashSet.
 		Game newGame = new Game(gameName, client, this, MAX_PLAYERS);
 		ObjectOutputStream o = null;
-		try {
-			o = (ObjectOutputStream) client.getOutputStream();
-		} catch (IOException e) {
-			System.out.println("Error in createGame " + e);
-		}
+		o = (ObjectOutputStream) outputStreams.get(client);
 		if(gamesList.contains(gameName)){
 			// game is unique and was created
 			gamesList.put(gameName, newGame);
@@ -276,12 +272,8 @@ public class Server {
 			else{
 				ObjectOutputStream o = null;
 				
-				try {
-					o = (ObjectOutputStream) socket.getOutputStream();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					System.out.println("Exception in logoff " + e1);
-				}
+				o = (ObjectOutputStream) outputStreams.get(socket);
+				
 				try {
 					o.writeObject("ER130;");//game is full.
 					o.flush();
@@ -337,12 +329,7 @@ public class Server {
 	public void logoff(Socket socket) {
 		ObjectOutputStream o = null;
 		
-		try {
-			o = (ObjectOutputStream) socket.getOutputStream();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception in logoff " + e1);
-		}
+		o = (ObjectOutputStream) outputStreams.get(socket);
 		if(clientList.contains(o)){
 			try {
 				o.writeObject("LM;");
@@ -371,15 +358,9 @@ public class Server {
 		Collection Users = clientList.values();
 		ObjectOutputStream o = null;
 
-		try {
-			o = (ObjectOutputStream) socket.getOutputStream();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception in login " + e1);
-		}
-
+		o = (ObjectOutputStream) outputStreams.get(socket);
+		
 		Iterator itr = Users.iterator();
-
 		while (itr.hasNext()) {
 			if (username.equals(itr.next())) {
 				try {
@@ -414,12 +395,8 @@ public class Server {
 	public void gameIsFull(String gameName, Socket socket) {
 		ObjectOutputStream o = null;
 		
-		try {
-			o = (ObjectOutputStream) socket.getOutputStream();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			System.out.println("Exception in gameIsFull " + e1);
-		}
+		o = (ObjectOutputStream) outputStreams.get(socket);
+		
 		if(gamesList.get(gameName).amountOfPlayers() == MAX_PLAYERS){
 			try {
 				o.writeObject("GM;");
