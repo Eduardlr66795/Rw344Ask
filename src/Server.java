@@ -4,64 +4,58 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+/**
+ * 
+ * @author 
+ *
+ */
 public class Server {
 
 	private ServerSocket ss;
-
 	private Hashtable outputStreams = new Hashtable(); // socket, outputstream
-	Hashtable<String, Game> gamesList = new Hashtable<String, Game>(); // Gamename,
-																		// game
+	Hashtable<String, Game> gamesList = new Hashtable<String, Game>(); // Gamename,														
 	private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>(); // outputstream,
-																											// username
-
 	private final int MAX_PLAYERS = 7;
 
-	public Server(int port) throws IOException {
+	
 
+	public static void main(String[] args) throws Exception {
+		int port = 9119;
+		Server server = new Server(port);
+	}
+	
+	
+	public Server(int port) throws IOException {
 		listen(port);
 	}
 
-	public static void main(String[] args) throws Exception {
-
-		int port = 3000;
-
-		Server server = new Server(port);
-
-	}
-
+	@SuppressWarnings("unchecked")
 	private void listen(int port) throws IOException {
+		ServerSocket server_Socket = new ServerSocket(port);
+		System.out.println("Server started. Listening on " + server_Socket);
 
-		ServerSocket ss = new ServerSocket(port);
-
-		System.out.println("Server started. Listening on " + ss);
-
-		// Keep listening on port and create a new thread for each socket
-		// accepted
 		while (true) {
-
-			Socket s = ss.accept();
-
-			System.out.println("New connection from socket: " + s);
-
-			ObjectOutputStream output = new ObjectOutputStream(
-					s.getOutputStream());
+			Socket server = server_Socket.accept();
+			System.out.println("New connection from socket: " + server);
+			ObjectOutputStream output = new ObjectOutputStream(server.getOutputStream());
 			output.writeObject("RD;");
-
-			outputStreams.put(s, output);
-
-			new HandleClient(this, s);
+			
+			outputStreams.put(server, output);
+			new HandleClient(this, server);
 		}
-
 	}
 
+	
 	Enumeration getOutputStreams() {
 		return outputStreams.elements();
 	}
 
-	// Removes a connection from the hashtable
+	/**
+	 * Removes a connection from the hashtable
+	 * @param s
+	 */
 	public void removeConnection(Socket s) {
 		synchronized (outputStreams) {
-
 			System.out.println("Removing connection to " + s);
 			// Remove it from the hashtable
 			outputStreams.remove(s);
@@ -74,19 +68,15 @@ public class Server {
 		}
 	}
 
+	
 	// Sends a message to all clients connected to server
 	public void sendToAll(String message, Socket s) {
-
 		ObjectOutputStream sender = (ObjectOutputStream) outputStreams.get(s);
-
 		synchronized (outputStreams) {
-
 			for (Enumeration e = getOutputStreams(); e.hasMoreElements();) {
-
 				ObjectOutputStream output = (ObjectOutputStream) e
 						.nextElement();
 				if (output != sender) {
-
 					try {
 						output.writeObject(message);
 						output.flush();
@@ -97,13 +87,12 @@ public class Server {
 			}
 		}
 	}
-
+	
+	
 	// Sends a message to a specific client
 	public void sendToOne(String message, String username) {
-
 		// totest
 		ObjectOutputStream output = null;
-
 		synchronized (clientList) {
 			for (Enumeration e = clientList.keys(); e.hasMoreElements();) {
 				ObjectOutputStream o = (ObjectOutputStream) e.nextElement();
@@ -122,53 +111,38 @@ public class Server {
 		}
 	}
 
+	
 	// Adds a username to the hashtable
 	public void addUsername(String username, Socket s) {
-
 		synchronized (outputStreams) {
-
-			ObjectOutputStream output = (ObjectOutputStream) outputStreams
-					.get(s);
-
+			ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
 			synchronized (clientList) {
-
 				clientList.put(output, username);
-
 			}
 		}
-
 	}
 
+	
 	// Removes a username from the hashtable
 	public void removeUsername(Socket s) {
-
 		synchronized (outputStreams) {
-
-			ObjectOutputStream output = (ObjectOutputStream) outputStreams
-					.get(s);
-
+			ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
 			synchronized (clientList) {
-
 				clientList.remove(output);
-
 			}
 		}
-
 	}
-
+	
+	
 	// Gets a username from a socket
 	public String getUsername(Socket s) {
-
 		ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
-
 		return (String) clientList.get(output);
-
 	}
 
 	// Sends a list of all clientList connected to server to all clients
 	// connected to server
 	public void sendclientList() {
-
 		Collection Users = clientList.values();
 		String usernamelist = ".COMMAND_WHOSINTHEROOOM";
 		Iterator itr = Users.iterator();
@@ -177,17 +151,13 @@ public class Server {
 		}
 
 		for (Enumeration e = getOutputStreams(); e.hasMoreElements();) {
-
 			ObjectOutputStream output = (ObjectOutputStream) e.nextElement();
-
 			try {
 				output.writeObject(usernamelist);
 				output.flush();
-
 			} catch (Exception e2) {
 				System.out.println("IO exception in send clientList " + e2);
 			}
-
 		}
 	}
 
@@ -213,9 +183,10 @@ public class Server {
 	public void createGame(String gameName, Socket client) {
 		// handle the creation of a game object and add to the HashSet.
 		Game newGame = new Game(gameName, client, this, MAX_PLAYERS);
-		ObjectOutputStream o = null;
+		ObjectOutputStream o = null
+				;
 		o = (ObjectOutputStream) outputStreams.get(client);
-		if(gamesList.contains(gameName)){
+		if (gamesList.contains(gameName)) {
 			// game is unique and was created
 			gamesList.put(gameName, newGame);
 			try {
@@ -224,11 +195,8 @@ public class Server {
 			} catch (IOException e) {
 				System.out.println("Error in createGame " + e);
 			}
-			
-		}
-		else{
-			//send error message to client
-			
+		} else {
+			// send error message to client
 			try {
 				o.writeObject("ER120;");
 				o.flush();
@@ -241,7 +209,6 @@ public class Server {
 	// Remove a player from a game, return false if player not part of game TODO
 	public boolean kickPlayerFromGame(String gameName, String playerName) {
 		Game game = gamesList.get(gameName);
-
 		if (game.containsPlayer(playerName)) {
 			game.removePlayer(playerName);
 		} else {
@@ -250,14 +217,15 @@ public class Server {
 		return true;
 	}
 
+	
 	// Start the game TODO
 	public boolean startGame(String gameName) {
 		return true;
 	}
 
+	
 	public int getTotalPlayers(String gameName) {
 		Game game = gamesList.get(gameName);
-
 		return game.amountOfPlayers();
 	}
 
@@ -266,39 +234,36 @@ public class Server {
 	public void allowAddPlayerToGame(String gameName, Socket socket) {
 		Game game = gamesList.get(gameName);
 		if (!game.hasNewPlayer()) {
-			if(!game.gameIsFull()){
+			if (!game.gameIsFull()) {
 				game.setAddAnotherPlayer(true);
-			}
-			else{
+			} else {
 				ObjectOutputStream o = null;
-				
 				o = (ObjectOutputStream) outputStreams.get(socket);
-				
 				try {
-					o.writeObject("ER130;");//game is full.
+					o.writeObject("ER130;");// game is full.
 					o.flush();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
 			}
 		} else {
 			game.addPlayerToGame();
 		}
 		gamesList.put(gameName, game);
-
 	}
 
-
+	
 	public ObjectOutputStream getPlayerAdded(String gameName) {
 		return gamesList.get(gameName).getAddedPlayer();
 	}
 
+	
 	public boolean hasNewPlayer(String gameName) {
 		return gamesList.get(gameName).hasNewPlayer();
 	}
 
+	
 	// Adding a player to game
 	// Not using this anymore, protocol changed
 	/*
@@ -307,11 +272,9 @@ public class Server {
 	 * game.playerCount); game.playerCount++; game.addAnotherPlayer = false;
 	 * gamesList.put(gameName, game); return true; }
 	 */
-
 	public boolean joinGame(String gameName, String playerName) {
 		return (gamesList.get(gameName).addPlayer(playerName));
 	}
-
 	// Get games list as string array for client to choose a game
 	String[] getGamesList() {
 		String[] stringGamesList;
@@ -328,9 +291,8 @@ public class Server {
 
 	public void logoff(Socket socket) {
 		ObjectOutputStream o = null;
-		
 		o = (ObjectOutputStream) outputStreams.get(socket);
-		if(clientList.contains(o)){
+		if (clientList.contains(o)) {
 			try {
 				o.writeObject("LM;");
 				o.flush();
@@ -340,8 +302,7 @@ public class Server {
 			}
 			removeUsername(socket);
 			removeConnection(socket);
-		}
-		else{
+		} else {
 			try {
 				o.writeObject("ER102;");
 				o.flush();
@@ -351,15 +312,12 @@ public class Server {
 			}
 		}
 	}
+
 	
-
 	public void login(String username, String password, Socket socket) {
-
 		Collection Users = clientList.values();
 		ObjectOutputStream o = null;
-
 		o = (ObjectOutputStream) outputStreams.get(socket);
-		
 		Iterator itr = Users.iterator();
 		while (itr.hasNext()) {
 			if (username.equals(itr.next())) {
@@ -368,36 +326,30 @@ public class Server {
 					o.flush();
 					return;
 				} catch (IOException e) {
-
 					System.out.println("Exception in login " + e);
 				}
 			}
 		}
-
 		try {
-
 			clientList.put(o, username);
-
 			o.writeObject("LK;");
 			o.flush();
 			return;
 		} catch (IOException e) {
-
 			System.out.println("Exception in login " + e);
 		}
-
 	}
 
+	
 	public String getName(ObjectOutputStream o) {
 		return clientList.get(o);
 	}
 
+	
 	public void gameIsFull(String gameName, Socket socket) {
 		ObjectOutputStream o = null;
-		
 		o = (ObjectOutputStream) outputStreams.get(socket);
-		
-		if(gamesList.get(gameName).amountOfPlayers() == MAX_PLAYERS){
+		if (gamesList.get(gameName).amountOfPlayers() == MAX_PLAYERS) {
 			try {
 				o.writeObject("GM;");
 				o.flush();
@@ -406,7 +358,5 @@ public class Server {
 				System.out.println("Exception in login " + e);
 			}
 		}
-		
 	}
-
 }

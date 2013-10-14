@@ -34,7 +34,7 @@ public class Client implements ActionListener {
 	private PrintWriter pw;
 	private BufferedReader brufferReader;
 	private MessagesThread threadMessage;
-	private String usernName;
+	private String userName;
 
 	// WelcomeScreen
 	private JFrame frameWelcome;
@@ -72,7 +72,7 @@ public class Client implements ActionListener {
 	public Client() {
 		welcomeScreen();
 		//To test gui, comment out welcomeScreen() and run clientGui()
-//		clientGui();
+//		
 	}
 
 	/*
@@ -441,17 +441,17 @@ public class Client implements ActionListener {
 //		threadMessage.destroy()
 	}
 
-	public void connectToServer(String userName, String servername) {
+	public void connectToServer() {
 		try {
 			/*
 			 * TODO Change the servername to IP Address to test over network
 			 */
 
-			servername = "localhost";
+			String servername = "localhost";
+			userName = loginTextfieldName.getText();
 			client = new Socket(servername, port);
 
-			InputStreamReader reader = new InputStreamReader(
-					client.getInputStream());
+			InputStreamReader reader = new InputStreamReader(client.getInputStream());
 
 			brufferReader = new BufferedReader(reader);
 			pw = new PrintWriter(client.getOutputStream(), true);
@@ -460,6 +460,8 @@ public class Client implements ActionListener {
 			String serverMsg = brufferReader.readLine();
 
 			if (serverMsg.compareTo("RD") == 0) {
+				JOptionPane.showConfirmDialog(null, "HEY THERE");
+				
 				// Server is ready
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
@@ -472,6 +474,7 @@ public class Client implements ActionListener {
 				// Check if user name is unique
 				if (brufferReader.readLine().compareTo("LK") == 0) {
 					clientGui();
+					frameWelcome.dispose();
 					//ff.append("Client and server ready...");
 					threadMessage = new MessagesThread();
 					threadMessage.start();
@@ -507,10 +510,8 @@ public class Client implements ActionListener {
 
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == loginButton) {
-			usernName = loginTextfieldName.getText();
 			try {
-				frameWelcome.dispose();
-				connectToServer(usernName, "localhost");
+				connectToServer();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
