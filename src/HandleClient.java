@@ -39,7 +39,7 @@ public class HandleClient extends Thread {
                                 }
                                 
                                 else {
-                                        server.sendToAll("Hello there!!", socket);
+                                        server.sendToAll(message, socket);
                                 }
                         }
 

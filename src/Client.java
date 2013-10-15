@@ -54,7 +54,7 @@ public class Client extends Thread implements ActionListener{
         private String[] games;
         private JPanel[] bigframe;
         private JTextField chat;
-        private JTextField chatBox;
+       // private JTextField chatBox;
         private JButton[][] cards;
         private JButton[] helpers;
         private JLabel gameName;
@@ -62,13 +62,7 @@ public class Client extends Thread implements ActionListener{
         private JTabbedPane tabs;
         private JFrame guiFrame;
 
-        
-        
-        
-        
-        
-        
-        
+
         //NEW--------------------------------
         public JButton button_send;
         public JButton button_history;
@@ -83,18 +77,6 @@ public class Client extends Thread implements ActionListener{
         public JTextField text_message;
         public JTextArea textArea_display;
         //END--------------------------------
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-
 
 
         public static void main(String[] args) {
@@ -262,7 +244,7 @@ public class Client extends Thread implements ActionListener{
                 cards = new JButton[15][10];
                 bigframe = new JPanel[40];
                 chat = new JTextField();
-                chatBox = new JTextField();
+                //chatBox = new JTextField();
                 tabs = new JTabbedPane();
                 helpers = new JButton[6];
                 guiFrame = new JFrame();
@@ -284,45 +266,14 @@ public class Client extends Thread implements ActionListener{
                 });
 
                 guiFrame.setTitle("Example GUI");
-                // Add helper buttons
-//              helpers[0] = new JButton("Send");// To send chat message
-//              helpers[0].setSize(93, 20);
-//              helpers[0].setName("SendChat");
-//              helpers[0].setLocation(710, 330);
-//              helpers[0].addActionListener(this);
-//              helpers[1] = new JButton("Log Off");// /Logoff
-//              helpers[1].setSize(160, 20);
-//              helpers[1].setLocation(820, 330);
-//              helpers[1].setName("Logoff");
-//              helpers[1].addActionListener(this);
-//              helpers[2] = new JButton("List Players");// List all players?
-//              helpers[2].setSize(160, 20);
-//              helpers[2].setLocation(820, 310);
-//              helpers[2].setName("ListPlayers");
-//              helpers[2].addActionListener(this);
-//              helpers[3] = new JButton("List Games");// Get a list of all available
-//                                                                                              // games
-//              helpers[3].setSize(160, 20);
-//              helpers[3].setLocation(820, 290);
-//              helpers[3].setName("ListGames");
-//              helpers[3].addActionListener(this);
-//              helpers[4] = new JButton("Other Button");// other button
-//              helpers[4].setSize(160, 20);
-//              helpers[4].setLocation(820, 270);
-//              helpers[4].setName("XX");
-//              helpers[4].addActionListener(this);
-//              helpers[5] = new JButton("Other Button");// other button
-//              helpers[5].setSize(160, 20);
-//              helpers[5].setLocation(820, 250);
-//              helpers[5].setName("YY");
-//              helpers[5].addActionListener(this);
+
                 
                 
                 
                 
                 
                 button_send = new JButton("Send Msg");
-                button_send.setBounds(709, 330, 93, 30);
+                button_send.setBounds(709, 360, 93, 30);
                 button_send.addActionListener(this);
                 guiFrame.add(button_send);
                 
@@ -330,35 +281,35 @@ public class Client extends Thread implements ActionListener{
                 
                 text_message = new JTextField();
                 text_message.setSize(700, 30);
-                text_message.setLocation(3, 330);
+                text_message.setLocation(3, 360);
                 guiFrame.add(text_message);
             
             
                 textArea_display = new JTextArea();
-                textArea_display.setSize(160, 220);
-                textArea_display.setLocation(820, 30); 
+                textArea_display.setSize(800, 130);
+                textArea_display.setLocation(3, 230); 
                 textArea_display.setEditable(false);
                 guiFrame.add(textArea_display); 
                 
             
                 button_listPlayers = new JButton("List of Players");
-                button_listPlayers.setBounds(820, 250, 160, 25);
+                button_listPlayers.setBounds(820, 230, 160, 25);
                 button_listPlayers.addActionListener(this);
                 guiFrame.add(button_listPlayers);
                 
                 
                 button_listGames = new JButton("List Games");
-                button_listGames.setBounds(820, 270, 160, 25);
+                button_listGames.setBounds(820, 250, 160, 25);
                 button_listGames.addActionListener(this);
                 guiFrame.add(button_listGames);
                 
                 button_history = new JButton("History");
-                button_history.setBounds(820, 290, 160, 25);
+                button_history.setBounds(820, 270, 160, 25);
                 button_history.addActionListener(this);
                 guiFrame.add(button_history);
                 
                 button_logoff = new JButton("Log Off");
-                button_logoff.setBounds(820, 310, 160, 25);
+                button_logoff.setBounds(820, 290, 160, 25);
                 button_logoff.addActionListener(this);
                 guiFrame.add(button_logoff);
                 
@@ -367,14 +318,11 @@ public class Client extends Thread implements ActionListener{
                 
                 
                 tabs.setLocation(3, 8);
-                tabs.setSize(800, 310);
-                chatBox.setSize(160, 220);
-                chatBox.setLocation(820, 30);
+                tabs.setSize(990, 200);
                 chat.setSize(700, 20);
                 chat.setLocation(3, 330);
                 // Add panels to main frame
                 guiFrame.add(chat);
-                guiFrame.add(chatBox);
                 guiFrame.add(tabs);
 
                 guiFrame.setLocationRelativeTo(null);
@@ -426,7 +374,7 @@ public class Client extends Thread implements ActionListener{
 
                 // Initialise
                 bigframe[gameNumber] = new JPanel();
-                bigframe[gameNumber].setSize(800, 310);
+                bigframe[gameNumber].setSize(990, 200);
                 bigframe[gameNumber].setLayout(null);
                 bigframe[gameNumber].setName(gName);
                 cards[gameNumber] = new JButton[10];
@@ -439,14 +387,14 @@ public class Client extends Thread implements ActionListener{
                 // Add Player Names
                 for (int k = 0; k < pNames.length; k++) {
                         players[k] = new JLabel(pNames[k]);
-                        players[k].setBounds(10, (k * 20), 50, 15);
+                        players[k].setBounds(820, (k * 20), 50, 15);
                         bigframe[gameNumber].add(players[k]);
                 }
                 // Add 10 facedown cards
                 for (int k = 0; k < 10; k++) {
                         Icon icon = new ImageIcon("src/cards/back.gif");
                         cards[gameNumber][k] = new JButton(icon);
-                        cards[gameNumber][k].setBounds((80 * k), 170, 75, 100);
+                        cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
                         cards[gameNumber][k].addActionListener(this);
                         cards[gameNumber][k].setEnabled(false);
                         bigframe[gameNumber].add(cards[gameNumber][k]);
@@ -472,7 +420,7 @@ public class Client extends Thread implements ActionListener{
                         cards[gameNumber][k].setIcon(icon);
                         cards[gameNumber][k].setName(pCards[k] + ""
                                         + bigframe[gameNumber].getName());
-                        cards[gameNumber][k].setBounds((80 * k), 170, 75, 100);
+                        cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
                         bigframe[gameNumber].add(cards[gameNumber][k]);
                 }
                 for (int k = 9; k > pCards.length - 1; k--) {
@@ -641,7 +589,7 @@ public class Client extends Thread implements ActionListener{
                                         sb.append(";");
                                         System.out.println(sb.toString());
                                         try {
-                                                objectOutput.writeObject(text);
+                                                objectOutput.writeObject(sb.toString());
                                         } catch (IOException e) {
                                                 e.printStackTrace();
                                         }
@@ -657,6 +605,14 @@ public class Client extends Thread implements ActionListener{
 
                         else if (evt.getSource() == button_listGames) {
                                 textArea_display.append("button_listGames Pressed\n");
+                                StringBuilder sb = new StringBuilder();
+                                sb.append("GL;");
+                                try {
+                                        objectOutput.writeObject(sb.toString());
+                                } catch (IOException e) {
+                                        e.printStackTrace();
+                                }
+                                //Now wait for list of games from server
                         }
 
                         else if (evt.getSource() == button_history) {
@@ -667,7 +623,7 @@ public class Client extends Thread implements ActionListener{
                                 textArea_display.append("button_logoff Pressed\n");
                                 //Send logoff
                                 StringBuilder sb = new StringBuilder();
-                                sb.append("LO");
+                                sb.append("LO:");
                                 try {
                                         objectOutput.writeObject(sb.toString());
                                 } catch (IOException e) {
