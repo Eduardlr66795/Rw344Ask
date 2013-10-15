@@ -28,37 +28,16 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class Client extends Thread implements ActionListener {
 
-	// Global Variables
-	private Socket client;
-	private int port = 9119;
-
-	private ObjectInputStream objectInput;
-	private ObjectOutputStream objectOutput;
-
-	private String userName;
-
-	// WelcomeScreen
-	private JFrame frameWelcome;
-	private JPanel panel;
-
-	// Create Game
-	private JFrame frameCreateGame;
-	private JPanel panelCreateGame;
-	private JTextField textFieldEnterNewGameName;
-
-	// MainGui
-	private String[] games;
-	private JPanel[] bigframe;
-	// private JTextField chat;
-	// private JTextField chatBox;
-	private JButton[][] cards;
-	private JLabel gameName;
-	private JLabel[] players;
-	private JTabbedPane tabs;
-	private JFrame guiFrame;
-
-	// NEW--------------------------------
-	public JButton button_send;
+	// Global Variables--------------------------------
+	// Frames
+	public JFrame frame_main;
+	public JFrame frame_choice;
+	public JFrame frame_CreateGame;
+	public JFrame frame_Welcome;
+	
+	// Buttons
+	public JButton button_sendMessage_in;
+	public JButton button_sendMessage_out;
 	public JButton button_history;
 	public JButton button_clear;
 	public JButton button_logoff;
@@ -69,29 +48,49 @@ public class Client extends Thread implements ActionListener {
 	public JButton button_createNewGame;
 	public JButton button_newGame_out;
 	public JButton button_joinGame_out;
-	public JButton button_sendMessage_out;
 	public JButton button_clearText_out;
+	public JButton[][] button_cards;
 
+	// Lists
 	public JList jlist_contactsMain;
 	public JList jlist_contactsOutsideMain;
-	
-	
+
+	// Panels
 	public JPanel panel_mycards;
 	public JPanel panel_game;
-	public JTextArea textArea_display;
-	public JTextArea textArea_chat_out;
+	public JPanel panel_main;
+	public JPanel panel_welcome;
+	public JPanel panel_CreateGame;
+	public JPanel[] panel_bigframe;
+	public JTabbedPane tabs;
 	
-	public JLabel labelEnterNewGameName;
+	// TextArea
+	public JTextArea textArea_display_in;
+	public JTextArea textArea_display_out;
 
+	// Labels
+	public JLabel label_enterNewGameName;
+	public JLabel label_gameName;
+	public JLabel[] plabel_layers;
+
+	// TextFields
 	public JTextField text_loginTextfieldName;
 	public JTextField text_loginTextfielIp;
 	public JTextField text_message_in;
 	public JTextField text_message_out;
+	public JTextField text_FieldEnterNewGameName;
+	
+	// Strings
+	public String string_userName;
+	public String[] string_games;
+	
+	// Other
+	private Socket client;
+	private int port = 9119;
+	private ObjectInputStream objectInput;
+	private ObjectOutputStream objectOutput;
+	public boolean bol_mainFrameActive;
 	// END--------------------------------
-	
-	
-
-
 
 	public static void main(String[] args) {
 		try {
@@ -102,12 +101,12 @@ public class Client extends Thread implements ActionListener {
 	}
 
 	public Client() {
+		bol_mainFrameActive = false;
 		welcomeScreen();
 	}
 
 	@SuppressWarnings("serial")
 	void welcomeScreen() {
-		// This try and catch is just a GUI theme. Looks cool
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -125,17 +124,15 @@ public class Client extends Thread implements ActionListener {
 			e.printStackTrace();
 		}
 
-		frameWelcome = new JFrame();
-		frameWelcome.setSize(400, 300);
-		frameWelcome.setLocation(400, 100);
-		frameWelcome.setEnabled(true);
+		frame_Welcome = new JFrame();
+		frame_Welcome.setSize(400, 300);
+		frame_Welcome.setLocation(400, 100);
+		frame_Welcome.setEnabled(true);
 
-		panel = new JPanel();
-		panel.setSize(frameWelcome.getWidth(), frameWelcome.getHeight());
-		panel.setLayout(null);
-		panel.setBackground(Color.white);
-
-
+		panel_welcome = new JPanel();
+		panel_welcome.setSize(frame_Welcome.getWidth(), frame_Welcome.getHeight());
+		panel_welcome.setLayout(null);
+		panel_welcome.setBackground(Color.white);
 
 		JLabel heading = new JLabel("") {
 			public void paintComponent(Graphics g) {
@@ -157,7 +154,7 @@ public class Client extends Thread implements ActionListener {
 			}
 		};
 		heading.setFont(new Font("Serif", Font.BOLD, 45));
-		heading.setBounds(100, 20, panel.getWidth(), 100);
+		heading.setBounds(100, 20, panel_welcome.getWidth(), 100);
 
 		JLabel created = new JLabel();
 		created.setText("Welcomes you!");
@@ -195,32 +192,32 @@ public class Client extends Thread implements ActionListener {
 		button_login.setForeground(Color.BLACK);
 		button_login.addActionListener(this);
 
-		panel.add(heading);
-		panel.add(created);
-		panel.add(loginName);
-		panel.add(IP);
-		panel.add(text_loginTextfieldName);
-		panel.add(text_loginTextfielIp);
-		panel.add(button_login);
+		panel_welcome.add(heading);
+		panel_welcome.add(created);
+		panel_welcome.add(loginName);
+		panel_welcome.add(IP);
+		panel_welcome.add(text_loginTextfieldName);
+		panel_welcome.add(text_loginTextfielIp);
+		panel_welcome.add(button_login);
 
-		frameWelcome.add(panel);
-		frameWelcome.setResizable(false);
-		frameWelcome.setVisible(true);
+		frame_Welcome.add(panel_welcome);
+		frame_Welcome.setResizable(false);
+		frame_Welcome.setVisible(true);
 
-		frameWelcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frameWelcome.addWindowListener(new WindowAdapter() {
+		frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame_Welcome.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				// TODO: create window event
-				frameWelcome.dispose();
+				frame_Welcome.dispose();
 				System.exit(0);
 			}
 		});
 	}
-	
-	public void afterLoginScreen()
-	{
-		
+
+	@SuppressWarnings("static-access")
+	public void afterLoginScreen() {
+
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -237,66 +234,66 @@ public class Client extends Thread implements ActionListener {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		
-		JFrame frame_choice = new JFrame();
+
+		frame_choice = new JFrame();
 		frame_choice.setLayout(null);
 		frame_choice.setSize(580, 400);
-		
-		//Main Panel
-		JPanel panel_main = new JPanel();
+
+		// Main Panel
+		panel_main = new JPanel();
 		panel_main.setLayout(null);
 		panel_main.setSize(frame_choice.getWidth(), frame_choice.getHeight());
-		
-		//Button: Create New Game
+
+		// Button: Create New Game
 		button_newGame_out = new JButton("Create New Game");
 		button_newGame_out.setBounds(15, 15, 170, 30);
 		button_newGame_out.addActionListener(this);
 		panel_main.add(button_newGame_out);
-		
-		//Button: Join Existing Game
+
+		// Button: Join Existing Game
 		button_joinGame_out = new JButton("Join Existing Game");
 		button_joinGame_out.setBounds(15, 50, 170, 30);
 		button_joinGame_out.addActionListener(this);
 		panel_main.add(button_joinGame_out);
-		
-		//Button: Join Existing Game
+
+		// Button: Join Existing Game
 		button_sendMessage_out = new JButton("Send Message");
 		button_sendMessage_out.setBounds(265, 300, 150, 30);
+		button_sendMessage_out.addActionListener(this);
 		panel_main.add(button_sendMessage_out);
-		
-		//Button: Join Existing Game
+
+		// Button: Join Existing Game
 		button_clearText_out = new JButton("Clear Text");
 		button_clearText_out.setBounds(265, 330, 150, 30);
+		button_clearText_out.addActionListener(this);
 		panel_main.add(button_clearText_out);
-		
-		//TextArea: Join Existing Game
-		textArea_chat_out = new JTextArea();
-		textArea_chat_out.setEditable(false);
-		textArea_chat_out.setBounds(15, 90, 400, 180);
-		panel_main.add(textArea_chat_out);
-	
-		//Scrolepane: Join Existing Game
-		JScrollPane sp1 = new JScrollPane(jlist_contactsOutsideMain = new JList());
+
+		// TextArea: Join Existing Game
+		textArea_display_out = new JTextArea();
+		textArea_display_out.setEditable(false);
+		textArea_display_out.setBounds(15, 90, 400, 180);
+		panel_main.add(textArea_display_out);
+
+		// Scrolepane: Join Existing Game
+		JScrollPane sp1 = new JScrollPane(
+				jlist_contactsOutsideMain = new JList());
 		jlist_contactsOutsideMain.setVisibleRowCount(4);
 		jlist_contactsOutsideMain.setBackground(Color.LIGHT_GRAY);
 		sp1.setBounds(420, 90, 150, 270);
 		panel_main.add(sp1);
-		
-		//TextField: Join Existing Game
+
+		// TextField: Join Existing Game
 		text_message_out = new JTextField();
 		text_message_out.setBounds(15, 270, 400, 30);
 		panel_main.add(text_message_out);
-		
+
 		frame_choice.add(panel_main);
 		frame_choice.setVisible(true);
 		frame_choice.setDefaultCloseOperation(frame_choice.EXIT_ON_CLOSE);
 	}
-	
-	
-	
-
 
 	void clientGui() {
+		bol_mainFrameActive = true;
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -314,81 +311,81 @@ public class Client extends Thread implements ActionListener {
 			e.printStackTrace();
 		}
 
-		games = new String[15];
+		string_games = new String[15];
 		for (int k = 0; k < 15; k++) {
-			games[k] = "empty";
+			string_games[k] = "empty";
 		}
 
-		cards = new JButton[15][10];
-		bigframe = new JPanel[40];
+		button_cards = new JButton[15][10];
+		panel_bigframe = new JPanel[40];
 		tabs = new JTabbedPane();
-		guiFrame = new JFrame();
+		frame_main = new JFrame();
 
-		guiFrame.setSize(1000, 390);
-		guiFrame.setLayout(null);
-		guiFrame.setResizable(false);
-		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		guiFrame.addWindowListener(new WindowAdapter() {
+		frame_main.setSize(1000, 390);
+		frame_main.setLayout(null);
+		frame_main.setResizable(false);
+		frame_main.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame_main.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				guiFrame.dispose();
+				bol_mainFrameActive = false;
+				frame_main.dispose();
 				// TODO : Create an exit event
 			}
 		});
 
-		guiFrame.setTitle("Example GUI");
+		frame_main.setTitle("Example GUI");
 
-		button_send = new JButton("Send Msg");
-		button_send.setBounds(709, 360, 93, 30);
-		button_send.addActionListener(this);
-		guiFrame.add(button_send);
+		button_sendMessage_in = new JButton("Send Msg");
+		button_sendMessage_in.setBounds(709, 360, 93, 30);
+		button_sendMessage_in.addActionListener(this);
+		frame_main.add(button_sendMessage_in);
 
 		// TODO public JButton button_clear;
 
 		text_message_in = new JTextField();
 		text_message_in.setSize(700, 30);
 		text_message_in.setLocation(3, 360);
-		guiFrame.add(text_message_in);
+		frame_main.add(text_message_in);
 
-		JScrollPane spMain = new JScrollPane(textArea_display = new JTextArea());
-		// spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane spMain = new JScrollPane(textArea_display_in = new JTextArea());
 		spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		spMain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		spMain.setBounds(3, 230, 800, 130);
-		textArea_display.setEditable(false);
-		guiFrame.add(spMain);
+		textArea_display_in.setEditable(false);
+		frame_main.add(spMain);
 
 		button_listPlayers = new JButton("List of Players");
 		button_listPlayers.setBounds(820, 230, 160, 25);
 		button_listPlayers.addActionListener(this);
-		guiFrame.add(button_listPlayers);
+		frame_main.add(button_listPlayers);
 
 		button_listGames = new JButton("List Games");
 		button_listGames.setBounds(820, 250, 160, 25);
 		button_listGames.addActionListener(this);
-		guiFrame.add(button_listGames);
+		frame_main.add(button_listGames);
 
 		button_history = new JButton("History");
 		button_history.setBounds(820, 270, 160, 25);
 		button_history.addActionListener(this);
-		guiFrame.add(button_history);
+		frame_main.add(button_history);
 
 		button_logoff = new JButton("Log Off");
 		button_logoff.setBounds(820, 290, 160, 25);
 		button_logoff.addActionListener(this);
-		guiFrame.add(button_logoff);
+		frame_main.add(button_logoff);
 
 		button_createGame = new JButton("Create Game");
 		button_createGame.setBounds(820, 310, 160, 25);
 		button_createGame.addActionListener(this);
-		guiFrame.add(button_createGame);
+		frame_main.add(button_createGame);
 
 		tabs.setLocation(3, 8);
 		tabs.setSize(990, 200);
 
-		guiFrame.add(tabs);
-		guiFrame.setLocationRelativeTo(null);
-		guiFrame.setVisible(true);
+		frame_main.add(tabs);
+		frame_main.setLocationRelativeTo(null);
+		frame_main.setVisible(true);
 
 		// Just for
 		// testing--------------------------------------------------------------------
@@ -421,67 +418,67 @@ public class Client extends Thread implements ActionListener {
 	public void newGameGui(String gName, String[] pNames) {
 		int gameNumber = 0;
 		for (int i = 0; i < 15; i++) {
-			if (games[i].equals("empty")) {
-				games[i] = gName;
+			if (string_games[i].equals("empty")) {
+				string_games[i] = gName;
 				gameNumber = i;
 				break;
 			}
 		}
 
 		// Initialise
-		bigframe[gameNumber] = new JPanel();
-		bigframe[gameNumber].setSize(990, 200);
-		bigframe[gameNumber].setLayout(null);
-		bigframe[gameNumber].setName(gName);
-		cards[gameNumber] = new JButton[10];
-		players = new JLabel[7];
+		panel_bigframe[gameNumber] = new JPanel();
+		panel_bigframe[gameNumber].setSize(990, 200);
+		panel_bigframe[gameNumber].setLayout(null);
+		panel_bigframe[gameNumber].setName(gName);
+		button_cards[gameNumber] = new JButton[10];
+		plabel_layers = new JLabel[7];
 
 		// Add game name label
-		gameName = new JLabel(gName);
-		gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
-		gameName.setBounds(340, 2, 180, 40);
-		bigframe[gameNumber].add(gameName);
+		label_gameName = new JLabel(gName);
+		label_gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
+		label_gameName.setBounds(340, 2, 180, 40);
+		panel_bigframe[gameNumber].add(label_gameName);
 		// Add Player Names
 		for (int k = 0; k < pNames.length; k++) {
-			players[k] = new JLabel(pNames[k]);
-			players[k].setBounds(820, (k * 20), 50, 15);
-			bigframe[gameNumber].add(players[k]);
+			plabel_layers[k] = new JLabel(pNames[k]);
+			plabel_layers[k].setBounds(820, (k * 20), 50, 15);
+			panel_bigframe[gameNumber].add(plabel_layers[k]);
 		}
 		// Add 10 facedown cards
 		for (int k = 0; k < 10; k++) {
 			Icon icon = new ImageIcon("src/cards/back.gif");
-			cards[gameNumber][k] = new JButton(icon);
-			cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
-			cards[gameNumber][k].addActionListener(this);
-			cards[gameNumber][k].setEnabled(false);
-			bigframe[gameNumber].add(cards[gameNumber][k]);
+			button_cards[gameNumber][k] = new JButton(icon);
+			button_cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
+			button_cards[gameNumber][k].addActionListener(this);
+			button_cards[gameNumber][k].setEnabled(false);
+			panel_bigframe[gameNumber].add(button_cards[gameNumber][k]);
 		}
 		// Add new game panel
-		bigframe[gameNumber].setName(gName);
-		tabs.addTab(gName, bigframe[gameNumber]);
+		panel_bigframe[gameNumber].setName(gName);
+		tabs.addTab(gName, panel_bigframe[gameNumber]);
 	}
 
 	public void updateGame(String gName, String[] pCards, int[] pScores) {
 		// Find gameNumber
 		int gameNumber = 0;
 		for (int i = 0; i < 15; i++) {
-			if (games[i].equals(gName)) {
+			if (string_games[i].equals(gName)) {
 				gameNumber = i;
 				break;
 			}
 		}
 
 		for (int k = 0; k < pCards.length; k++) {
-			cards[gameNumber][k].setEnabled(true);
+			button_cards[gameNumber][k].setEnabled(true);
 			Icon icon = new ImageIcon("src/cards/" + pCards[k] + ".gif");
-			cards[gameNumber][k].setIcon(icon);
-			cards[gameNumber][k].setName(pCards[k] + ""
-					+ bigframe[gameNumber].getName());
-			cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
-			bigframe[gameNumber].add(cards[gameNumber][k]);
+			button_cards[gameNumber][k].setIcon(icon);
+			button_cards[gameNumber][k].setName(pCards[k] + ""
+					+ panel_bigframe[gameNumber].getName());
+			button_cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
+			panel_bigframe[gameNumber].add(button_cards[gameNumber][k]);
 		}
 		for (int k = 9; k > pCards.length - 1; k--) {
-			cards[gameNumber][k].setVisible(false);
+			button_cards[gameNumber][k].setVisible(false);
 		}
 	}
 
@@ -489,9 +486,9 @@ public class Client extends Thread implements ActionListener {
 		// find gameNumber
 		int gameNumber = 0;
 		for (int i = 0; i < 15; i++) {
-			if (games[i].equals(gName)) {
+			if (string_games[i].equals(gName)) {
 				gameNumber = i;
-				games[gameNumber] = "empty";
+				string_games[gameNumber] = "empty";
 			}
 		}
 		int temp = tabs.getTabCount();
@@ -502,7 +499,6 @@ public class Client extends Thread implements ActionListener {
 			if (tabs.getComponentAt(i).getName().equals(gName)) {
 				tabs.removeTabAt(i);
 				break;
-
 			}
 		}
 	}
@@ -529,7 +525,7 @@ public class Client extends Thread implements ActionListener {
 			 */
 
 			String servername = text_loginTextfielIp.getText();
-			userName = text_loginTextfieldName.getText();
+			string_userName = text_loginTextfieldName.getText();
 			client = new Socket(servername, port);
 
 			objectInput = new ObjectInputStream(client.getInputStream());
@@ -540,29 +536,22 @@ public class Client extends Thread implements ActionListener {
 			if (serverMsg.compareTo("RD") == 0) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
-				sb.append(userName);
+				sb.append(string_userName);
 				sb.append(":password");
 
 				objectOutput.writeObject(sb.toString());
-
 				String msg = (String) objectInput.readObject();
-				System.out.println(msg);
-
 				if (msg.compareTo("LK") == 0) {
-//					clientGui();
+//					 clientGui();
 					afterLoginScreen();
-					
-					frameWelcome.dispose();
+					frame_Welcome.dispose();
 					start();
-
 				} else {
 					// new Client();//TODO
 					System.out
 							.println("ERROR IN CLIENT connectToServer method");
 				}
-			}
-
-			else {
+			} else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");
 				// quit(); //TODO
 			}
@@ -575,7 +564,7 @@ public class Client extends Thread implements ActionListener {
 		String text = text_message_in.getText();
 		if (text.length() > 0) {
 			try {
-				textArea_display.append("<- " + text + " ->\n");
+				textArea_display_in.append("<- " + text + " ->\n");
 				text_message_in.setText("");
 				objectOutput.writeObject(text);
 			} catch (IOException e) {
@@ -594,19 +583,19 @@ public class Client extends Thread implements ActionListener {
 				String line = (String) objectInput.readObject();
 				System.out.println("mess rcvd: " + line.toString());
 				if (line != null) {
-					textArea_display.append("Server--> " + line + "\n");
-					System.out.println(line.toString());
+					if(!bol_mainFrameActive) {
+						textArea_display_out.append("Server--> " + line + "\n");
+					} else {
+						textArea_display_in.append("Server--> " + line + "\n");
+					}
 				}
-			}
-
-			catch (Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 				// TODO : What frame are we disposing here??
 				// dispose();
 				System.out.println("ERROR");
 				System.exit(0);
 			}
-
 		}
 	}
 
@@ -631,62 +620,57 @@ public class Client extends Thread implements ActionListener {
 			e.printStackTrace();
 		}
 
-		frameCreateGame = new JFrame();
-		frameCreateGame.setSize(400, 140);
-		frameCreateGame.setLocation(guiFrame.getX(), guiFrame.getY());
-		frameCreateGame.setEnabled(true);
+		frame_CreateGame = new JFrame();
+		frame_CreateGame.setSize(400, 140);
+		frame_CreateGame.setLocation(frame_main.getX(), frame_main.getY());
+		frame_CreateGame.setEnabled(true);
 
-		panelCreateGame = new JPanel();
-		panelCreateGame.setSize(frameCreateGame.getWidth(),
-				frameCreateGame.getHeight());
-		panelCreateGame.setLayout(null);
-		panelCreateGame.setBackground(Color.white);
+		panel_CreateGame = new JPanel();
+		panel_CreateGame.setSize(frame_CreateGame.getWidth(),
+				frame_CreateGame.getHeight());
+		panel_CreateGame.setLayout(null);
+		panel_CreateGame.setBackground(Color.white);
 
-		textFieldEnterNewGameName = new JTextField();
-		textFieldEnterNewGameName.setSize(200, 30);
-		textFieldEnterNewGameName.setLocation(150, 10);
+		text_FieldEnterNewGameName = new JTextField();
+		text_FieldEnterNewGameName.setSize(200, 30);
+		text_FieldEnterNewGameName.setLocation(150, 10);
 
-		labelEnterNewGameName = new JLabel();
-		labelEnterNewGameName.setSize(150, 30);
-		labelEnterNewGameName.setLocation(10, 10);
-		labelEnterNewGameName.setText("Enter game name:");
+		label_enterNewGameName = new JLabel();
+		label_enterNewGameName.setSize(150, 30);
+		label_enterNewGameName.setLocation(10, 10);
+		label_enterNewGameName.setText("Enter game name:");
 
 		button_createNewGame = new JButton();
 		button_createNewGame.setSize(140, 40);
 		button_createNewGame.setLocation(130, 65);
 		button_createNewGame.setText("Create Game");
 
-		panelCreateGame.add(textFieldEnterNewGameName);
-		panelCreateGame.add(labelEnterNewGameName);
-		panelCreateGame.add(button_createNewGame);
-		frameCreateGame.add(panelCreateGame);
-		frameCreateGame.setVisible(true);
-
+		panel_CreateGame.add(text_FieldEnterNewGameName);
+		panel_CreateGame.add(label_enterNewGameName);
+		panel_CreateGame.add(button_createNewGame);
+		frame_CreateGame.add(panel_CreateGame);
+		frame_CreateGame.setVisible(true);
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//
-	// ///////////////////////////////////////////////////////////////////////////////
-	// ///////////////////////////////////////////////////////////////////////////////
-	// ///////////////////////////////////////////////////////////////////////////////
+
 
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == button_login) {
 			connectToServer();
-
-		}
-
-		else if (evt.getSource() == button_send) {
+		} 
+		
+		
+		else if (evt.getSource() == button_sendMessage_in) {
 			String text = text_message_in.getText();
 			if (text.length() > 0) {
-				textArea_display.append("<- " + text + " ->\n");
+				textArea_display_in.append("<- " + text + " ->\n");
 				StringBuilder sb = new StringBuilder();
 				sb.append("CA");
 				sb.append(tabs.getSelectedComponent().getName());
 				sb.append(":");
 				sb.append(text);
 				sb.append(";");
-				System.out.println(sb.toString());
 				try {
 					objectOutput.writeObject(sb.toString());
 				} catch (IOException e) {
@@ -696,14 +680,38 @@ public class Client extends Thread implements ActionListener {
 			} else {
 				text_message_in.setText("");
 			}
-		}
+		} 
 
 		else if (evt.getSource() == button_listPlayers) {
-			textArea_display.append("List Of Players Button Pressed\n");
+			textArea_display_in.append("List Of Players Button Pressed\n");
+		} 
+		
+		
+		//TODO: what command should we send to the server?
+		else if (evt.getSource() == button_sendMessage_out) {
+			if (text_message_out.getText().length() > 0) {
+				String text = text_message_out.getText();
+				textArea_display_out.append("<- " + text + " ->\n");
+				StringBuilder sb = new StringBuilder();
+				sb.append("CA");
+//				sb.append(tabs.getSelectedComponent().getName());
+				sb.append(":");
+				sb.append(text);
+				sb.append(";");
+				try {
+					objectOutput.writeObject(sb.toString());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				text_message_out.setText("");
+				
+			} else {
+				text_message_out.setText("");
+			}
 		}
 
 		else if (evt.getSource() == button_listGames) {
-			textArea_display.append("button_listGames Pressed\n");
+			textArea_display_in.append("button_listGames Pressed\n");
 			StringBuilder sb = new StringBuilder();
 			sb.append("GL;");
 			try {
@@ -727,9 +735,9 @@ public class Client extends Thread implements ActionListener {
 		}
 
 		else if (evt.getSource() == button_history) {
-			textArea_display.append("History Pressed\n");
+			textArea_display_in.append("History Pressed\n");
 		} else if (evt.getSource() == button_createGame) {
-			textArea_display.append("Create new Game Screen\n");
+			textArea_display_in.append("Create new Game Screen\n");
 			createGame();
 			/*
 			 * try { objectOutput.writeObject("GS:Hello;"); } catch (IOException
@@ -746,7 +754,8 @@ public class Client extends Thread implements ActionListener {
 		}
 
 		else if (evt.getSource() == button_logoff) {
-			textArea_display.append("button_logoff Pressed\n");
+			textArea_display_in.append("button_logoff Pressed\n");
+			
 			// Send logoff
 			StringBuilder sb = new StringBuilder();
 			sb.append("LO:");
