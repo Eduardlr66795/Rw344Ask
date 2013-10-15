@@ -26,15 +26,13 @@ import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
-
 public class Client implements ActionListener {
 
 	// Global Variables
 	private Socket client;
 	private int port = 9119;
-	
-	
-	 private MessagesThread threadMessage;
+
+	private MessagesThread threadMessage;
 
 	private ObjectInputStream objectInput;
 	private ObjectOutputStream objectOutput;
@@ -60,40 +58,21 @@ public class Client implements ActionListener {
 	private JTabbedPane tabs;
 	private JFrame guiFrame;
 
-	
-	
-	
-	
-	
-	
-	
-	//NEW--------------------------------
+	// NEW--------------------------------
 	public JButton button_send;
 	public JButton button_history;
 	public JButton button_clear;
 	public JButton button_logoff;
 	public JButton button_listPlayers;
 	public JButton button_listGames;
-	
+
 	public JPanel panel_mycards;
 	public JPanel panel_game;
-	
+
 	public JTextField text_message;
 	public JTextArea textArea_display;
-	//END--------------------------------
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	// END--------------------------------
+
 	// keep----
 	JFrame frameMain;
 	JTextArea ff;
@@ -286,87 +265,78 @@ public class Client implements ActionListener {
 
 		guiFrame.setTitle("Example GUI");
 		// Add helper buttons
-//		helpers[0] = new JButton("Send");// To send chat message
-//		helpers[0].setSize(93, 20);
-//		helpers[0].setName("SendChat");
-//		helpers[0].setLocation(710, 330);
-//		helpers[0].addActionListener(this);
-//		helpers[1] = new JButton("Log Off");// /Logoff
-//		helpers[1].setSize(160, 20);
-//		helpers[1].setLocation(820, 330);
-//		helpers[1].setName("Logoff");
-//		helpers[1].addActionListener(this);
-//		helpers[2] = new JButton("List Players");// List all players?
-//		helpers[2].setSize(160, 20);
-//		helpers[2].setLocation(820, 310);
-//		helpers[2].setName("ListPlayers");
-//		helpers[2].addActionListener(this);
-//		helpers[3] = new JButton("List Games");// Get a list of all available
-//												// games
-//		helpers[3].setSize(160, 20);
-//		helpers[3].setLocation(820, 290);
-//		helpers[3].setName("ListGames");
-//		helpers[3].addActionListener(this);
-//		helpers[4] = new JButton("Other Button");// other button
-//		helpers[4].setSize(160, 20);
-//		helpers[4].setLocation(820, 270);
-//		helpers[4].setName("XX");
-//		helpers[4].addActionListener(this);
-//		helpers[5] = new JButton("Other Button");// other button
-//		helpers[5].setSize(160, 20);
-//		helpers[5].setLocation(820, 250);
-//		helpers[5].setName("YY");
-//		helpers[5].addActionListener(this);
-		
-		
-		
-		
-		
-	        button_send = new JButton("Send Msg");
-	        button_send.setBounds(709, 330, 93, 30);
-	        button_send.addActionListener(this);
-	        guiFrame.add(button_send);
-	        
-	        //TODO public JButton button_clear;
-	        
-	        text_message = new JTextField();
-	        text_message.setSize(700, 30);
-	        text_message.setLocation(3, 330);
-	        guiFrame.add(text_message);
-	    
-	    
-	        textArea_display = new JTextArea();
-	        textArea_display.setSize(160, 220);
-	        textArea_display.setLocation(820, 30); 
-//	        textArea_display.setEditable(false);asd
-	        guiFrame.add(textArea_display); 
-	        
-	    
-	        button_listPlayers = new JButton("List of Players");
-	        button_listPlayers.setBounds(820, 250, 160, 25);
-	        button_listPlayers.addActionListener(this);
-	        guiFrame.add(button_listPlayers);
-	        
-	        
-	        button_listGames = new JButton("List Games");
-	        button_listGames.setBounds(820, 270, 160, 25);
-	        button_listGames.addActionListener(this);
-	        guiFrame.add(button_listGames);
-	        
-	        button_history = new JButton("History");
-	        button_history.setBounds(820, 290, 160, 25);
-	        button_history.addActionListener(this);
-	        guiFrame.add(button_history);
-	        
-	        button_logoff = new JButton("Log Off");
-	        button_logoff.setBounds(820, 310, 160, 25);
-	        button_logoff.addActionListener(this);
-	        guiFrame.add(button_logoff);
-	        
-	        //////////////////////////////////////
-		
-		
-		
+		// helpers[0] = new JButton("Send");// To send chat message
+		// helpers[0].setSize(93, 20);
+		// helpers[0].setName("SendChat");
+		// helpers[0].setLocation(710, 330);
+		// helpers[0].addActionListener(this);
+		// helpers[1] = new JButton("Log Off");// /Logoff
+		// helpers[1].setSize(160, 20);
+		// helpers[1].setLocation(820, 330);
+		// helpers[1].setName("Logoff");
+		// helpers[1].addActionListener(this);
+		// helpers[2] = new JButton("List Players");// List all players?
+		// helpers[2].setSize(160, 20);
+		// helpers[2].setLocation(820, 310);
+		// helpers[2].setName("ListPlayers");
+		// helpers[2].addActionListener(this);
+		// helpers[3] = new JButton("List Games");// Get a list of all available
+		// // games
+		// helpers[3].setSize(160, 20);
+		// helpers[3].setLocation(820, 290);
+		// helpers[3].setName("ListGames");
+		// helpers[3].addActionListener(this);
+		// helpers[4] = new JButton("Other Button");// other button
+		// helpers[4].setSize(160, 20);
+		// helpers[4].setLocation(820, 270);
+		// helpers[4].setName("XX");
+		// helpers[4].addActionListener(this);
+		// helpers[5] = new JButton("Other Button");// other button
+		// helpers[5].setSize(160, 20);
+		// helpers[5].setLocation(820, 250);
+		// helpers[5].setName("YY");
+		// helpers[5].addActionListener(this);
+
+		button_send = new JButton("Send Msg");
+		button_send.setBounds(709, 330, 93, 30);
+		button_send.addActionListener(this);
+		guiFrame.add(button_send);
+
+		// TODO public JButton button_clear;
+
+		text_message = new JTextField();
+		text_message.setSize(700, 30);
+		text_message.setLocation(3, 330);
+		guiFrame.add(text_message);
+
+		textArea_display = new JTextArea();
+		textArea_display.setSize(160, 220);
+		textArea_display.setLocation(820, 30);
+		// textArea_display.setEditable(false);asd
+		guiFrame.add(textArea_display);
+
+		button_listPlayers = new JButton("List of Players");
+		button_listPlayers.setBounds(820, 250, 160, 25);
+		button_listPlayers.addActionListener(this);
+		guiFrame.add(button_listPlayers);
+
+		button_listGames = new JButton("List Games");
+		button_listGames.setBounds(820, 270, 160, 25);
+		button_listGames.addActionListener(this);
+		guiFrame.add(button_listGames);
+
+		button_history = new JButton("History");
+		button_history.setBounds(820, 290, 160, 25);
+		button_history.addActionListener(this);
+		guiFrame.add(button_history);
+
+		button_logoff = new JButton("Log Off");
+		button_logoff.setBounds(820, 310, 160, 25);
+		button_logoff.addActionListener(this);
+		guiFrame.add(button_logoff);
+
+		// ////////////////////////////////////
+
 		tabs.setLocation(3, 8);
 		tabs.setSize(800, 310);
 		chatBox.setSize(160, 220);
@@ -384,29 +354,21 @@ public class Client implements ActionListener {
 
 		// Just for
 		// testing--------------------------------------------------------------------
-		String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
-				"ks", "as" };
-		String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c", "kh" };
-		String[] test3 = { "qs", "th" };
-		String[] names1 = { "Paul", "Luke", "Michael", "Kristo", "James",
-				"Gerrit", "Jukkie" };
-		String[] names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie",
-				"Luke" };
-		String[] names3 = { "Michael", "James", "Kristo" };
-		newGameGui("Friendly", names1);
-		newGameGui("Fun", names2);
-		newGameGui("Hello", names1);
-		newGameGui("G3", names3);
-		updateGame("Friendly", test3, null);
-		updateGame("Fun", test1, null);
-		updateGame("G3", test2, null);
-		endGame("G3");
-		newGameGui("Test2", names2);
-		newGameGui("Test3", names1);
-		updateGame("Test2", test1, null);
-		updateGame("Test3", test2, null);
-		// endGame("Test3");
-		// endGame("Friendly");
+		/*
+		 * String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
+		 * "ks", "as" }; String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c",
+		 * "kh" }; String[] test3 = { "qs", "th" }; String[] names1 = { "Paul",
+		 * "Luke", "Michael", "Kristo", "James", "Gerrit", "Jukkie" }; String[]
+		 * names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie", "Luke"
+		 * }; String[] names3 = { "Michael", "James", "Kristo" };
+		 * newGameGui("Friendly", names1); newGameGui("Fun", names2);
+		 * newGameGui("Hello", names1); newGameGui("G3", names3);
+		 * updateGame("Friendly", test3, null); updateGame("Fun", test1, null);
+		 * updateGame("G3", test2, null); endGame("G3"); newGameGui("Test2",
+		 * names2); newGameGui("Test3", names1); updateGame("Test2", test1,
+		 * null); updateGame("Test3", test2, null); // endGame("Test3"); //
+		 * endGame("Friendly");
+		 */
 		// ------------------------------------------------------------------------------------
 
 	}
@@ -540,15 +502,11 @@ public class Client implements ActionListener {
 
 			if (serverMsg.compareTo("RD") == 0) {
 
-			
-		
-				
-				
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
 				sb.append(userName);
 				sb.append(":password");
-	
+
 				objectOutput.writeObject(sb.toString());
 
 				String msg = (String) objectInput.readObject();
@@ -558,12 +516,13 @@ public class Client implements ActionListener {
 					clientGui();
 					frameWelcome.dispose();
 					// ff.append("Client and server ready...");
-				    threadMessage = new MessagesThread();
+					threadMessage = new MessagesThread();
 					threadMessage.start();
 				} else {
 					new Client();
-				System.out.println("ERROR IN CLIENT connectToServer method");
-					
+					System.out
+							.println("ERROR IN CLIENT connectToServer method");
+
 				}
 			} else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");
@@ -593,80 +552,58 @@ public class Client implements ActionListener {
 
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == loginButton) {
-			JOptionPane.showConfirmDialog(null, "hello there");
-			try {
-				connectToServer();
-				System.out.println("asd");
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		} 
-		
+			connectToServer();
+
+		}
+
 		else if (evt.getSource() == button_send) {
 			String text = text_message.getText();
-			if(text.length() > 0) {
-				textArea_display.append("<- "+ text +" ->\n");
+			if (text.length() > 0) {
+				textArea_display.append("<- " + text + " ->\n");
 				text_message.setText("");
-//				pw.append(text);
-				
+				// pw.append(text);
+
 			} else {
 				text_message.setText("");
-			}	
+			}
 		}
-		
+
 		else if (evt.getSource() == button_listPlayers) {
 			textArea_display.append("List Of Players Button Pressed\n");
 		}
-		
-		else if(evt.getSource() == button_listGames) {
+
+		else if (evt.getSource() == button_listGames) {
 			textArea_display.append("button_listGames Pressed\n");
 		}
-		
-		else if(evt.getSource() == button_history) {
+
+		else if (evt.getSource() == button_history) {
 			textArea_display.append("History Pressed\n");
 		}
-		
-		else if(evt.getSource() == button_logoff) {
+
+		else if (evt.getSource() == button_logoff) {
 			textArea_display.append("button_logoff Pressed\n");
+			//Send logoff
+			StringBuilder sb = new StringBuilder();
+			sb.append("LO");
+			try {
+				objectOutput.writeObject(sb.toString());
+			} catch (IOException e) {
+				System.out.println("Logoff fail");
+				e.printStackTrace();
+			}
 		}
-		
+
 		else {
-			String temp = evt.toString().substring(evt.toString().indexOf(" on")+4);
-	        //Check if temp equals any special cases, i.e. logoff, get list of games, if not then a card has been clicked
-			
-			
-			
-			
-//	        if(temp.equals("SendChat")){
-//	            //Send typed chat message
-//	            System.out.println("SendChat");
-	            
-	            
-	            
-	            
-	        if(temp.equals("Logoff")){
-	            //Logoff
-	            System.out.println("Logoff");
-	        }else if(temp.equals("ListGames")){
-	            //Send List of Games
-	            System.out.println("ListGames");
-	        }else if(temp.equals("ListPlayers")){
-	            //Send List of Players
-	            System.out.println("ListPlayers");
-	        }else if(temp.equals("YY")){
-	            //Todo
-	            System.out.println("YY");
-	        }else if(temp.equals("XX")){
-	            //Todo
-	            System.out.println("XX");
-	        }else{
-	            //Else a card has been clicked
-	            //Card that has been clicked and the game name        
-	            String card=temp.substring(0, 2);
-	            String game=temp.substring(2);
-	            System.out.print(card+" ");
-	            System.out.println(game);  
-	        }
+			String temp = evt.toString().substring(
+					evt.toString().indexOf(" on") + 4);
+			// Check if temp equals any special cases, i.e. logoff, get list of
+			// games, if not then a card has been clicked
+
+			String card = temp.substring(0, 2);
+			String game = temp.substring(2);
+			System.out.print(card + " ");
+			System.out.println(game);
+
 		}
 	}
 }

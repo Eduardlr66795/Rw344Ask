@@ -26,6 +26,7 @@ public class HandleClient extends Thread {
 
 				if (command.equals("LI")) {
 					server.login(arguments[0], arguments[1], socket);
+					
 				} else if (command.equals("LO")) {
 					server.logoff(socket);
 				}
@@ -38,6 +39,7 @@ public class HandleClient extends Thread {
 				else if (command.equals("GF")){
 					server.gameIsFull(arguments[0],socket);
 				}
+				
 			}
 
 		} catch (EOFException ie) {

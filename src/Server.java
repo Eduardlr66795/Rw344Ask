@@ -39,7 +39,7 @@ public class Server implements ActionListener {
 	
 	// Gui
 		private JFrame frameMain;
-		private JTextArea textAreaServer;
+		public JTextArea textAreaServer;
 		private JTextArea textAreaClient;
 		private JTextArea textAreaGame;
 		private JPanel panelClient;
@@ -47,7 +47,7 @@ public class Server implements ActionListener {
 		private JPanel panelGame;
 		private JTextField textField;
 		private JButton button;
-		public int EddieTest = 1;
+		public int EddieTest = 0;
 		
 	
 
@@ -58,7 +58,7 @@ public class Server implements ActionListener {
 	
 	
 	public Server(int port) throws IOException {
-//		buildGui();
+		buildGui();
 		listen(port);
 	}
 
@@ -170,7 +170,8 @@ public class Server implements ActionListener {
 	private void listen(int port) throws IOException {
 		ServerSocket server_Socket = new ServerSocket(port);
 		System.out.println("Server started. Listening on " + server_Socket);
-
+		textAreaServer.append("Server started. Listening on Port" + server_Socket.getLocalPort());
+		textAreaServer.append("\n");
 		while (true) {
 			Socket server = server_Socket.accept();
 			System.out.println("New connection from socket: " + server);
@@ -180,6 +181,11 @@ public class Server implements ActionListener {
 			
 			outputStreams.put(server, output);
 			new HandleClient(this, server);
+			
+			
+			//textAreaServer.append("New client on "+server.getPort());
+			textAreaServer.append("New client on Port "+server.getPort());
+			textAreaServer.append("\n");
 		}
 	}
 
@@ -195,6 +201,7 @@ public class Server implements ActionListener {
 	public void removeConnection(Socket s) {
 		synchronized (outputStreams) {
 			System.out.println("Removing connection to " + s);
+			
 			// Remove it from the hashtable
 			outputStreams.remove(s);
 			try {
@@ -330,6 +337,8 @@ public class Server implements ActionListener {
 			try {
 				o.writeObject("GK");
 				o.flush();
+				textAreaGame.append("New client: "+gameName);
+				textAreaGame.append("\n");
 			} catch (IOException e) {
 				System.out.println("Error in createGame " + e);
 			}
@@ -457,6 +466,7 @@ public class Server implements ActionListener {
 		ObjectOutputStream o = null;
 		o = (ObjectOutputStream) outputStreams.get(socket);
 		Iterator itr = Users.iterator();
+		
 		while (itr.hasNext()) {
 			if (username.equals(itr.next())) {
 				try {
@@ -472,6 +482,9 @@ public class Server implements ActionListener {
 			clientList.put(o, username);
 			o.writeObject("LK");
 			o.flush();
+			textAreaClient.append("New client: "+username);
+			textAreaClient.append(" at "+getTimeAndDate());
+			textAreaClient.append("\n");
 			return;
 		} catch (IOException e) {
 			System.out.println("Exception in login " + e);
