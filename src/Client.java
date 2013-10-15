@@ -1,26 +1,19 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
-
-import javax.print.attribute.standard.OutputDeviceAssigned;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,8 +24,6 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
-
-import sun.font.CreatedFontTracker;
 
 public class Client extends Thread implements ActionListener {
 
@@ -64,7 +55,6 @@ public class Client extends Thread implements ActionListener {
 	private JTextField chat;
 	// private JTextField chatBox;
 	private JButton[][] cards;
-	private JButton[] helpers;
 	private JLabel gameName;
 	private JLabel[] players;
 	private JTabbedPane tabs;
@@ -101,6 +91,7 @@ public class Client extends Thread implements ActionListener {
 		//
 	}
 
+	@SuppressWarnings("serial")
 	/*
          * 
          */
@@ -249,21 +240,16 @@ public class Client extends Thread implements ActionListener {
 		for (int k = 0; k < 15; k++) {
 			games[k] = "empty";
 		}
+		
 		cards = new JButton[15][10];
 		bigframe = new JPanel[40];
 		chat = new JTextField();
-		// chatBox = new JTextField();
 		tabs = new JTabbedPane();
-		helpers = new JButton[6];
 		guiFrame = new JFrame();
 
 		guiFrame.setSize(1000, 390);
 		guiFrame.setLayout(null);
-		// make sure the program exits when the frame closes
-		// guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 		guiFrame.setResizable(false);
-
 		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		guiFrame.addWindowListener(new WindowAdapter() {
 			@Override
@@ -324,12 +310,10 @@ public class Client extends Thread implements ActionListener {
 		tabs.setSize(990, 200);
 		chat.setSize(700, 20);
 		chat.setLocation(3, 330);
-		// Add panels to main frame
+
 		guiFrame.add(chat);
 		guiFrame.add(tabs);
-
 		guiFrame.setLocationRelativeTo(null);
-		// make sure the JFrame is visible
 		guiFrame.setVisible(true);
 
 		// Just for
@@ -358,11 +342,9 @@ public class Client extends Thread implements ActionListener {
 		// endGame("Test3");
 		// endGame("Friendly");
 		// ------------------------------------------------------------------------------------
-
 	}
 
 	public void newGameGui(String gName, String[] pNames) {
-		// Set game number, game name
 		int gameNumber = 0;
 		for (int i = 0; i < 15; i++) {
 			if (games[i].equals("empty")) {
@@ -370,10 +352,7 @@ public class Client extends Thread implements ActionListener {
 				gameNumber = i;
 				break;
 			}
-			// add in for i=14, then playing more than 15 games
 		}
-		// can add check here to make sure gameNumber has been initialised
-		// properly
 
 		// Initialise
 		bigframe[gameNumber] = new JPanel();
@@ -382,6 +361,7 @@ public class Client extends Thread implements ActionListener {
 		bigframe[gameNumber].setName(gName);
 		cards[gameNumber] = new JButton[10];
 		players = new JLabel[7];
+		
 		// Add game name label
 		gameName = new JLabel(gName);
 		gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
