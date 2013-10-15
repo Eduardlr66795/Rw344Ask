@@ -2,65 +2,88 @@ import java.io.*;
 import java.net.*;
 
 public class HandleClient extends Thread {
-        
-        private Server server;
-        private Socket socket;
-        private boolean disconnected = false;
 
-        public HandleClient(Server server, Socket socket) {
-                this.server = server;
-                this.socket = socket;
-                start();
-        }
+	private Server server;
+	private Socket socket;
+	private boolean disconnected = false;
 
-        public void run() {
-                try {
-                        ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+	public HandleClient(Server server, Socket socket) {
+		this.server = server;
+		this.socket = socket;
+		start();
+	}
 
-                        while (true) {
-                                String message = (String) input.readObject();
-                                String command = message.substring(0, 2);
-                                String[] arguments = message.substring(2).split(":");
+	public void run() {
+		try {
+			ObjectInputStream input = new ObjectInputStream(
+					socket.getInputStream());
 
-                                if (command.equals("LI")) {
-                                        server.login(arguments[0], arguments[1], socket);
-                                
-                                } else if (command.equals("LO")) {
-                                        server.logoff(socket);
-                                        
-                                } else if (command.equals("GS")){
-                                        server.createGame(arguments[0], socket);
-                                        
-                                } else if (command.equals("GN")){
-                                        server.addPlayerToGame(arguments[0], socket);
-                                        
-                                } else if (command.equals("GF")){
-                                        server.gameIsFull(arguments[0], socket);
-                                        
-                                } else if (command.equals("GO")) {       
-                                        server.kickPlayerFromGame(arguments[0], arguments[1], socket);
-                                        
-                                } else if () {
-                                        
-                                 
-                                } else {
-                                        server.sendToAll(message, socket);
-                                }
-                        }
+			while (true) {
+				String message = (String) input.readObject();
+				String command = message.substring(0, 2);
+				String[] arguments = message.substring(2).replace(";", "")
+						.split(":");
 
-                } catch (EOFException ie) {
+				if (command.equals("LI")) {
+					server.login(arguments[0], arguments[1], socket);
 
-                } catch (IOException ie) {
+				} else if (command.equals("LO")) {
+					server.logoff(socket);
 
-                } catch (Exception e) {
+				} else if (command.equals("GS")) {
+					server.createGame(arguments[0], socket);
 
-                } 
-                
-              finally {
-                      if (!disconnected) {
-                              server.removeUsername(socket);
-                              server.removeConnection(socket);
-                      }
-              }
-        }
+				} else if (command.equals("GN")) {
+					server.addPlayerToGame(arguments[0], socket);
+
+				} else if (command.equals("GF")) {
+					server.gameIsFull(arguments[0], socket);
+
+				} else if (command.equals("GO")) {
+					server.kickPlayerFromGame(arguments[0], arguments[1],
+							socket);
+
+				} else if (command.equals("GL")) {
+					server.getGamesList(socket, "");
+
+				} else if (command.equals("GG")) {
+					server.getGamesList(socket, arguments[0]);
+
+				} else if (command.equals("GJ")) {
+					server.getGamesList(socket, arguments[0]);
+					
+				} else if (command.equals("GW")) {
+					server.waitForGame(socket, arguments[0]);
+					
+				} else if (command.equals("GA")) {
+					server.playersInGame(socket, arguments[0]);
+					
+				} else if (command.equals("QT")) {
+					server.quitGame(socket, arguments[0]);
+				
+				} else if (message.equals("LC")) {
+                    server.sendclientList();
+                    
+				} else if (message.equals("HN")) {
+
+				} else {
+					server.sendToAll(message, socket);
+				}
+			}
+
+		} catch (EOFException ie) {
+
+		} catch (IOException ie) {
+
+		} catch (Exception e) {
+
+		}
+
+		finally {
+			if (!disconnected) {
+				server.removeUsername(socket);
+				server.removeConnection(socket);
+			}
+		}
+	}
 }
