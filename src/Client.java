@@ -60,6 +60,40 @@ public class Client implements ActionListener {
 	private JTabbedPane tabs;
 	private JFrame guiFrame;
 
+	
+	
+	
+	
+	
+	
+	
+	//NEW--------------------------------
+	public JButton button_send;
+	public JButton button_history;
+	public JButton button_clear;
+	public JButton button_logoff;
+	public JButton button_listPlayers;
+	public JButton button_listGames;
+	
+	public JPanel panel_mycards;
+	public JPanel panel_game;
+	
+	public JTextField text_message;
+	public JTextArea textArea_display;
+	//END--------------------------------
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	// keep----
 	JFrame frameMain;
 	JTextArea ff;
@@ -252,37 +286,95 @@ public class Client implements ActionListener {
 
 		guiFrame.setTitle("Example GUI");
 		// Add helper buttons
-		helpers[0] = new JButton("Send");// To send chat message
-		helpers[0].setSize(93, 20);
-		helpers[0].setName("SendChat");
-		helpers[0].setLocation(710, 330);
-		helpers[0].addActionListener(this);
-		helpers[1] = new JButton("Log Off");// /Logoff
-		helpers[1].setSize(160, 20);
-		helpers[1].setLocation(820, 330);
-		helpers[1].setName("Logoff");
-		helpers[1].addActionListener(this);
-		helpers[2] = new JButton("List Players");// List all players?
-		helpers[2].setSize(160, 20);
-		helpers[2].setLocation(820, 310);
-		helpers[2].setName("ListPlayers");
-		helpers[2].addActionListener(this);
-		helpers[3] = new JButton("List Games");// Get a list of all available
-												// games
-		helpers[3].setSize(160, 20);
-		helpers[3].setLocation(820, 290);
-		helpers[3].setName("ListGames");
-		helpers[3].addActionListener(this);
-		helpers[4] = new JButton("Other Button");// other button
-		helpers[4].setSize(160, 20);
-		helpers[4].setLocation(820, 270);
-		helpers[4].setName("XX");
-		helpers[4].addActionListener(this);
-		helpers[5] = new JButton("Other Button");// other button
-		helpers[5].setSize(160, 20);
-		helpers[5].setLocation(820, 250);
-		helpers[5].setName("YY");
-		helpers[5].addActionListener(this);
+//		helpers[0] = new JButton("Send");// To send chat message
+//		helpers[0].setSize(93, 20);
+//		helpers[0].setName("SendChat");
+//		helpers[0].setLocation(710, 330);
+//		helpers[0].addActionListener(this);
+//		helpers[1] = new JButton("Log Off");// /Logoff
+//		helpers[1].setSize(160, 20);
+//		helpers[1].setLocation(820, 330);
+//		helpers[1].setName("Logoff");
+//		helpers[1].addActionListener(this);
+//		helpers[2] = new JButton("List Players");// List all players?
+//		helpers[2].setSize(160, 20);
+//		helpers[2].setLocation(820, 310);
+//		helpers[2].setName("ListPlayers");
+//		helpers[2].addActionListener(this);
+//		helpers[3] = new JButton("List Games");// Get a list of all available
+//												// games
+//		helpers[3].setSize(160, 20);
+//		helpers[3].setLocation(820, 290);
+//		helpers[3].setName("ListGames");
+//		helpers[3].addActionListener(this);
+//		helpers[4] = new JButton("Other Button");// other button
+//		helpers[4].setSize(160, 20);
+//		helpers[4].setLocation(820, 270);
+//		helpers[4].setName("XX");
+//		helpers[4].addActionListener(this);
+//		helpers[5] = new JButton("Other Button");// other button
+//		helpers[5].setSize(160, 20);
+//		helpers[5].setLocation(820, 250);
+//		helpers[5].setName("YY");
+//		helpers[5].addActionListener(this);
+		
+		
+		
+		
+		
+	        button_send = new JButton("Send Msg");
+	        button_send.setBounds(709, 330, 93, 30);
+	        button_send.addActionListener(this);
+	        guiFrame.add(button_send);
+	        
+	        //TODO public JButton button_clear;
+	        
+	        text_message = new JTextField();
+	        text_message.setSize(700, 30);
+	        text_message.setLocation(3, 330);
+	        guiFrame.add(text_message);
+	    
+	    
+	        textArea_display = new JTextArea();
+	        textArea_display.setSize(160, 220);
+	        textArea_display.setLocation(820, 30); 
+//	        textArea_display.setEditable(false);asd
+	        guiFrame.add(textArea_display); 
+	        
+	    
+	        button_listPlayers = new JButton("List of Players");
+	        button_listPlayers.setBounds(820, 250, 160, 25);
+	        button_listPlayers.addActionListener(this);
+	        guiFrame.add(button_listPlayers);
+	        
+	        
+	        button_listGames = new JButton("List Games");
+	        button_listGames.setBounds(820, 270, 160, 25);
+	        button_listGames.addActionListener(this);
+	        guiFrame.add(button_listGames);
+	        
+	        button_history = new JButton("History");
+	        button_history.setBounds(820, 290, 160, 25);
+	        button_history.addActionListener(this);
+	        guiFrame.add(button_history);
+	        
+	        button_logoff = new JButton("Log Off");
+	        button_logoff.setBounds(820, 310, 160, 25);
+	        button_logoff.addActionListener(this);
+	        guiFrame.add(button_logoff);
+	        
+	        //////////////////////////////////////
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 
 		tabs.setLocation(3, 8);
 		tabs.setSize(800, 310);
@@ -295,12 +387,12 @@ public class Client implements ActionListener {
 		guiFrame.add(chatBox);
 		guiFrame.add(tabs);
 		// Add buttons to main frame
-		guiFrame.add(helpers[0]);
-		guiFrame.add(helpers[1]);
-		guiFrame.add(helpers[2]);
-		guiFrame.add(helpers[3]);
-		guiFrame.add(helpers[4]);
-		guiFrame.add(helpers[5]);
+//		guiFrame.add(helpers[0]);
+//		guiFrame.add(helpers[1]);
+//		guiFrame.add(helpers[2]);
+//		guiFrame.add(helpers[3]);
+//		guiFrame.add(helpers[4]);
+//		guiFrame.add(helpers[5]);
 		// center the JFrame in the middle of the screen
 		guiFrame.setLocationRelativeTo(null);
 		// make sure the JFrame is visible
@@ -487,7 +579,7 @@ public class Client implements ActionListener {
 				} else {
 					new Client();
 				System.out.println("ERROR IN CLIENT connectToServer method");
-				
+					
 				}
 			} else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");

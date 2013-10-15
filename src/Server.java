@@ -1,17 +1,33 @@
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  * 
  * @author 
  *
  */
-public class Server {
+public class Server implements ActionListener {
 
 	private ServerSocket ss;
 	private Hashtable outputStreams = new Hashtable(); // socket, outputstream
@@ -19,6 +35,20 @@ public class Server {
 	private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>(); // outputstream,
 	private final int MAX_PLAYERS = 7;
 
+	
+	
+	// Gui
+		private JFrame frameMain;
+		private JTextArea textAreaServer;
+		private JTextArea textAreaClient;
+		private JTextArea textAreaGame;
+		private JPanel panelClient;
+		private JPanel panelServer;
+		private JPanel panelGame;
+		private JTextField textField;
+		private JButton button;
+		public int EddieTest = 1;
+		
 	
 
 	public static void main(String[] args) throws Exception {
@@ -28,9 +58,114 @@ public class Server {
 	
 	
 	public Server(int port) throws IOException {
+//		buildGui();
 		listen(port);
 	}
 
+	
+	
+	public void buildGui() {
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
+		JTabbedPane tab = new JTabbedPane();
+		frameMain = new JFrame();
+		frameMain.setTitle("Server Information");
+		frameMain.setSize(400, 400);
+		frameMain.setLocation(300, 300);
+
+		panelClient = new JPanel();
+		panelClient.setSize(frameMain.getWidth(), frameMain.getHeight());
+		panelClient.setLayout(null);
+
+		panelServer = new JPanel();
+		panelServer.setSize(frameMain.getWidth(), frameMain.getHeight());
+		panelServer.setLayout(null);
+
+		panelGame = new JPanel();
+		panelGame.setSize(frameMain.getWidth(), frameMain.getHeight());
+		panelGame.setLayout(null);
+
+		// TextArea for server
+		textAreaServer = new JTextArea();
+		textAreaServer.setEditable(false);
+		textAreaServer.setSize(frameMain.getWidth(), frameMain.getHeight());
+
+		// TextArea for clients
+		textAreaClient = new JTextArea();
+		textAreaClient.setEditable(false);
+		textAreaClient.setSize(frameMain.getWidth(), frameMain.getHeight());
+
+		// TextArea for games
+		textAreaGame = new JTextArea();
+		textAreaGame.setEditable(false);
+		textAreaGame.setSize(frameMain.getWidth(), frameMain.getHeight());
+
+		// Scrolepane for server
+		JScrollPane spMain = new JScrollPane(textAreaServer,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		spMain.setSize(frameMain.getWidth(), frameMain.getHeight());
+		spMain.setLocation(0, 0);
+		panelServer.add(spMain);
+
+		// Scrolepane for clients
+		JScrollPane spClient = new JScrollPane(textAreaClient,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		spClient.setSize(frameMain.getWidth(), frameMain.getHeight());
+		spClient.setLocation(0, 0);
+		panelClient.add(spClient);
+
+		// Scrolepane for Game
+		JScrollPane spGame = new JScrollPane(textAreaGame,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		spGame.setSize(frameMain.getWidth(), frameMain.getHeight());
+		spGame.setLocation(0, 0);
+		panelGame.add(spGame);
+
+		tab.add("Server", panelServer);
+		tab.add("Clients", panelClient);
+		tab.add("Games", panelGame);
+
+		if (EddieTest == 1) {
+			textField = new JTextField();
+			textField.setBounds(200, 200, 100, 70);
+			button = new JButton("TEST");
+			button.addActionListener(this);
+			frameMain.add(textField, BorderLayout.SOUTH);
+			frameMain.add(button, BorderLayout.WEST);
+		}
+
+		frameMain.add(tab, BorderLayout.CENTER);
+		frameMain.setVisible(true);
+		frameMain.setResizable(false);
+		frameMain.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		frameMain.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+//				quit();
+			}
+		});
+	}
+
+
+	
 	@SuppressWarnings("unchecked")
 	private void listen(int port) throws IOException {
 		ServerSocket server_Socket = new ServerSocket(port);
@@ -201,7 +336,7 @@ public class Server {
 		} else {
 			// send error message to client
 			try {
-				o.writeObject("ER120;");
+				o.writeObject("ER120");
 				o.flush();
 			} catch (IOException e) {
 				System.out.println("Error in createGame " + e);
@@ -255,7 +390,7 @@ public class Server {
 		}
 		gamesList.put(gameName, game);
 	}
-
+;
 	
 	public ObjectOutputStream getPlayerAdded(String gameName) {
 		return gamesList.get(gameName).getAddedPlayer();
@@ -359,5 +494,11 @@ public class Server {
 				System.out.println("Exception in login " + e);
 			}
 		}
+	}
+
+
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 }
