@@ -633,19 +633,19 @@ public class Client extends Thread implements ActionListener{
                                 String text = text_message.getText();
                                 if (text.length() > 0) {
                                         textArea_display.append("<- " + text + " ->\n");
-                                        
-                                        
-                                        
+                                        StringBuilder sb = new StringBuilder();
+                                        sb.append("CA");
+                                        sb.append(tabs.getSelectedComponent().getName());
+                                        sb.append(":");
+                                        sb.append(text);
+                                        sb.append(";");
+                                        System.out.println(sb.toString());
                                         try {
                                                 objectOutput.writeObject(text);
                                         } catch (IOException e) {
-                                                System.out.println("Logoff fail");
                                                 e.printStackTrace();
                                         }
                                         text_message.setText("");
-                                        
-                                        // pw.append(text);
-
                                 } else {
                                         text_message.setText("");
                                 }
