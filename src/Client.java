@@ -67,19 +67,31 @@ public class Client extends Thread implements ActionListener {
 	public JButton button_createGame;
 	public JButton button_login;
 	public JButton button_createNewGame;
+	public JButton button_newGame_out;
+	public JButton button_joinGame_out;
+	public JButton button_sendMessage_out;
+	public JButton button_clearText_out;
 
 	public JList jlist_contactsMain;
+	public JList jlist_contactsOutsideMain;
+	
+	
 	public JPanel panel_mycards;
 	public JPanel panel_game;
 	public JTextArea textArea_display;
-
+	public JTextArea textArea_chat_out;
+	
 	public JLabel labelEnterNewGameName;
 
 	public JTextField text_loginTextfieldName;
 	public JTextField text_loginTextfielIp;
-	public JTextField text_message;
-
+	public JTextField text_message_in;
+	public JTextField text_message_out;
 	// END--------------------------------
+	
+	
+
+
 
 	public static void main(String[] args) {
 		try {
@@ -91,14 +103,9 @@ public class Client extends Thread implements ActionListener {
 
 	public Client() {
 		welcomeScreen();
-		// To test gui, comment out welcomeScreen() and run clientGui()
-		//
 	}
 
 	@SuppressWarnings("serial")
-	/*
-         * 
-         */
 	void welcomeScreen() {
 		// This try and catch is just a GUI theme. Looks cool
 		try {
@@ -128,9 +135,8 @@ public class Client extends Thread implements ActionListener {
 		panel.setLayout(null);
 		panel.setBackground(Color.white);
 
-		// ////////////////////////
 
-		// Button
+
 		JLabel heading = new JLabel("") {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -150,11 +156,6 @@ public class Client extends Thread implements ActionListener {
 				}
 			}
 		};
-
-		// /////////////////////////////
-
-		// heading.setText("///Ask");
-		// heading.setForeground(Color.WHITE);
 		heading.setFont(new Font("Serif", Font.BOLD, 45));
 		heading.setBounds(100, 20, panel.getWidth(), 100);
 
@@ -216,13 +217,86 @@ public class Client extends Thread implements ActionListener {
 			}
 		});
 	}
+	
+	public void afterLoginScreen()
+	{
+		
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+		
+		JFrame frame_choice = new JFrame();
+		frame_choice.setLayout(null);
+		frame_choice.setSize(580, 400);
+		
+		//Main Panel
+		JPanel panel_main = new JPanel();
+		panel_main.setLayout(null);
+		panel_main.setSize(frame_choice.getWidth(), frame_choice.getHeight());
+		
+		//Button: Create New Game
+		button_newGame_out = new JButton("Create New Game");
+		button_newGame_out.setBounds(15, 15, 170, 30);
+		button_newGame_out.addActionListener(this);
+		panel_main.add(button_newGame_out);
+		
+		//Button: Join Existing Game
+		button_joinGame_out = new JButton("Join Existing Game");
+		button_joinGame_out.setBounds(15, 50, 170, 30);
+		button_joinGame_out.addActionListener(this);
+		panel_main.add(button_joinGame_out);
+		
+		//Button: Join Existing Game
+		button_sendMessage_out = new JButton("Send Message");
+		button_sendMessage_out.setBounds(265, 300, 150, 30);
+		panel_main.add(button_sendMessage_out);
+		
+		//Button: Join Existing Game
+		button_clearText_out = new JButton("Clear Text");
+		button_clearText_out.setBounds(265, 330, 150, 30);
+		panel_main.add(button_clearText_out);
+		
+		//TextArea: Join Existing Game
+		textArea_chat_out = new JTextArea();
+		textArea_chat_out.setEditable(false);
+		textArea_chat_out.setBounds(15, 90, 400, 180);
+		panel_main.add(textArea_chat_out);
+	
+		//Scrolepane: Join Existing Game
+		JScrollPane sp1 = new JScrollPane(jlist_contactsOutsideMain = new JList());
+		jlist_contactsOutsideMain.setVisibleRowCount(4);
+		jlist_contactsOutsideMain.setBackground(Color.LIGHT_GRAY);
+		sp1.setBounds(420, 90, 150, 270);
+		panel_main.add(sp1);
+		
+		//TextField: Join Existing Game
+		text_message_out = new JTextField();
+		text_message_out.setBounds(15, 270, 400, 30);
+		panel_main.add(text_message_out);
+		
+		frame_choice.add(panel_main);
+		frame_choice.setVisible(true);
+		frame_choice.setDefaultCloseOperation(frame_choice.EXIT_ON_CLOSE);
+	}
+	
+	
+	
 
-	/*
-         * 
-         */
+
 	void clientGui() {
-
-		// This try and catch is just a GUI theme. Looks cool
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -271,10 +345,10 @@ public class Client extends Thread implements ActionListener {
 
 		// TODO public JButton button_clear;
 
-		text_message = new JTextField();
-		text_message.setSize(700, 30);
-		text_message.setLocation(3, 360);
-		guiFrame.add(text_message);
+		text_message_in = new JTextField();
+		text_message_in.setSize(700, 30);
+		text_message_in.setLocation(3, 360);
+		guiFrame.add(text_message_in);
 
 		JScrollPane spMain = new JScrollPane(textArea_display = new JTextArea());
 		// spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -475,7 +549,9 @@ public class Client extends Thread implements ActionListener {
 				System.out.println(msg);
 
 				if (msg.compareTo("LK") == 0) {
-					clientGui();
+//					clientGui();
+					afterLoginScreen();
+					
 					frameWelcome.dispose();
 					start();
 
@@ -496,11 +572,11 @@ public class Client extends Thread implements ActionListener {
 	}
 
 	public void send_Message() {
-		String text = text_message.getText();
+		String text = text_message_in.getText();
 		if (text.length() > 0) {
 			try {
 				textArea_display.append("<- " + text + " ->\n");
-				text_message.setText("");
+				text_message_in.setText("");
 				objectOutput.writeObject(text);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -508,7 +584,7 @@ public class Client extends Thread implements ActionListener {
 			}
 
 		} else {
-			text_message.setText("");
+			text_message_in.setText("");
 		}
 	}
 
@@ -601,7 +677,7 @@ public class Client extends Thread implements ActionListener {
 		}
 
 		else if (evt.getSource() == button_send) {
-			String text = text_message.getText();
+			String text = text_message_in.getText();
 			if (text.length() > 0) {
 				textArea_display.append("<- " + text + " ->\n");
 				StringBuilder sb = new StringBuilder();
@@ -616,9 +692,9 @@ public class Client extends Thread implements ActionListener {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				text_message.setText("");
+				text_message_in.setText("");
 			} else {
-				text_message.setText("");
+				text_message_in.setText("");
 			}
 		}
 
