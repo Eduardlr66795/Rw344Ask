@@ -32,22 +32,22 @@ public class Server implements ActionListener {
         private ServerSocket ss;
         private Hashtable outputStreams = new Hashtable(); // socket, outputstream
         Hashtable<String, Game> gamesList = new Hashtable<String, Game>(); // Gamename,                                                                                                         
-        private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>(); // outputstream,
+        private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>(); // outputstream, username
         private final int MAX_PLAYERS = 7;
 
         
         
         // Gui
-                private JFrame frameMain;
-                private JTextArea textAreaServer;
-                private JTextArea textAreaClient;
-                private JTextArea textAreaGame;
-                private JPanel panelClient;
-                private JPanel panelServer;
-                private JPanel panelGame;
-                private JTextField textField;
-                private JButton button;
-                public int EddieTest = 0;
+        private JFrame frameMain;
+        private JTextArea textAreaServer;
+        private JTextArea textAreaClient;
+        private JTextArea textAreaGame;
+        private JPanel panelClient;
+        private JPanel panelServer;
+        private JPanel panelGame;
+        private JTextField textField;
+        private JButton button;
+        public int EddieTest = 0;
                 
 
 
@@ -193,6 +193,8 @@ public class Server implements ActionListener {
         Enumeration getOutputStreams() {
                 return outputStreams.elements();
         }
+        
+        
 
         /**
          * Removes a connection from the hashtable
@@ -319,6 +321,64 @@ public class Server implements ActionListener {
                 String dateAndTime = dateFormat.format(cal.getTime());
                 return dateAndTime;
         }
+        
+        
+        
+
+    
+        public void login(String username, String password, Socket socket) {
+            Collection Users = clientList.values();
+            ObjectOutputStream o = null;
+            o = (ObjectOutputStream) outputStreams.get(socket);
+            Iterator itr = Users.iterator();
+
+            while (itr.hasNext()) {
+                    if (username.equals(itr.next())) {
+                            try {
+                                    o.writeObject("ER100;");
+                                    o.flush();
+                                    return;
+                            } catch (IOException e) {
+                                    System.out.println("Exception in login " + e);
+                            }
+                    }
+            }
+            try {
+                    clientList.put(o, username);
+                    o.writeObject("LK");
+                    o.flush();
+                    textAreaClient.append("New client: "+username);
+                    textAreaClient.append(" at "+getTimeAndDate());
+                    textAreaClient.append("\n");
+                    return;
+            } catch (IOException e) {
+                    System.out.println("Exception in login " + e);
+            }
+        }
+        
+        public void logoff(Socket socket) {
+            ObjectOutputStream o = null;
+            o = (ObjectOutputStream) outputStreams.get(socket);
+            if (clientList.contains(o)) {
+                    try {
+                            o.writeObject("LM");
+                            o.flush();
+                    } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                    }
+                    removeUsername(socket);
+                    removeConnection(socket);
+            } else {
+                    try {
+                            o.writeObject("ER102");
+                            o.flush();
+                    } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                    }
+            }
+	    }
 
         /**
          * 
@@ -326,48 +386,157 @@ public class Server implements ActionListener {
          * @param creator
          * @return
          */
-        public void createGame(String gameName, Socket client) {
+        public void createGame(String gameName, Socket socket) {
+        	
                 // handle the creation of a game object and add to the HashSet.
-                Game newGame = new Game(gameName, client, this, MAX_PLAYERS);
-                ObjectOutputStream o = null;
-                o = (ObjectOutputStream) outputStreams.get(client);
-                if (gamesList.contains(gameName)) {
-                        // game is unique and was created
-                        gamesList.put(gameName, newGame);
-                        try {
-                                o.writeObject("GK");
-                                o.flush();
-                                textAreaGame.append("New client: "+gameName);
-                                textAreaGame.append("\n");
-                        } catch (IOException e) {
-                                System.out.println("Error in createGame " + e);
-                        }
-                } else {
-                        // send error message to client
-                        try {
-                                o.writeObject("ER120");
-                                o.flush();
-                        } catch (IOException e) {
-                                System.out.println("Error in createGame " + e);
-                        }
+                Game newGame = new Game(gameName, getUsername(socket), this);
+                ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+                
+                try {
+	                if (!gamesList.contains(gameName)) {
+	                        // game is unique and was created
+	                        gamesList.put(gameName, newGame);
+	                        
+	                        o.writeObject("GK");
+	                        o.flush();
+	                        textAreaGame.append("New client: " + gameName);
+	                        textAreaGame.append("\n");
+	                        
+	                // Game is not unique, error code sent
+	                } else {
+                            o.writeObject("ER120;");
+                            o.flush();
+	                }
+                } catch (Exception e) {
+                	System.out.println("Exception in createGame: " + e);
                 }
+             
         }
-
-        // Remove a player from a game, return false if player not part of game TODO
-        public boolean kickPlayerFromGame(String gameName, String playerName) {
-                Game game = gamesList.get(gameName);
-                if (game.containsPlayer(playerName)) {
-                        game.removePlayer(playerName);
-                } else {
-                        return false;
-                }
-                return true;
-        }
-
         
-        // Start the game TODO
-        public boolean startGame(String gameName) {
-                return true;
+        public void addPlayerToGame(String gameName, Socket socket) {
+        	try {
+	        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+	        	
+	        	//if game does not exist
+	    		if (!gamesList.contains(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	            Game game = gamesList.get(gameName);
+	            
+	            // If game is full
+	            if (game.playerCount > 7) {
+	            	o.writeObject("ER130");
+	            	o.flush();
+	            	return;
+	            }
+	            
+	            // Let next player to join join
+	            if (!game.nextPlayersToJoin.isEmpty()) {
+	            	String player = game.nextPlayersToJoin.pop();
+	            	game.playerCount++;
+	            	
+	            	o.writeObject("GP" + player + ";");
+	            	o.flush();
+	            	
+	            	// Search for a spot left open by a kicked player
+	            	for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+	            		String tmpplayer = (String) e.nextElement();
+	            		
+	            		if (tmpplayer.equals("EMPTYSPOTLEFTOPENBYKICKEDPLAYER")) {
+	            			game.playerList.put(player, game.playerList.get("EMPTYSPOTLEFTOPENBYKICKEDPLAYER"));
+	            			gamesList.put(gameName, game);
+	            			return;
+	            		}
+	            	}
+	            	
+	            	game.playerList.put(player, game.playerCount);
+	            	
+	            // No player to join at moment
+	            } else {
+	            	
+	            	o.writeObject("GZ;");
+	            	o.flush();
+	            	return;
+	            	
+	            }
+	            gamesList.put(gameName, game);
+	            
+        	} catch (Exception e) {
+        		System.out.println("Exception in addPlayerToGame: " + e);
+        	}
+        }
+        
+        public void gameIsFull(String gameName, Socket socket) {
+        	try {
+	            ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+	            
+	            // if game does not exist
+	    		if (!gamesList.contains(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	            Game game = gamesList.get(gameName);
+	           
+	            // Game has too few players
+	            if (game.playerCount < 3) {
+	                   
+                    o.writeObject("ER131;");
+                    o.flush(); 
+                    
+	            } else {
+	            	
+	            	game.readyToStart = true;
+	            	gamesList.put(gameName, game);
+	            	
+	            	o.writeObject("GM;");
+	            	o.flush();
+	            	return;
+	            }
+	           
+        	} catch (Exception e) {
+        		System.out.println("Exception in gameIsFull " + e);
+        	}
+    }
+
+        // Remove a player from a game
+        public void kickPlayerFromGame(String gameName, String playerName, Socket socket) {
+        	try {
+        		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+	            
+  	          // if game does not exist
+  	    		if (!gamesList.contains(gameName)) {
+  	    			o.writeObject("ER133;");
+  	    			o.flush();
+  	    			return;
+  	    		}
+        		
+  	    		Game game = gamesList.get(gameName);
+  	    		
+  	    		if (game.playerList.contains(playerName)) {
+  	    			
+  	    			game.playerList.put("EMPTYSPOTLEFTOPENBYKICKEDPLAYER", game.playerList.get(playerName));
+  	    			game.playerList.remove(playerName);
+  	    			game.playerCount--;
+  	    			
+  	    			gamesList.put(gameName, game);
+  	    			return;
+  	    			
+  	    		} else {
+  	    			o.writeObject("ER110;");
+  	    			o.flush();
+  	    			return;
+  	    		}
+  	    		
+        		
+        		
+        	} catch (Exception e) {
+        		System.out.println("Exception in kickPlayerFromGame " + e);
+        	}
         }
 
         
@@ -376,29 +545,8 @@ public class Server implements ActionListener {
                 return game.amountOfPlayers();
         }
 
-        // This is for the GN command, and because its synchronous
-        // EDIT: Shouldnt return boolean if game is full or not
-        public void allowAddPlayerToGame(String gameName, Socket socket) {
-                Game game = gamesList.get(gameName);
-                if (!game.hasNewPlayer()) {
-                        if (!game.gameIsFull()) {
-                                game.setAddAnotherPlayer(true);
-                        } else {
-                                ObjectOutputStream o = null;
-                                o = (ObjectOutputStream) outputStreams.get(socket);
-                                try {
-                                        o.writeObject("ER130");// game is full.
-                                        o.flush();
-                                } catch (IOException e) {
-                                        // TODO Auto-generated catch block
-                                        e.printStackTrace();
-                                }
-                        }
-                } else {
-                        game.addPlayerToGame();
-                }
-                gamesList.put(gameName, game);
-        }
+        
+        
 
         
         public ObjectOutputStream getPlayerAdded(String gameName) {
@@ -409,21 +557,13 @@ public class Server implements ActionListener {
         public boolean hasNewPlayer(String gameName) {
                 return gamesList.get(gameName).hasNewPlayer();
         }
-
         
-        // Adding a player to game
-        // Not using this anymore, protocol changed
-        /*
-         * public boolean addPlayerToGame(String gameName, String playerName) { Game
-         * game = gamesList.get(gameName); game.playerList.put(playerName,
-         * game.playerCount); game.playerCount++; game.addAnotherPlayer = false;
-         * gamesList.put(gameName, game); return true; }
-         */
+        
         public boolean joinGame(String gameName, String playerName) {
                 return (gamesList.get(gameName).addPlayer(playerName));
         }
         // Get games list as string array for client to choose a game
-        String[] getGamesList() {
+        public String[] getGamesList() {
                 String[] stringGamesList;
                 int length = gamesList.size();
                 int counter = 0;
@@ -436,78 +576,12 @@ public class Server implements ActionListener {
                 return stringGamesList;
         }
 
-        public void logoff(Socket socket) {
-                ObjectOutputStream o = null;
-                o = (ObjectOutputStream) outputStreams.get(socket);
-                if (clientList.contains(o)) {
-                        try {
-                                o.writeObject("LM");
-                                o.flush();
-                        } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                        }
-                        removeUsername(socket);
-                        removeConnection(socket);
-                } else {
-                        try {
-                                o.writeObject("ER102");
-                                o.flush();
-                        } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                e.printStackTrace();
-                        }
-                }
-        }
-
-        
-        public void login(String username, String password, Socket socket) {
-                Collection Users = clientList.values();
-                ObjectOutputStream o = null;
-                o = (ObjectOutputStream) outputStreams.get(socket);
-                Iterator itr = Users.iterator();
-
-                while (itr.hasNext()) {
-                        if (username.equals(itr.next())) {
-                                try {
-                                        o.writeObject("ER100;");
-                                        o.flush();
-                                        return;
-                                } catch (IOException e) {
-                                        System.out.println("Exception in login " + e);
-                                }
-                        }
-                }
-                try {
-                        clientList.put(o, username);
-                        o.writeObject("LK");
-                        o.flush();
-                        textAreaClient.append("New client: "+username);
-                        textAreaClient.append(" at "+getTimeAndDate());
-                        textAreaClient.append("\n");
-                        return;
-                } catch (IOException e) {
-                        System.out.println("Exception in login " + e);
-                }
-        }
-
         public String getName(ObjectOutputStream o) {
                 return clientList.get(o);
         }
 
         
-        public void gameIsFull(String gameName, Socket socket) {
-                ObjectOutputStream o = null;
-                o = (ObjectOutputStream) outputStreams.get(socket);
-                if (gamesList.get(gameName).amountOfPlayers() == MAX_PLAYERS) {
-                        try {
-                                o.writeObject("GM");
-                                o.flush();
-                        } catch (IOException e) {
-                                System.out.println("Exception in login " + e);
-                        }
-                }
-        }
+        
 
 
         public void actionPerformed(ActionEvent e) {
