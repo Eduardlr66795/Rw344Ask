@@ -8,6 +8,8 @@ import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import javax.swing.Icon;
@@ -25,15 +27,18 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 
 
-
 public class Client implements ActionListener {
-	
+
 	// Global Variables
 	private Socket client;
 	private int port = 9119;
-	private PrintWriter pw;
-	private BufferedReader brufferReader;
-	private MessagesThread threadMessage;
+	
+	
+	 private MessagesThread threadMessage;
+
+	private ObjectInputStream objectInput;
+	private ObjectOutputStream objectOutput;
+
 	private String userName;
 
 	// WelcomeScreen
@@ -54,13 +59,11 @@ public class Client implements ActionListener {
 	private JLabel[] players;
 	private JTabbedPane tabs;
 	private JFrame guiFrame;
-	
-	
-	//keep----
+
+	// keep----
 	JFrame frameMain;
 	JTextArea ff;
 
-	
 	public static void main(String[] args) {
 		try {
 			new Client();
@@ -71,8 +74,8 @@ public class Client implements ActionListener {
 
 	public Client() {
 		welcomeScreen();
-		//To test gui, comment out welcomeScreen() and run clientGui()
-//		
+		// To test gui, comment out welcomeScreen() and run clientGui()
+		//
 	}
 
 	/*
@@ -107,12 +110,10 @@ public class Client implements ActionListener {
 		panel.setLayout(null);
 		panel.setBackground(Color.white);
 
-	
-		
-		//////////////////////////
-		
+		// ////////////////////////
+
 		// Button
-		JLabel heading = new JLabel ("") {
+		JLabel heading = new JLabel("") {
 			public void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				if (new ImageIcon(
@@ -124,20 +125,18 @@ public class Client implements ActionListener {
 					else
 						height = width;
 					g.drawImage(
-							new ImageIcon(Client.class.getResource("/images/ask-logo.png")).getImage(), 5, 5, width+20 , height+10, null);
+							new ImageIcon(Client.class
+									.getResource("/images/ask-logo.png"))
+									.getImage(), 5, 5, width + 20, height + 10,
+							null);
 				}
 			}
 		};
-		
-		
-		
-		///////////////////////////////
-		
-		
-		
-		
-//		heading.setText("///Ask");
-//		heading.setForeground(Color.WHITE);
+
+		// /////////////////////////////
+
+		// heading.setText("///Ask");
+		// heading.setForeground(Color.WHITE);
 		heading.setFont(new Font("Serif", Font.BOLD, 45));
 		heading.setBounds(100, 20, panel.getWidth(), 100);
 
@@ -193,7 +192,7 @@ public class Client implements ActionListener {
 		frameWelcome.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				//TODO: create window event
+				// TODO: create window event
 				frameWelcome.dispose();
 				System.exit(0);
 			}
@@ -204,7 +203,7 @@ public class Client implements ActionListener {
 	 * 
 	 */
 	void clientGui() {
-		
+
 		// This try and catch is just a GUI theme. Looks cool
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -222,223 +221,225 @@ public class Client implements ActionListener {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		
-		
-		
-		
-		games=new String[15];
-        for(int k=0;k<15;k++){
-            games[k]="empty";
-        }
-        cards=new JButton[15][10];
-        bigframe=new JPanel[40];
-        chat=new JTextField();
-        chatBox=new JTextField();
-        tabs=new JTabbedPane();
-        helpers=new JButton[6];
-        guiFrame = new JFrame();
-        
-        guiFrame.setSize(1000,390);
-        guiFrame.setLayout(null);
-        //make sure the program exits when the frame closes
-//        guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        guiFrame.setResizable(false);
-        
-        guiFrame. setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        guiFrame.addWindowListener(new WindowAdapter() {
+
+		games = new String[15];
+		for (int k = 0; k < 15; k++) {
+			games[k] = "empty";
+		}
+		cards = new JButton[15][10];
+		bigframe = new JPanel[40];
+		chat = new JTextField();
+		chatBox = new JTextField();
+		tabs = new JTabbedPane();
+		helpers = new JButton[6];
+		guiFrame = new JFrame();
+
+		guiFrame.setSize(1000, 390);
+		guiFrame.setLayout(null);
+		// make sure the program exits when the frame closes
+		// guiFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		guiFrame.setResizable(false);
+
+		guiFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		guiFrame.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				guiFrame.dispose();
-				//TODO : Create an exit event
+				// TODO : Create an exit event
 			}
 		});
-        
-        
-        
-        
-        guiFrame.setTitle("Example GUI");
-        //Add helper buttons
-        helpers[0]=new JButton("Send");//To send chat message
-        helpers[0].setSize(93, 20);
-        helpers[0].setName("SendChat");
-        helpers[0].setLocation(710, 330);
-        helpers[0].addActionListener(this);
-        helpers[1]=new JButton("Log Off");///Logoff
-        helpers[1].setSize(160, 20);
-        helpers[1].setLocation(820, 330);
-        helpers[1].setName("Logoff");
-        helpers[1].addActionListener(this);
-        helpers[2]=new JButton("List Players");//List all players?
-        helpers[2].setSize(160, 20);
-        helpers[2].setLocation(820, 310);
-        helpers[2].setName("ListPlayers");
-        helpers[2].addActionListener(this);
-        helpers[3]=new JButton("List Games");//Get a list of all available games
-        helpers[3].setSize(160, 20);
-        helpers[3].setLocation(820, 290);
-        helpers[3].setName("ListGames");
-        helpers[3].addActionListener(this);
-        helpers[4]=new JButton("Other Button");//other button
-        helpers[4].setSize(160, 20);
-        helpers[4].setLocation(820, 270);
-        helpers[4].setName("XX");
-        helpers[4].addActionListener(this);
-        helpers[5]=new JButton("Other Button");//other button
-        helpers[5].setSize(160, 20);
-        helpers[5].setLocation(820, 250);
-        helpers[5].setName("YY");
-        helpers[5].addActionListener(this);
-        
-        tabs.setLocation(3, 8);
-        tabs.setSize(800, 310); 
-        chatBox.setSize(160, 220);
-        chatBox.setLocation(820, 30);
-        chat.setSize(700, 20);
-        chat.setLocation(3, 330);
-        //Add panels to main frame
-        guiFrame.add(chat);
-        guiFrame.add(chatBox); 
-        guiFrame.add(tabs);
-        //Add buttons to main frame
-        guiFrame.add(helpers[0]);
-        guiFrame.add(helpers[1]);
-        guiFrame.add(helpers[2]);
-        guiFrame.add(helpers[3]);
-        guiFrame.add(helpers[4]);
-        guiFrame.add(helpers[5]);
-        //center the JFrame in the middle of the screen
-        guiFrame.setLocationRelativeTo(null);
-        //make sure the JFrame is visible
-        guiFrame.setVisible(true);
-        
-        
-        //Just for testing--------------------------------------------------------------------
-        String[] test1={"9s","th","2c","4s","6c","7c","9h","qd","ks","as"};
-        String[] test2={"7s","3h","qc","8s","2c","3c","kh"};
-        String[] test3={"qs","th"};
-        String[] names1={"Paul","Luke","Michael","Kristo","James","Gerrit","Jukkie"};
-        String[] names2={"Michael","James","Kristo","Gerrit","Jukkie","Luke"};
-        String[] names3={"Michael","James","Kristo"};
-        newGameGui("Friendly",names1);
-        newGameGui("Fun",names2);
-        newGameGui("Hello",names1);
-        newGameGui("G3",names3);
-        updateGame("Friendly",test3,null);
-        updateGame("Fun",test1,null);
-        updateGame("G3",test2,null);
-        endGame("G3");
-        newGameGui("Test2",names2);
-        newGameGui("Test3",names1);
-        updateGame("Test2",test1,null);
-        updateGame("Test3",test2,null);
-//        endGame("Test3");
-//        endGame("Friendly");
-        //------------------------------------------------------------------------------------
-    
+
+		guiFrame.setTitle("Example GUI");
+		// Add helper buttons
+		helpers[0] = new JButton("Send");// To send chat message
+		helpers[0].setSize(93, 20);
+		helpers[0].setName("SendChat");
+		helpers[0].setLocation(710, 330);
+		helpers[0].addActionListener(this);
+		helpers[1] = new JButton("Log Off");// /Logoff
+		helpers[1].setSize(160, 20);
+		helpers[1].setLocation(820, 330);
+		helpers[1].setName("Logoff");
+		helpers[1].addActionListener(this);
+		helpers[2] = new JButton("List Players");// List all players?
+		helpers[2].setSize(160, 20);
+		helpers[2].setLocation(820, 310);
+		helpers[2].setName("ListPlayers");
+		helpers[2].addActionListener(this);
+		helpers[3] = new JButton("List Games");// Get a list of all available
+												// games
+		helpers[3].setSize(160, 20);
+		helpers[3].setLocation(820, 290);
+		helpers[3].setName("ListGames");
+		helpers[3].addActionListener(this);
+		helpers[4] = new JButton("Other Button");// other button
+		helpers[4].setSize(160, 20);
+		helpers[4].setLocation(820, 270);
+		helpers[4].setName("XX");
+		helpers[4].addActionListener(this);
+		helpers[5] = new JButton("Other Button");// other button
+		helpers[5].setSize(160, 20);
+		helpers[5].setLocation(820, 250);
+		helpers[5].setName("YY");
+		helpers[5].addActionListener(this);
+
+		tabs.setLocation(3, 8);
+		tabs.setSize(800, 310);
+		chatBox.setSize(160, 220);
+		chatBox.setLocation(820, 30);
+		chat.setSize(700, 20);
+		chat.setLocation(3, 330);
+		// Add panels to main frame
+		guiFrame.add(chat);
+		guiFrame.add(chatBox);
+		guiFrame.add(tabs);
+		// Add buttons to main frame
+		guiFrame.add(helpers[0]);
+		guiFrame.add(helpers[1]);
+		guiFrame.add(helpers[2]);
+		guiFrame.add(helpers[3]);
+		guiFrame.add(helpers[4]);
+		guiFrame.add(helpers[5]);
+		// center the JFrame in the middle of the screen
+		guiFrame.setLocationRelativeTo(null);
+		// make sure the JFrame is visible
+		guiFrame.setVisible(true);
+
+		// Just for
+		// testing--------------------------------------------------------------------
+		String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
+				"ks", "as" };
+		String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c", "kh" };
+		String[] test3 = { "qs", "th" };
+		String[] names1 = { "Paul", "Luke", "Michael", "Kristo", "James",
+				"Gerrit", "Jukkie" };
+		String[] names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie",
+				"Luke" };
+		String[] names3 = { "Michael", "James", "Kristo" };
+		newGameGui("Friendly", names1);
+		newGameGui("Fun", names2);
+		newGameGui("Hello", names1);
+		newGameGui("G3", names3);
+		updateGame("Friendly", test3, null);
+		updateGame("Fun", test1, null);
+		updateGame("G3", test2, null);
+		endGame("G3");
+		newGameGui("Test2", names2);
+		newGameGui("Test3", names1);
+		updateGame("Test2", test1, null);
+		updateGame("Test3", test2, null);
+		// endGame("Test3");
+		// endGame("Friendly");
+		// ------------------------------------------------------------------------------------
+
 	}
-	public void newGameGui(String gName,String[] pNames){
-        //Set game number, game name
-        int gameNumber=0;
-        for(int i=0;i<15;i++){
-            if(games[i].equals("empty")){
-                games[i]=gName;
-                gameNumber=i;
-                break;
-            }
-            //add in for i=14, then playing more than 15 games
-        }
-        //can add check here to make sure gameNumber has been initialised properly
-        
-        //Initialise
-        bigframe[gameNumber]=new JPanel();
-        bigframe[gameNumber].setSize(800, 310);
-        bigframe[gameNumber].setLayout(null);
-        bigframe[gameNumber].setName(gName);
-        cards[gameNumber]=new JButton[10];
-        players=new JLabel[7];
-        //Add game name label
-        gameName=new JLabel(gName);
-        gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
-        gameName.setBounds(340, 2, 180, 40);
-        bigframe[gameNumber].add(gameName);
-        //Add Player Names
-        for(int k=0;k<pNames.length;k++){
-            players[k]=new JLabel(pNames[k]);
-            players[k].setBounds(10,(k*20), 50, 15);
-            bigframe[gameNumber].add(players[k]);
-        }
-        //Add 10 facedown cards
-        for(int k=0;k<10;k++){
-        	Icon icon=new ImageIcon("src/cards/back.gif");
-            cards[gameNumber][k]=new JButton(icon);
-            cards[gameNumber][k].setBounds((80*k), 170, 75, 100);
-            cards[gameNumber][k].addActionListener(this);
-            cards[gameNumber][k].setEnabled(false);
-            bigframe[gameNumber].add(cards[gameNumber][k]);
-        }
-        //Add new game panel
-        bigframe[gameNumber].setName(gName);
-        tabs.addTab(gName,bigframe[gameNumber]);
-    }
-    public void updateGame(String gName,String[] pCards,int[] pScores){
-        //Find gameNumber
-        int gameNumber=0;
-        for(int i=0;i<15;i++){
-            if(games[i].equals(gName)){
-                gameNumber=i;
-                break;
-            }
-        }
-        
-        for(int k=0;k<pCards.length;k++){
-            cards[gameNumber][k].setEnabled(true);
-            Icon icon=new ImageIcon("src/cards/"+pCards[k]+".gif");
-            cards[gameNumber][k].setIcon(icon);
-            cards[gameNumber][k].setName(pCards[k]+""+bigframe[gameNumber].getName());
-            cards[gameNumber][k].setBounds((80*k), 170, 75, 100);
-            bigframe[gameNumber].add(cards[gameNumber][k]);
-        }
-        for(int k=9;k>pCards.length-1;k--){
-            cards[gameNumber][k].setVisible(false);
-        }
-        //tabs.updateUI();
-    }
-    public void endGame(String gName){
-		//find gameNumber
-		int gameNumber=0;
-		for(int i=0;i<15;i++){
-			if(games[i].equals(gName)){
-				gameNumber=i;
-				games[gameNumber]="empty";
+
+	public void newGameGui(String gName, String[] pNames) {
+		// Set game number, game name
+		int gameNumber = 0;
+		for (int i = 0; i < 15; i++) {
+			if (games[i].equals("empty")) {
+				games[i] = gName;
+				gameNumber = i;
+				break;
+			}
+			// add in for i=14, then playing more than 15 games
+		}
+		// can add check here to make sure gameNumber has been initialised
+		// properly
+
+		// Initialise
+		bigframe[gameNumber] = new JPanel();
+		bigframe[gameNumber].setSize(800, 310);
+		bigframe[gameNumber].setLayout(null);
+		bigframe[gameNumber].setName(gName);
+		cards[gameNumber] = new JButton[10];
+		players = new JLabel[7];
+		// Add game name label
+		gameName = new JLabel(gName);
+		gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
+		gameName.setBounds(340, 2, 180, 40);
+		bigframe[gameNumber].add(gameName);
+		// Add Player Names
+		for (int k = 0; k < pNames.length; k++) {
+			players[k] = new JLabel(pNames[k]);
+			players[k].setBounds(10, (k * 20), 50, 15);
+			bigframe[gameNumber].add(players[k]);
+		}
+		// Add 10 facedown cards
+		for (int k = 0; k < 10; k++) {
+			Icon icon = new ImageIcon("src/cards/back.gif");
+			cards[gameNumber][k] = new JButton(icon);
+			cards[gameNumber][k].setBounds((80 * k), 170, 75, 100);
+			cards[gameNumber][k].addActionListener(this);
+			cards[gameNumber][k].setEnabled(false);
+			bigframe[gameNumber].add(cards[gameNumber][k]);
+		}
+		// Add new game panel
+		bigframe[gameNumber].setName(gName);
+		tabs.addTab(gName, bigframe[gameNumber]);
+	}
+
+	public void updateGame(String gName, String[] pCards, int[] pScores) {
+		// Find gameNumber
+		int gameNumber = 0;
+		for (int i = 0; i < 15; i++) {
+			if (games[i].equals(gName)) {
+				gameNumber = i;
+				break;
 			}
 		}
-		int temp=tabs.getTabCount();
+
+		for (int k = 0; k < pCards.length; k++) {
+			cards[gameNumber][k].setEnabled(true);
+			Icon icon = new ImageIcon("src/cards/" + pCards[k] + ".gif");
+			cards[gameNumber][k].setIcon(icon);
+			cards[gameNumber][k].setName(pCards[k] + ""
+					+ bigframe[gameNumber].getName());
+			cards[gameNumber][k].setBounds((80 * k), 170, 75, 100);
+			bigframe[gameNumber].add(cards[gameNumber][k]);
+		}
+		for (int k = 9; k > pCards.length - 1; k--) {
+			cards[gameNumber][k].setVisible(false);
+		}
+		// tabs.updateUI();
+	}
+
+	public void endGame(String gName) {
+		// find gameNumber
+		int gameNumber = 0;
+		for (int i = 0; i < 15; i++) {
+			if (games[i].equals(gName)) {
+				gameNumber = i;
+				games[gameNumber] = "empty";
+			}
+		}
+		int temp = tabs.getTabCount();
 		System.out.println(gName);
 		System.out.println(temp);
-		for(int i=0;i<temp;i++){
+		for (int i = 0; i < temp; i++) {
 			System.out.println(i);
-			if(tabs.getComponentAt(i).getName().equals(gName)){
+			if (tabs.getComponentAt(i).getName().equals(gName)) {
 				tabs.removeTabAt(i);
 				break;
-				
+
 			}
 		}
-    }
-	
-	public void quit()
-	{
+	}
+
+	public void quit() {
 		try {
 			client.close();
 			frameMain.dispose();
-//			threadMessage.interrupt();
+			// threadMessage.interrupt();
 			System.exit(0);
-	
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-//			e.printStackTrace();
+			// e.printStackTrace();
 		}
-//		threadMessage.destroy()
+		// threadMessage.destroy()
 	}
 
 	public void connectToServer() {
@@ -451,35 +452,42 @@ public class Client implements ActionListener {
 			userName = loginTextfieldName.getText();
 			client = new Socket(servername, port);
 
-			InputStreamReader reader = new InputStreamReader(client.getInputStream());
+			objectInput = new ObjectInputStream(client.getInputStream());
+			objectOutput = new ObjectOutputStream(client.getOutputStream());
 
-			brufferReader = new BufferedReader(reader);
-			pw = new PrintWriter(client.getOutputStream(), true);
+			// ///////////////////////////////////////////////////
 
 			// Checking to see if server is ready
-			String serverMsg = brufferReader.readLine();
+			// String serverMsg = brufferReader.readLine();
+
+			String serverMsg = (String) objectInput.readObject();
 
 			if (serverMsg.compareTo("RD") == 0) {
-				JOptionPane.showConfirmDialog(null, "HEY THERE");
+
+			
+		
 				
-				// Server is ready
+				
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
 				sb.append(userName);
 				sb.append(":password");
+	
+				objectOutput.writeObject(sb.toString());
 
-				// Send user name and password to server
-				pw.println(sb.toString());
+				String msg = (String) objectInput.readObject();
+				System.out.println(msg);
 
-				// Check if user name is unique
-				if (brufferReader.readLine().compareTo("LK") == 0) {
+				if (msg.compareTo("LK") == 0) {
 					clientGui();
 					frameWelcome.dispose();
-					//ff.append("Client and server ready...");
-					threadMessage = new MessagesThread();
+					// ff.append("Client and server ready...");
+				    threadMessage = new MessagesThread();
 					threadMessage.start();
 				} else {
 					new Client();
+				System.out.println("ERROR IN CLIENT connectToServer method");
+				
 				}
 			} else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");
@@ -494,14 +502,13 @@ public class Client implements ActionListener {
 		public void run() {
 			while (true) {
 				try {
-					String line = brufferReader.readLine();
+					String line = (String) objectInput.readObject();
 					line = line.replace("\n", "");
 					ff.append("Server--> " + line + "\n");
 				} catch (Exception e) {
 					e.printStackTrace();
-					//TODO : What frame are we disposing here??
-//					dispose();
-					
+					// TODO : What frame are we disposing here??
+					// dispose();
 					System.exit(0);
 				}
 			}
@@ -516,35 +523,37 @@ public class Client implements ActionListener {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}else{//will try look for a better way to do this, but this works
-			String temp=evt.toString().substring(evt.toString().indexOf(" on ")+4);
-	        //Check if temp equals any special cases, i.e. logoff, get list of games, if not then a card has been clicked
-	        if(temp.equals("SendChat")){
-	            //Send typed chat message
-	            System.out.println("SendChat");
-	        }else if(temp.equals("Logoff")){
-	            //Logoff
-	            System.out.println("Logoff");
-	        }else if(temp.equals("ListGames")){
-	            //Send List of Games
-	            System.out.println("ListGames");
-	        }else if(temp.equals("ListPlayers")){
-	            //Send List of Players
-	            System.out.println("ListPlayers");
-	        }else if(temp.equals("YY")){
-	            //Todo
-	            System.out.println("YY");
-	        }else if(temp.equals("XX")){
-	            //Todo
-	            System.out.println("XX");
-	        }else{
-	            //Else a card has been clicked
-	            //Card that has been clicked and the game name        
-	            String card=temp.substring(0, 2);
-	            String game=temp.substring(2);
-	            System.out.print(card+" ");
-	            System.out.println(game);  
-	        }
+		} else {// will try look for a better way to do this, but this works
+			String temp = evt.toString().substring(
+					evt.toString().indexOf(" on ") + 4);
+			// Check if temp equals any special cases, i.e. logoff, get list of
+			// games, if not then a card has been clicked
+			if (temp.equals("SendChat")) {
+				// Send typed chat message
+				System.out.println("SendChat");
+			} else if (temp.equals("Logoff")) {
+				// Logoff
+				System.out.println("Logoff");
+			} else if (temp.equals("ListGames")) {
+				// Send List of Games
+				System.out.println("ListGames");
+			} else if (temp.equals("ListPlayers")) {
+				// Send List of Players
+				System.out.println("ListPlayers");
+			} else if (temp.equals("YY")) {
+				// Todo
+				System.out.println("YY");
+			} else if (temp.equals("XX")) {
+				// Todo
+				System.out.println("XX");
+			} else {
+				// Else a card has been clicked
+				// Card that has been clicked and the game name
+				String card = temp.substring(0, 2);
+				String game = temp.substring(2);
+				System.out.print(card + " ");
+				System.out.println(game);
+			}
 		}
 	}
 }
