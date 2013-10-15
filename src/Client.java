@@ -14,6 +14,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,8 +32,6 @@ public class Client extends Thread implements ActionListener {
 	private Socket client;
 	private int port = 9119;
 
-	// private MessagesThread threadMessage;
-
 	private ObjectInputStream objectInput;
 	private ObjectOutputStream objectOutput;
 
@@ -41,18 +40,16 @@ public class Client extends Thread implements ActionListener {
 	// WelcomeScreen
 	private JFrame frameWelcome;
 	private JPanel panel;
-	private JTextField loginTextfieldName;
-	private JTextField loginTextfielIp;
-	private JButton loginButton;
-	//Create Game
+
+	// Create Game
 	private JFrame frameCreateGame;
 	private JPanel panelCreateGame;
 	private JTextField textFieldEnterNewGameName;
-	private JButton buton_createNewGame;
+
 	// MainGui
 	private String[] games;
 	private JPanel[] bigframe;
-	private JTextField chat;
+	// private JTextField chat;
 	// private JTextField chatBox;
 	private JButton[][] cards;
 	private JLabel gameName;
@@ -68,12 +65,19 @@ public class Client extends Thread implements ActionListener {
 	public JButton button_listPlayers;
 	public JButton button_listGames;
 	public JButton button_createGame;
+	public JButton button_login;
+	public JButton button_createNewGame;
 
+	public JList jlist_contactsMain;
 	public JPanel panel_mycards;
 	public JPanel panel_game;
-
-	public JTextField text_message;
 	public JTextArea textArea_display;
+
+	public JLabel labelEnterNewGameName;
+
+	public JTextField text_loginTextfieldName;
+	public JTextField text_loginTextfielIp;
+	public JTextField text_message;
 
 	// END--------------------------------
 
@@ -172,31 +176,31 @@ public class Client extends Thread implements ActionListener {
 		IP.setFont(new Font("Serif", Font.BOLD, 18));
 		IP.setBounds(37, 190, 100, 25);
 
-		loginTextfieldName = new JTextField();
-		loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
-		loginTextfieldName.setForeground(Color.RED);
-		loginTextfieldName.setBounds(130, 160, 200, 25);
+		text_loginTextfieldName = new JTextField();
+		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
+		text_loginTextfieldName.setForeground(Color.RED);
+		text_loginTextfieldName.setBounds(130, 160, 200, 25);
 
-		loginTextfielIp = new JTextField();
-		loginTextfielIp.setText("localhost");
-		loginTextfielIp.setFont(new Font("Serif", Font.BOLD, 16));
-		loginTextfielIp.setForeground(Color.RED);
-		loginTextfielIp.setBounds(130, 190, 200, 25);
+		text_loginTextfielIp = new JTextField();
+		text_loginTextfielIp.setText("localhost");
+		text_loginTextfielIp.setFont(new Font("Serif", Font.BOLD, 16));
+		text_loginTextfielIp.setForeground(Color.RED);
+		text_loginTextfielIp.setBounds(130, 190, 200, 25);
 
-		loginButton = new JButton();
-		loginButton.setText("Login");
-		loginButton.setFont(new Font("Serif", Font.PLAIN, 20));
-		loginButton.setBounds(130, 220, 200, 30);
-		loginButton.setForeground(Color.BLACK);
-		loginButton.addActionListener(this);
+		button_login = new JButton();
+		button_login.setText("Login");
+		button_login.setFont(new Font("Serif", Font.PLAIN, 20));
+		button_login.setBounds(130, 220, 200, 30);
+		button_login.setForeground(Color.BLACK);
+		button_login.addActionListener(this);
 
 		panel.add(heading);
 		panel.add(created);
 		panel.add(loginName);
 		panel.add(IP);
-		panel.add(loginTextfieldName);
-		panel.add(loginTextfielIp);
-		panel.add(loginButton);
+		panel.add(text_loginTextfieldName);
+		panel.add(text_loginTextfielIp);
+		panel.add(button_login);
 
 		frameWelcome.add(panel);
 		frameWelcome.setResizable(false);
@@ -240,10 +244,9 @@ public class Client extends Thread implements ActionListener {
 		for (int k = 0; k < 15; k++) {
 			games[k] = "empty";
 		}
-		
+
 		cards = new JButton[15][10];
 		bigframe = new JPanel[40];
-		chat = new JTextField();
 		tabs = new JTabbedPane();
 		guiFrame = new JFrame();
 
@@ -308,10 +311,7 @@ public class Client extends Thread implements ActionListener {
 
 		tabs.setLocation(3, 8);
 		tabs.setSize(990, 200);
-		chat.setSize(700, 20);
-		chat.setLocation(3, 330);
 
-		guiFrame.add(chat);
 		guiFrame.add(tabs);
 		guiFrame.setLocationRelativeTo(null);
 		guiFrame.setVisible(true);
@@ -361,7 +361,7 @@ public class Client extends Thread implements ActionListener {
 		bigframe[gameNumber].setName(gName);
 		cards[gameNumber] = new JButton[10];
 		players = new JLabel[7];
-		
+
 		// Add game name label
 		gameName = new JLabel(gName);
 		gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
@@ -409,7 +409,6 @@ public class Client extends Thread implements ActionListener {
 		for (int k = 9; k > pCards.length - 1; k--) {
 			cards[gameNumber][k].setVisible(false);
 		}
-		// tabs.updateUI();
 	}
 
 	public void endGame(String gName) {
@@ -437,6 +436,7 @@ public class Client extends Thread implements ActionListener {
 	public void quit() {
 		try {
 			client.close();
+			// TODO
 			// frameMain.dispose();
 			// threadMessage.interrupt();
 			System.exit(0);
@@ -454,17 +454,12 @@ public class Client extends Thread implements ActionListener {
 			 * TODO Change the servername to IP Address to test over network
 			 */
 
-			String servername = "localhost";
-			userName = loginTextfieldName.getText();
+			String servername = text_loginTextfielIp.getText();
+			userName = text_loginTextfieldName.getText();
 			client = new Socket(servername, port);
 
 			objectInput = new ObjectInputStream(client.getInputStream());
 			objectOutput = new ObjectOutputStream(client.getOutputStream());
-
-			// ///////////////////////////////////////////////////
-
-			// Checking to see if server is ready
-			// String serverMsg = brufferReader.readLine();
 
 			String serverMsg = (String) objectInput.readObject();
 
@@ -482,14 +477,10 @@ public class Client extends Thread implements ActionListener {
 				if (msg.compareTo("LK") == 0) {
 					clientGui();
 					frameWelcome.dispose();
-					// ff.append("Client and server ready...");
-					// threadMessage = new MessagesThread();
-					// threadMessage.start();
-
 					start();
 
 				} else {
-					// new Client();
+					// new Client();//TODO
 					System.out
 							.println("ERROR IN CLIENT connectToServer method");
 				}
@@ -497,7 +488,7 @@ public class Client extends Thread implements ActionListener {
 
 			else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");
-				// quit();
+				// quit(); //TODO
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -528,12 +519,8 @@ public class Client extends Thread implements ActionListener {
 				System.out.println("mess rcvd: " + line.toString());
 				if (line != null) {
 					textArea_display.append("Server--> " + line + "\n");
-
-					// line = line.replace("\n", "");
-					// ff.append("Server--> " + line + "\n");
 					System.out.println(line.toString());
 				}
-
 			}
 
 			catch (Exception e) {
@@ -547,11 +534,10 @@ public class Client extends Thread implements ActionListener {
 		}
 	}
 
-	
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//Create New Game
-	void createGame(){
-		//Theme
+	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// Create New Game
+	void createGame() {
+		// Theme
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -568,46 +554,48 @@ public class Client extends Thread implements ActionListener {
 		} catch (UnsupportedLookAndFeelException e) {
 			e.printStackTrace();
 		}
-		
-		//textFieldEnterNewGameName;
-		//buton_createNewGame;
-		
+
 		frameCreateGame = new JFrame();
-		frameCreateGame.setSize(400, 300);
-		frameCreateGame.setLocation(700, 400);
+		frameCreateGame.setSize(400, 140);
+		frameCreateGame.setLocation(guiFrame.getX(), guiFrame.getY());
 		frameCreateGame.setEnabled(true);
 
 		panelCreateGame = new JPanel();
-		panelCreateGame.setSize(frameCreateGame.getWidth(), frameCreateGame.getHeight());
+		panelCreateGame.setSize(frameCreateGame.getWidth(),
+				frameCreateGame.getHeight());
 		panelCreateGame.setLayout(null);
 		panelCreateGame.setBackground(Color.white);
-		
-		textFieldEnterNewGameName=new JTextField();
-		textFieldEnterNewGameName.setSize(200, 40);
-		textFieldEnterNewGameName.setLocation(10, 10);
-		textFieldEnterNewGameName.setText("Enter game name:");
-		
+
+		textFieldEnterNewGameName = new JTextField();
+		textFieldEnterNewGameName.setSize(200, 30);
+		textFieldEnterNewGameName.setLocation(150, 10);
+
+		labelEnterNewGameName = new JLabel();
+		labelEnterNewGameName.setSize(150, 30);
+		labelEnterNewGameName.setLocation(10, 10);
+		labelEnterNewGameName.setText("Enter game name:");
+
+		button_createNewGame = new JButton();
+		button_createNewGame.setSize(140, 40);
+		button_createNewGame.setLocation(130, 65);
+		button_createNewGame.setText("Create Game");
+
 		panelCreateGame.add(textFieldEnterNewGameName);
-		
+		panelCreateGame.add(labelEnterNewGameName);
+		panelCreateGame.add(button_createNewGame);
 		frameCreateGame.add(panelCreateGame);
 		frameCreateGame.setVisible(true);
-		
-		
+
 	}
-	
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////
-	
-	
-	
-	
-	
-	
+	// ///////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////
+	// ///////////////////////////////////////////////////////////////////////////////
+
 	public void actionPerformed(ActionEvent evt) {
-		if (evt.getSource() == loginButton) {
+		if (evt.getSource() == button_login) {
 			connectToServer();
 
 		}
@@ -668,22 +656,16 @@ public class Client extends Thread implements ActionListener {
 			textArea_display.append("Create new Game Screen\n");
 			createGame();
 			/*
-			try {
-				objectOutput.writeObject("GS:Hello;");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			try {
-				String serverMsg = (String) objectInput.readObject();
-				if (serverMsg.compareTo("GK") == 0) {
-					textArea_display.append("Game created and comfrmed!!");
-				}
-				
-				
-			} catch (Exception e) {
-				e.printStackTrace();
-			}*/
+			 * try { objectOutput.writeObject("GS:Hello;"); } catch (IOException
+			 * e) { e.printStackTrace(); }
+			 * 
+			 * try { String serverMsg = (String) objectInput.readObject(); if
+			 * (serverMsg.compareTo("GK") == 0) {
+			 * textArea_display.append("Game created and comfrmed!!"); }
+			 * 
+			 * 
+			 * } catch (Exception e) { e.printStackTrace(); }
+			 */
 
 		}
 
