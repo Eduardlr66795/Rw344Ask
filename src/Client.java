@@ -367,15 +367,6 @@ public class Client implements ActionListener {
 		
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-
 		tabs.setLocation(3, 8);
 		tabs.setSize(800, 310);
 		chatBox.setSize(160, 220);
@@ -386,14 +377,7 @@ public class Client implements ActionListener {
 		guiFrame.add(chat);
 		guiFrame.add(chatBox);
 		guiFrame.add(tabs);
-		// Add buttons to main frame
-//		guiFrame.add(helpers[0]);
-//		guiFrame.add(helpers[1]);
-//		guiFrame.add(helpers[2]);
-//		guiFrame.add(helpers[3]);
-//		guiFrame.add(helpers[4]);
-//		guiFrame.add(helpers[5]);
-		// center the JFrame in the middle of the screen
+
 		guiFrame.setLocationRelativeTo(null);
 		// make sure the JFrame is visible
 		guiFrame.setVisible(true);
@@ -609,43 +593,80 @@ public class Client implements ActionListener {
 
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == loginButton) {
+			JOptionPane.showConfirmDialog(null, "hello there");
 			try {
 				connectToServer();
+				System.out.println("asd");
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} else {// will try look for a better way to do this, but this works
-			String temp = evt.toString().substring(
-					evt.toString().indexOf(" on ") + 4);
-			// Check if temp equals any special cases, i.e. logoff, get list of
-			// games, if not then a card has been clicked
-			if (temp.equals("SendChat")) {
-				// Send typed chat message
-				System.out.println("SendChat");
-			} else if (temp.equals("Logoff")) {
-				// Logoff
-				System.out.println("Logoff");
-			} else if (temp.equals("ListGames")) {
-				// Send List of Games
-				System.out.println("ListGames");
-			} else if (temp.equals("ListPlayers")) {
-				// Send List of Players
-				System.out.println("ListPlayers");
-			} else if (temp.equals("YY")) {
-				// Todo
-				System.out.println("YY");
-			} else if (temp.equals("XX")) {
-				// Todo
-				System.out.println("XX");
+		} 
+		
+		else if (evt.getSource() == button_send) {
+			String text = text_message.getText();
+			if(text.length() > 0) {
+				textArea_display.append("<- "+ text +" ->\n");
+				text_message.setText("");
+//				pw.append(text);
+				
 			} else {
-				// Else a card has been clicked
-				// Card that has been clicked and the game name
-				String card = temp.substring(0, 2);
-				String game = temp.substring(2);
-				System.out.print(card + " ");
-				System.out.println(game);
-			}
+				text_message.setText("");
+			}	
+		}
+		
+		else if (evt.getSource() == button_listPlayers) {
+			textArea_display.append("List Of Players Button Pressed\n");
+		}
+		
+		else if(evt.getSource() == button_listGames) {
+			textArea_display.append("button_listGames Pressed\n");
+		}
+		
+		else if(evt.getSource() == button_history) {
+			textArea_display.append("History Pressed\n");
+		}
+		
+		else if(evt.getSource() == button_logoff) {
+			textArea_display.append("button_logoff Pressed\n");
+		}
+		
+		else {
+			String temp = evt.toString().substring(evt.toString().indexOf(" on")+4);
+	        //Check if temp equals any special cases, i.e. logoff, get list of games, if not then a card has been clicked
+			
+			
+			
+			
+//	        if(temp.equals("SendChat")){
+//	            //Send typed chat message
+//	            System.out.println("SendChat");
+	            
+	            
+	            
+	            
+	        if(temp.equals("Logoff")){
+	            //Logoff
+	            System.out.println("Logoff");
+	        }else if(temp.equals("ListGames")){
+	            //Send List of Games
+	            System.out.println("ListGames");
+	        }else if(temp.equals("ListPlayers")){
+	            //Send List of Players
+	            System.out.println("ListPlayers");
+	        }else if(temp.equals("YY")){
+	            //Todo
+	            System.out.println("YY");
+	        }else if(temp.equals("XX")){
+	            //Todo
+	            System.out.println("XX");
+	        }else{
+	            //Else a card has been clicked
+	            //Card that has been clicked and the game name        
+	            String card=temp.substring(0, 2);
+	            String game=temp.substring(2);
+	            System.out.print(card+" ");
+	            System.out.println(game);  
+	        }
 		}
 	}
 }
