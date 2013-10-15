@@ -16,7 +16,6 @@ public class HandleClient extends Thread {
         public void run() {
                 try {
                         ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-                        // server.sendUsernames();
 
                         while (true) {
                                 String message = (String) input.readObject();
@@ -25,20 +24,26 @@ public class HandleClient extends Thread {
 
                                 if (command.equals("LI")) {
                                         server.login(arguments[0], arguments[1], socket);
+                                
                                 } else if (command.equals("LO")) {
                                         server.logoff(socket);
-                                }
-                                else if (command.equals("GS")){
+                                        
+                                } else if (command.equals("GS")){
                                         server.createGame(arguments[0], socket);
-                                }
-                                else if (command.equals("GN")){
-                                        server.allowAddPlayerToGame(arguments[0], socket);
-                                }
-                                else if (command.equals("GF")){
+                                        
+                                } else if (command.equals("GN")){
+                                        server.addPlayerToGame(arguments[0], socket);
+                                        
+                                } else if (command.equals("GF")){
                                         server.gameIsFull(arguments[0], socket);
-                                }
-                                
-                                else {
+                                        
+                                } else if (command.equals("GO")) {       
+                                        server.kickPlayerFromGame(arguments[0], arguments[1], socket);
+                                        
+                                } else if () {
+                                        
+                                 
+                                } else {
                                         server.sendToAll(message, socket);
                                 }
                         }
@@ -51,11 +56,11 @@ public class HandleClient extends Thread {
 
                 } 
                 
-//              finally {
-//                      if (!disconnected) {
-//                              server.removeUsername(socket);
-//                              server.removeConnection(socket);
-//                      }
-//              }
+              finally {
+                      if (!disconnected) {
+                              server.removeUsername(socket);
+                              server.removeConnection(socket);
+                      }
+              }
         }
 }
