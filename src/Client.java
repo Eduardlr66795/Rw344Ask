@@ -598,7 +598,7 @@ public class Client extends Thread implements ActionListener{
                         while (true) {
                                 try {
                                         String line = (String) objectInput.readObject();
-                                        System.out.println(line.toString());
+                                        System.out.println("mess rcvd: " + line.toString());
                                         if(line!= null) {
                                                 textArea_display.append("Server--> " + line + "\n");
                                                 
@@ -633,7 +633,17 @@ public class Client extends Thread implements ActionListener{
                                 String text = text_message.getText();
                                 if (text.length() > 0) {
                                         textArea_display.append("<- " + text + " ->\n");
+                                        
+                                        
+                                        
+                                        try {
+                                                objectOutput.writeObject(text);
+                                        } catch (IOException e) {
+                                                System.out.println("Logoff fail");
+                                                e.printStackTrace();
+                                        }
                                         text_message.setText("");
+                                        
                                         // pw.append(text);
 
                                 } else {
