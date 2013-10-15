@@ -31,8 +31,8 @@ public class Server implements ActionListener {
 
         private ServerSocket ss;
         private Hashtable outputStreams = new Hashtable(); // socket, outputstream
-        Hashtable<String, Game> gamesList = new Hashtable<String, Game>(); // Gamename,                                                                                                         
-        private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>(); // outputstream, username
+        Hashtable <String, Game> gamesList = new Hashtable<String, Game>(); // Gamename,                                                                                                         
+        private Hashtable <ObjectOutputStream, String> clientList = new Hashtable <ObjectOutputStream, String>(); // outputstream, username
         private final int MAX_PLAYERS = 7;
 
         
@@ -273,59 +273,60 @@ public class Server implements ActionListener {
         
         // Removes a username from the hashtable
         public void removeUsername(Socket s) {
-                synchronized (outputStreams) {
-                        ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
-                        synchronized (clientList) {
-                                clientList.remove(output);
-                        }
+            synchronized (outputStreams) {
+                ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
+                synchronized (clientList) {
+                    clientList.remove(output);
                 }
+            }
         }
         
         
         // Gets a username from a socket
         public String getUsername(Socket s) {
-                ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
-                return (String) clientList.get(output);
+            ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
+            return (String) clientList.get(output);
         }
 
         // Sends a list of all clientList connected to server to all clients
         // connected to server
         public void sendclientList() {
-                Collection Users = clientList.values();
-                String usernamelist = ".COMMAND_WHOSINTHEROOOM";
-                Iterator itr = Users.iterator();
-                while (itr.hasNext()) {
-                        usernamelist += " " + itr.next();
-                }
+            Collection Users = clientList.values();
+            String usernamelist = ".COMMAND_WHOSINTHEROOOM";
+            Iterator itr = Users.iterator();
+            while (itr.hasNext()) {
+                usernamelist += " " + itr.next();
+            }
 
-                for (Enumeration e = getOutputStreams(); e.hasMoreElements();) {
-                        ObjectOutputStream output = (ObjectOutputStream) e.nextElement();
-                        try {
-                                output.writeObject(usernamelist);
-                                output.flush();
-                        } catch (Exception e2) {
-                                System.out.println("IO exception in send clientList " + e2);
-                        }
+            for (Enumeration e = getOutputStreams(); e.hasMoreElements();) {
+                ObjectOutputStream output = (ObjectOutputStream) e.nextElement();
+                try {
+                        output.writeObject(usernamelist);
+                        output.flush();
+                } catch (Exception e2) {
+                        System.out.println("IO exception in send clientList " + e2);
                 }
+            }
         }
 
         // END OF OLD METHODS: //
+        
+        
 
         // ----------- ///
+        
+        
 
         // START OF NEW METHODS: //
 
         public String getTimeAndDate() {
-                DateFormat dateFormat = new SimpleDateFormat("dd MMM hh:mm");
-                Calendar cal = Calendar.getInstance();
-                String dateAndTime = dateFormat.format(cal.getTime());
-                return dateAndTime;
+            DateFormat dateFormat = new SimpleDateFormat("dd MMM hh:mm");
+            Calendar cal = Calendar.getInstance();
+            String dateAndTime = dateFormat.format(cal.getTime());
+            return dateAndTime;
         }
         
         
-        
-
-    
         public void login(String username, String password, Socket socket) {
             Collection Users = clientList.values();
             ObjectOutputStream o = null;
@@ -397,7 +398,7 @@ public class Server implements ActionListener {
 	                        // game is unique and was created
 	                        gamesList.put(gameName, newGame);
 	                        
-	                        o.writeObject("GK");
+	                        o.writeObject("GK;");
 	                        o.flush();
 	                        textAreaGame.append("New client: " + gameName);
 	                        textAreaGame.append("\n");
@@ -538,50 +539,180 @@ public class Server implements ActionListener {
         		System.out.println("Exception in kickPlayerFromGame " + e);
         	}
         }
-
-        
-        public int getTotalPlayers(String gameName) {
-                Game game = gamesList.get(gameName);
-                return game.amountOfPlayers();
-        }
-
-        
-        
-
-        
-        public ObjectOutputStream getPlayerAdded(String gameName) {
-                return gamesList.get(gameName).getAddedPlayer();
-        }
-
-        
-        public boolean hasNewPlayer(String gameName) {
-                return gamesList.get(gameName).hasNewPlayer();
-        }
-        
-        
-        public boolean joinGame(String gameName, String playerName) {
-                return (gamesList.get(gameName).addPlayer(playerName));
-        }
+       
         // Get games list as string array for client to choose a game
-        public String[] getGamesList() {
-                String[] stringGamesList;
-                int length = gamesList.size();
-                int counter = 0;
-                stringGamesList = new String[length];
-                Iterator<String> itr = gamesList.keySet().iterator();
-                while (itr.hasNext()) {
-                        stringGamesList[counter] = itr.next();
-                        counter++;
-                }
-                return stringGamesList;
+        public void getGamesList(Socket socket, String prefix) {
+        	
+        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+        	
+        	String gameslist = "GU";
+        	int count = 0;
+        	
+        	for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
+        		if (count > 0) {
+        			gameslist += ":";
+        		}
+        		
+        		String nextgame = (String) e.nextElement();
+        		if (nextgame.startsWith(prefix)) {
+	        		gameslist += nextgame;
+	        		count++;
+        		}
+        	}
+        	gameslist += ";";
+        	
+        	
+        	try {
+        		o.writeObject(gameslist);
+        		o.flush();
+        	} catch (Exception e) {
+        		System.out.println("Exception in getGameslist " + e);
+        	}
+                
         }
-
-        public String getName(ObjectOutputStream o) {
-                return clientList.get(o);
+        
+        public void joinGame(Socket socket, String gameName) {
+        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+        	try {
+        		String playerName = getUsername(socket);
+        	
+        	 // if game does not exist
+	    		if (!gamesList.contains(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		game.nextPlayersToJoin.add(playerName);
+	    		gamesList.put(gameName, game);
+	    		
+	    		o.writeObject("GX;");
+	    		o.flush();
+	    		
+        	} catch (Exception e) {
+        		System.out.println("Exception in joinGame " + e);
+        	}
+        	
         }
-
         
+        public void waitForGame(Socket socket, String gameName) {
+        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+        	try {
+        		
+        		// if game does not exist
+	    		if (!gamesList.contains(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		if (!game.playerList.contains(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+        		
+        		if (game.readyToStart) {
+        			o.writeObject("GB;");
+        			o.flush();
+        			return;
+        			
+        		} else {
+        			o.writeObject("GZ;");
+        			o.flush();
+        			return;
+        		}
+        		
+        		
+        	} catch (Exception e) {
+        		System.out.println("Exception in waitForGame " + e);
+        	}
+        }
         
+        public void playersInGame(Socket socket, String gameName) {
+        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+        	try {
+        		
+        		// if game does not exist
+	    		if (!gamesList.contains(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		if (!game.playerList.contains(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		String message = "GC";
+	    		
+	    		//TODO if all works then remove
+	    		if (game.playerList.isEmpty()) {
+	    			System.out.println("Should never get here, started a game with 0 players?");
+	    			o.writeObject(message + ";");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		int count = 0;
+	    		for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+	    			if (count != 0) {
+	    				message += ":";
+	    			}
+	    			message += (String) e.nextElement();
+	    			
+	    		}
+	    		
+	    		o.writeObject(message + ";");
+	    		o.flush();
+	    		
+	    		
+        	} catch (Exception e) {
+        		System.out.println("Exception in playersInGame " + e);
+        	}
+        
+        }
+        
+       public void quitGame(Socket socket, String gameName) {
+        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+        	try {
+        		
+        		// if game does not exist
+	    		if (!gamesList.contains(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		if (!game.playerList.contains(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		game.playerList.remove(getUsername(socket));
+	    		game.playerCount--;
+	    		gamesList.put(gameName, game);
+	    		
+	    		o.writeObject("QK;");
+	    		o.flush();
+	    		sendToAll("QP" + getUsername(socket) + ";",socket);
+	    		
+	    		
+        	} catch (Exception e) {
+        		System.out.println("Exception in playersInGame " + e);
+        	}
+       }
 
 
         public void actionPerformed(ActionEvent e) {
