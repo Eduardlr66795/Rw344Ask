@@ -19,11 +19,14 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -285,11 +288,14 @@ public class Client extends Thread implements ActionListener{
                 guiFrame.add(text_message);
             
             
-                textArea_display = new JTextArea();
-                textArea_display.setSize(800, 130);
-                textArea_display.setLocation(3, 230); 
+                JScrollPane spMain = new JScrollPane(  textArea_display = new JTextArea());
+//                spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                spMain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                spMain.setBounds(3, 230, 800, 130);
                 textArea_display.setEditable(false);
-                guiFrame.add(textArea_display); 
+                guiFrame.add(spMain); 
+ 
                 
             
                 button_listPlayers = new JButton("List of Players");
