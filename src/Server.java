@@ -394,7 +394,7 @@ public class Server implements ActionListener {
                 ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
                 
                 try {
-	                if (!gamesList.contains(gameName)) {
+	                if (!gamesList.containsKey(gameName)) {
 	                        // game is unique and was created
 	                        gamesList.put(gameName, newGame);
 	                        
@@ -417,9 +417,15 @@ public class Server implements ActionListener {
         public void addPlayerToGame(String gameName, Socket socket) {
         	try {
 	        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+	        	System.out.println("Game name looked for is " + gameName);
+	        	
+	        	for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
+	        		String g = (String) e.nextElement();
+	        		System.out.println("Game found is " + g);
+	        	}
 	        	
 	        	//if game does not exist
-	    		if (!gamesList.contains(gameName)) {
+	    		if (!gamesList.containsKey(gameName)) {
 	    			o.writeObject("ER133;");
 	    			o.flush();
 	    			return;
@@ -475,7 +481,7 @@ public class Server implements ActionListener {
 	            ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 	            
 	            // if game does not exist
-	    		if (!gamesList.contains(gameName)) {
+	    		if (!gamesList.containsKey(gameName)) {
 	    			o.writeObject("ER133;");
 	    			o.flush();
 	    			return;
@@ -510,7 +516,7 @@ public class Server implements ActionListener {
         		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 	            
   	          // if game does not exist
-  	    		if (!gamesList.contains(gameName)) {
+  	    		if (!gamesList.containsKey(gameName)) {
   	    			o.writeObject("ER133;");
   	    			o.flush();
   	    			return;
@@ -577,7 +583,7 @@ public class Server implements ActionListener {
         		String playerName = getUsername(socket);
         	
         	 // if game does not exist
-	    		if (!gamesList.contains(gameName)) {
+	    		if (!gamesList.containsKey(gameName)) {
 	    			o.writeObject("ER133;");
 	    			o.flush();
 	    			return;
@@ -602,7 +608,7 @@ public class Server implements ActionListener {
         	try {
         		
         		// if game does not exist
-	    		if (!gamesList.contains(gameName)) {
+	    		if (!gamesList.containsKey(gameName)) {
 	    			o.writeObject("ER133;");
 	    			o.flush();
 	    			return;
@@ -638,7 +644,7 @@ public class Server implements ActionListener {
         	try {
         		
         		// if game does not exist
-	    		if (!gamesList.contains(gameName)) {
+	    		if (!gamesList.containsKey(gameName)) {
 	    			o.writeObject("ER133;");
 	    			o.flush();
 	    			return;
@@ -686,7 +692,7 @@ public class Server implements ActionListener {
         	try {
         		
         		// if game does not exist
-	    		if (!gamesList.contains(gameName)) {
+	    		if (!gamesList.containsKey(gameName)) {
 	    			o.writeObject("ER133;");
 	    			o.flush();
 	    			return;
