@@ -400,7 +400,7 @@ public class Server implements ActionListener {
 	                        
 	                        o.writeObject("GK;");
 	                        o.flush();
-	                        textAreaGame.append("New client: " + gameName);
+	                        textAreaGame.append("New Game: " + gameName);
 	                        textAreaGame.append("\n");
 	                        
 	                // Game is not unique, error code sent

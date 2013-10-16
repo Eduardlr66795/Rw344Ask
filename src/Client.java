@@ -285,7 +285,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		jlist_contactsOutsideMain.setBackground(Color.LIGHT_GRAY);
 		sp1.setBounds(420, 90, 150, 270);
 		panel_main.add(sp1);
-		getClients();
+//		getClients();
 
 		// TextField: Join Existing Game
 		text_message_out = new JTextField();
@@ -297,15 +297,38 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		frame_choice.setDefaultCloseOperation(frame_choice.EXIT_ON_CLOSE);
 	}
 
-	
+	//Protocol
+	//Once a game has begun, a player (either a joining player or the initiating player) 
+	//may request a list of the other players. The server responds with a list of players.
+	//client -> server: GAgame_name;
+	//server -> client: GCplayer_name1:player_name2:...;
 	public void getClients()
 	{
+		//Write to server
 		try {
-			objectOutput.writeObject("LC");
+			objectOutput.writeObject("LC;");
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		//Read from server
+		try {
+			String serverMsg = (String) objectInput.readObject();
+			
+			String command = serverMsg.substring(0, 2);
+			String[] players = serverMsg.substring(2).replace(";", "").split(":");
+			if (command.compareTo("GC") == 0) {
+				//Successful response from server
+				//players names stored in 'String[] players'
+				
+			}else{
+				System.out.println("Error: "+serverMsg);
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		
 	}
 	
 	public void clientGui() {
@@ -411,6 +434,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
 		// Just for
 		// testing--------------------------------------------------------------------
+		/*
 		String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
 				"ks", "as" };
 		String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c", "kh" };
@@ -434,6 +458,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		updateGame("Test3", test2, null);
 		// endGame("Test3");
 		// endGame("Friendly");
+		 * 
+		 */
 		// ------------------------------------------------------------------------------------
 	}
 
@@ -514,8 +540,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 			}
 		}
 		int temp = tabs.getTabCount();
-		System.out.println(gName);
-		System.out.println(temp);
+		//System.out.println(gName);
+		//System.out.println(temp);
 		for (int i = 0; i < temp; i++) {
 			System.out.println(i);
 			if (tabs.getComponentAt(i).getName().equals(gName)) {
@@ -605,6 +631,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
 	public void run() {
 		while (true) {
+			//I took this out for now. there is no option for getting all clients. only clients in a specific game. . .
+			/*
 			try {
 				String line = (String) objectInput.readObject();
 				System.out.println("mess rcvd: " + line.toString());
@@ -648,7 +676,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 				System.out.println("ERROR");
 				System.exit(0);
 			}
-		}
+		*/}
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -696,6 +724,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		button_createNewGame.setSize(140, 40);
 		button_createNewGame.setLocation(130, 65);
 		button_createNewGame.setText("Create Game");
+		button_createNewGame.addActionListener(this);
 
 		panel_CreateGame.add(text_FieldEnterNewGameName);
 		panel_CreateGame.add(label_enterNewGameName);
@@ -712,7 +741,9 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 			connectToServer();
 		} 
 		
-		
+		//Protocol
+		//client -> server: CAgame_name:message;
+		//server -> client: CG;
 		else if (evt.getSource() == button_sendMessage_in) {
 			String text = text_message_in.getText();
 			if (text.length() > 0) {
@@ -738,26 +769,69 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 			bol_mainFrameActive = true;
 			frame_choice.dispose();
 			clientGui();
-			getClients();
+//			getClients();
 //			names = getClients();
 //			jlist_contactsMain.setListData(names);
 //			frame_main.repaint();
 		}
-		
-		
+		//Protocol
+		//client -> server: GSgame_name;
+		//server -> client: GK;
+		else if (evt.getSource() == button_createNewGame) {
+			//Send to server
+			StringBuilder sb = new StringBuilder();
+			sb.append("GS");
+			sb.append(text_FieldEnterNewGameName.getText());
+			sb.append(";");
+			System.out.println(sb.toString());
+			
+			try {
+				objectOutput.writeObject(sb.toString());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			//wait for response from server
+			try {
+				String serverMsg = (String) objectInput.readObject();
+				if (serverMsg.compareTo("GK;") == 0) {
+					System.out.println("Game succelfully started!");
+				}else{
+					System.out.println("Error: "+serverMsg);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println("Catch");
+				e.printStackTrace();
+			} 
+		}
+		else if (evt.getSource() == button_newGame_out) {
+			
+			//createGame();??
+		} 
+		//Protocol
+		//Once a game has begun, a player (either a joining player or the initiating player) 
+		//may request a list of the other players. The server responds with a list of players.
+		//client -> server: GAgame_name;
+		//server -> client: GCplayer_name1:player_name2:...;
 		else if (evt.getSource() == button_listPlayers) {
 			textArea_display_in.append("List Of Players Button Pressed\n");
 		} 
 		
 		
 		//TODO: what command should we send to the server?
+		//It is correct, read http://www.cs.sun.ac.za/rw344/project.html
+		//There is no chat to all option. . .
+		//client -> server: CAgame_name:message;
+		//server -> client: CG;
 		else if (evt.getSource() == button_sendMessage_out) {
 			if (text_message_out.getText().length() > 0) {
 				String text = text_message_out.getText();
 				textArea_display_out.append("<- " + text + " ->\n");
 				StringBuilder sb = new StringBuilder();
 				sb.append("CA");
-//				sb.append(tabs.getSelectedComponent().getName());
+				//Read protocol, this must be here. . .
+				sb.append(tabs.getSelectedComponent().getName());
 				sb.append(":");
 				sb.append(text);
 				sb.append(";");
@@ -767,33 +841,38 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 					e.printStackTrace();
 				}
 				text_message_out.setText("");
+				//Now wait for ACK from server
 				
 			} else {
 				text_message_out.setText("");
 			}
 		}
-
+		//Protocol
+		//client -> server: GL;
+		//server -> client: GUgame_name1:game_name2:...;
 		else if (evt.getSource() == button_listGames) {
 			textArea_display_in.append("button_listGames Pressed\n");
 			StringBuilder sb = new StringBuilder();
 			sb.append("GL;");
 			try {
 				objectOutput.writeObject(sb.toString());
+				System.out.println(sb.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 
-			// Uncomment this when the server supports GL; function
-			/*
-			 * String serverMsg=""; try { serverMsg = (String)
-			 * objectInput.readObject(); } catch (Exception e) { // TODO
-			 * Auto-generated catch block e.printStackTrace(); } String command
-			 * = serverMsg.substring(0, 2); String[] arguments =
-			 * serverMsg.substring(2).split(":"); for(int
-			 * i=0;i<arguments.length;i++){
-			 * textArea_display.append(arguments[i]); }
-			 * textArea_display.append("\n");
-			 */
+			//Recieve List from server
+			try {
+				String serverMsg = (String) objectInput.readObject();
+				System.out.println(serverMsg);
+				//TODO -Put list of games somewhere
+			} catch (Exception e) {
+				System.out.println("Catch");
+				e.printStackTrace();
+			} 
+			
+			 
+			 
 
 		}
 
@@ -802,20 +881,13 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		} else if (evt.getSource() == button_createGame) {
 			textArea_display_in.append("Create new Game Screen\n");
 			createGame();
-			/*
-			 * try { objectOutput.writeObject("GS:Hello;"); } catch (IOException
-			 * e) { e.printStackTrace(); }
-			 * 
-			 * try { String serverMsg = (String) objectInput.readObject(); if
-			 * (serverMsg.compareTo("GK") == 0) {
-			 * textArea_display.append("Game created and comfrmed!!"); }
-			 * 
-			 * 
-			 * } catch (Exception e) { e.printStackTrace(); }
-			 */
+			
 
 		}
-
+		//Protocol
+		//client -> server: LO;
+		//The server will respond with a logoff OK message and immediately close the connection:
+		//server -> client: LM;
 		else if (evt.getSource() == button_logoff) {
 			textArea_display_in.append("button_logoff Pressed\n");
 			
@@ -828,7 +900,22 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 				System.out.println("Logoff fail");
 				e.printStackTrace();
 			}
+			//Check response from server
+			try {
+				String serverMsg = (String) objectInput.readObject();
+				if (serverMsg.compareTo("LM;") == 0) {
+					System.out.println("Logoff Successful!");
+				}else{
+					System.out.println("Error: "+serverMsg);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				System.out.println("Not logged off on server");
+				e.printStackTrace();
+			} 
+			
 		} else {
+			//A card has been played
 			String temp = evt.toString().substring(
 					evt.toString().indexOf(" on") + 4);
 			// Check if temp equals any special cases, i.e. logoff, get list of
