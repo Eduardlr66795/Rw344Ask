@@ -306,6 +306,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	{
 		//Write to server
 		try {
+			//There is no LC; command
 			objectOutput.writeObject("LC;");
 
 		} catch (IOException e) {
@@ -319,7 +320,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 			String[] players = serverMsg.substring(2).replace(";", "").split(":");
 			if (command.compareTo("GC") == 0) {
 				//Successful response from server
-				//players names stored in 'String[] players'
+				//players names stored in 'String[] players', but this command doesn't exist
 				
 			}else{
 				System.out.println("Error: "+serverMsg);
