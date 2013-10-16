@@ -224,10 +224,8 @@ public class Server implements ActionListener {
                                 ObjectOutputStream output = (ObjectOutputStream) e.nextElement();
                                 if (output != sender) {
                                         try {
-                                                System.out.println(message);
                                                 output.writeObject(message);
                                                 output.flush();
-                                                System.out.println("sent");
                                         } catch (Exception e2) {
                                                 System.out.println("IO exception in sendtoAll " + e2);
                                         }
@@ -523,6 +521,9 @@ public class Server implements ActionListener {
   	    			game.playerList.remove(playerName);
   	    			game.playerCount--;
   	    			
+  	    			o.writeObject("GQ;");
+  	    			o.flush();
+  	    			
   	    			return;
   	    			
   	    		} else {
@@ -665,7 +666,7 @@ public class Server implements ActionListener {
 	    				message += ":";
 	    			}
 	    			message += (String) e.nextElement();
-	    			
+	    			count++;
 	    		}
 	    		
 	    		o.writeObject(message + ";");
@@ -712,7 +713,9 @@ public class Server implements ActionListener {
        
        public void handRequest(Socket socket, String gameName) {
     	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+    	   
        		try {
+       			
        		
        			// if game does not exist
 	    		if (!gamesList.containsKey(gameName)) {
@@ -735,9 +738,9 @@ public class Server implements ActionListener {
 	    		if ((game.playerCount <= 5) && (game.playerCount >= 3)) {
 	    			max = 10;
 	    		} else if (game.playerCount == 6) {
-	    			max = 10;
+	    			max = 8;
 	    		} else if (game.playerCount == 7) {
-	    			max = 10;
+	    			max = 7;
 	    		}
 	    		
 	    		String cards = "";
@@ -746,6 +749,8 @@ public class Server implements ActionListener {
 	    		}
 	    		
 	    		String message = "HI" + roundnumber + ":" + cards + game.trumpSuit + ":" + game.nextPlayerToBid + ";";
+	    		//System.out.println(message);
+	    		//System.out.println(playername);
 	    		o.writeObject(message);
 	    		o.flush();
 	    		

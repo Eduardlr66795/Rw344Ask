@@ -32,6 +32,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import com.sun.xml.internal.ws.api.pipe.NextAction;
 import com.sun.xml.internal.ws.api.streaming.XMLStreamReaderFactory.Default;
 
 public class Client extends Thread implements ActionListener, ListSelectionListener,MouseListener {
@@ -46,8 +47,12 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		public DefaultListModel defaultList_players;
 		public DefaultListModel defaultList_games;
 		public JList jlist_availableGames;
-	
+		public boolean gameNotStarted=true;
 		
+		public String round_number;
+		
+		public String firstPlayerToPlay;
+		public String trumpSuite;
         // Global Variables--------------------------------
         // Frames
         public JFrame frame_main;
@@ -92,7 +97,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         // Labels
         public JLabel label_enterNewGameName;
         public JLabel label_gameName;
-//        public JLabel[] plabel_layers;
+        public JLabel[] plabel_players;
 
         // TextFields
         public JTextField text_loginTextfieldName;
@@ -106,6 +111,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public String[] string_games;
         public String names[] = null;
         public String tempGameName;
+        public String tempKickPlayer;
+        public String updateTempGameName;
         
         // Other
         private Socket client;
@@ -145,12 +152,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		        } catch (UnsupportedLookAndFeelException e) {
 		                e.printStackTrace();
 		        }
-        		
-        		
-        		
-        		
-        		
-        		
         		defaultList_players=new DefaultListModel ();
 	        	button_startCreatedGame=new JButton();
 	    		jlist_playersJoiningGame=new JList(defaultList_players);
@@ -165,18 +166,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	    		frame_waitingToStartGame.setEnabled(true);
 	    		
 	    		jlist_playersJoiningGame.setLocation(10, 50);
-	    		jlist_playersJoiningGame.setSize(150, 280);
-	    		
-	    		defaultList_players.addElement("Kristo");
-	    		defaultList_players.addElement("Kyle");
-	    		defaultList_players.addElement("dhfakefjdf");
-	    		defaultList_players.addElement("Pasdfefass");
-	    		defaultList_players.addElement("Paaefadds");
-	    		defaultList_players.addElement("Paaefdaefawds");
-	    		defaultList_players.addElement("adfedwds");
-	    		defaultList_players.addElement("Pdfadwds");
-	    		defaultList_players.addElement("Pfds");
-	    		defaultList_players.addElement("P1234ds");
+	    		jlist_playersJoiningGame.setSize(150, 200);
+
 	    		
 	    		jlist_playersJoiningGame.repaint();
 	    		jlist_playersJoiningGame.setVisible(true);
@@ -189,8 +180,13 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	    		label_NameOfGameToBeCreated.setLocation((frame_waitingToStartGame.getWidth()/2)-30, 10);
 	    		label_NameOfGameToBeCreated.setText(tempGameName);
 	    		
+	    		button_kickPlayer.setSize(120, 40);
+	    		button_kickPlayer.setText("Kick Player");
+	    		button_kickPlayer.setLocation(180, 80);
+	    		button_kickPlayer.addActionListener(this);
+	    		
 	    		button_startCreatedGame.setSize(140, 40);
-	    		button_startCreatedGame.setLocation((frame_waitingToStartGame.getWidth()/2)-(button_startCreatedGame.getWidth()/2), 300);
+	    		button_startCreatedGame.setLocation((frame_waitingToStartGame.getWidth()/2)-(button_startCreatedGame.getWidth()/2), 270);
 	    		button_startCreatedGame.setText("Start Game");
 	    		button_startCreatedGame.addActionListener(this);
 
@@ -199,18 +195,9 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	    		panel_waitingToStartGame.add(button_kickPlayer);
 	    		panel_waitingToStartGame.add(jlist_playersJoiningGame);
 	    		frame_waitingToStartGame.add(panel_waitingToStartGame);
-	    		frame_waitingToStartGame.setVisible(true);
-		
-		        
-    		
-    		
-    		
-    		
+	    		frame_waitingToStartGame.setVisible(true);	
         }
 
-        public void updateNamesNewGame(String[] names){
-        	
-        }
         @SuppressWarnings("serial")
         void welcomeScreen() {
                 try {
@@ -323,7 +310,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
         @SuppressWarnings("static-access")
         public void afterLoginScreen() {
-
                 try {
                         for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                                 if ("Nimbus".equals(info.getName())) {
@@ -446,7 +432,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 panel_bigframe = new JPanel[40];
                 tabs = new JTabbedPane();
                 frame_main = new JFrame();
-
+                plabel_players=new JLabel[15];
                 frame_main.setSize(1000, 420);
                 frame_main.setLayout(null);
                 frame_main.setResizable(false);
@@ -576,12 +562,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 label_gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
                 label_gameName.setBounds(340, 2, 180, 40);
                 panel_bigframe[gameNumber].add(label_gameName);
-                // Add Player Names
-                //for (int k = 0; k < pNames.length; k++) {
-//                        plabel_layers[k] = new JLabel(pNames[k]);
-//                        plabel_layers[k].setBounds(820, (k * 20), 50, 15);
-//                        panel_bigframe[gameNumber].add(plabel_layers[k]);
-                //}
+                
                 // Add 10 facedown cards
                 for (int k = 0; k < 10; k++) {
                         Icon icon = new ImageIcon("src/cards/back.gif");
@@ -596,7 +577,22 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 tabs.addTab(gName, panel_bigframe[gameNumber]);
         }
 
-        public void newGameUpadtePlayers(String[] pNames){
+        
+        public void newGameUpadatePlayers(String GameName,String[] pNames){
+        	// Find gameNumber
+            int gameNumber = 0;
+            for (int i = 0; i < 15; i++) {
+                    if (string_games[i].equals(GameName)) {
+                            gameNumber = i;
+                            break;
+                    }
+            }
+        	// Add Player Names
+            for (int k = 0; k < pNames.length; k++) {
+            	plabel_players[k] = new JLabel(pNames[k]);
+            	plabel_players[k].setBounds(750, (k * 20), 80, 15);
+                panel_bigframe[gameNumber].add(plabel_players[k]);
+            }
         	
         }
         public void updateGame(String gName, String[] pCards, int[] pScores) {
@@ -742,21 +738,57 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                                     		System.out.println("GN"+tempGameName+";");
 	                                        objectOutput.writeObject("GN"+tempGameName+";");
 	                                        objectOutput.flush();
+	                                        //add thread with wait and keep asking GN
+	                                        gameNotStarted=true;
+	                                        new Thread(new Runnable() {
+												
+												@Override
+												public void run() {
+													//need to turn off gameNotStated before the game starts.
+													while(gameNotStarted){
+														try {
+															Thread.sleep(5000);
+															System.out.println("GN"+tempGameName+";");
+					                                        objectOutput.writeObject("GN"+tempGameName+";");														
+														} catch (Exception e) {
+															// TODO Auto-generated catch block
+															e.printStackTrace();
+														}
+													}
+													
+													
+												}
+											}).start();
+	                                        
 	                                } catch (IOException e) {
 	                                        e.printStackTrace();
 	                                }
                                     
                 				}else if (command.equals("GP")) {//Player has joined a game
-                					System.out.println("Player Has joined");
+                					defaultList_players.addElement(arguments[0]);
+                					
+                					System.out.println("Player Has joined " +arguments[0]);
 
                 				}else if (command.equals("GZ")) {//Still waiting for player to join a game
                 					
 
                 				}else if (command.equals("GM")) {//Game full and had started
-                					
-
-                				}else if (command.equals("GQ")) {//Confirm that player has been kicked
-                					
+                					gameNotStarted=false;
+                					System.out.println("Game has started");
+                					newGameGui(tempGameName);
+                					 try {
+                                 		System.out.println("GA"+tempGameName+";");
+	                                    objectOutput.writeObject("GA"+tempGameName+";");
+	                                    objectOutput.flush();
+	                                    System.out.println("HN"+tempGameName+";");
+	                                    objectOutput.writeObject("HN"+tempGameName+";");
+	                                    updateTempGameName=tempGameName;
+	                                    objectOutput.flush();
+                					 }catch(Exception e){
+                						 System.out.println(e);
+                					 }
+                 				}else if (command.equals("GQ")) {//Confirm that player has been kicked
+                					defaultList_players.removeElement(tempKickPlayer);
 
                 				}else if (command.equals("GU")) {//List of games
                 	                defaultList_games.removeAllElements();
@@ -767,18 +799,51 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 				}else if (command.equals("GV")) {//truncated games list
                 					
                 					System.out.println(line);
-
                 				}else if (command.equals("GX")) {//Game joined
+                					
+                					gameNotStarted=true;
+                                    new Thread(new Runnable() {
+										
+										@Override
+										public void run() {
+											//need to turn off gameNotStated before the game starts.
+											while(gameNotStarted){
+												try {													
+													Thread.sleep(5000);
+													if(gameNotStarted){
+														System.out.println("GW"+tempGameName+";");
+				                                        objectOutput.writeObject("GW"+tempGameName+";");
+													}																											
+												} catch (Exception e) {
+													// TODO Auto-generated catch block
+													e.printStackTrace();
+												}
+											}										
+											
+										}
+									}).start();
                 					
 
                 				}else if (command.equals("GB")) {//Game begins
-                					
-
+                					System.out.println("Game Begins");
+                					gameNotStarted=false;
+                					newGameGui(tempGameName);
+                					 try {
+                                 		System.out.println("GA"+tempGameName+";");
+	                                    objectOutput.writeObject("GA"+tempGameName+";");
+	                                    objectOutput.flush();
+	                                    
+	                                    System.out.println("HN"+tempGameName+";");
+	                                    objectOutput.writeObject("HN"+tempGameName+";");
+	                                    objectOutput.flush();
+	                                    updateTempGameName=tempGameName;
+                					 }catch(Exception e){
+                						 System.out.println(e);
+                					 }
                 				}else if (command.equals("GZ")) {//Game not ready yet, can be received after a QW command
                 					
-
                 				}else if (command.equals("GC")) {//players in a specific game
-                					
+                					newGameUpadatePlayers(tempGameName,arguments);
 
                 				}else if (command.equals("QK")) {//Acknowledge quit request, send to client who has quit
                 					
@@ -787,7 +852,15 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					
 
                 				}else if (command.equals("HI")) {//receive next hand from server
-                					
+                					//Recieve Hand
+                					//updateGame(SupdateTempGameName, String[] pCards, int[] pScores) 
+                					String[] cards=new String[arguments.length-3];
+                					for(int i=0;i<arguments.length-3;i++){
+                						cards[i]=arguments[i+1];
+                					}
+                					updateGame(updateTempGameName, cards, null);
+                					firstPlayerToPlay=arguments[arguments.length-1];
+                					trumpSuite=arguments[arguments.length-2];
 
                 				}else if (command.equals("HC")) {//Who is next to bid, and who has bid, along with their bid
                 					
@@ -1024,7 +1097,26 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 //server -> client: GCplayer_name1:player_name2:...;
                 else if (evt.getSource() == button_listPlayers) {
                         textArea_display_in.append("List Of Players Button Pressed\n");
+                } else if (evt.getSource() == button_kickPlayer) {
+                	System.out.println("Kick player");
+                	
+                	try {
+                		//Kick Player GOgame_name:player_name;
+                		StringBuilder sb=new StringBuilder();
+                		sb.append("GO");
+                		sb.append(tempGameName+":");
+                		sb.append(defaultList_players.getElementAt(jlist_playersJoiningGame.getSelectedIndex()).toString());
+                		sb.append(";");
+                		tempKickPlayer=defaultList_players.getElementAt(jlist_playersJoiningGame.getSelectedIndex()).toString();
+                		System.out.println(sb.toString());
+                        objectOutput.writeObject(sb.toString());
+                	} catch (IOException e) {
+                        e.printStackTrace();
+                	}
+                	
+                    
                 } 
+                
                 
                 
                 //TODO: what command should we send to the server?
@@ -1068,21 +1160,23 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         } catch (IOException e) {
                                 e.printStackTrace();
                         }
-
-                       
-                        
-                         
-                         
-
                 }
 
                 else if (evt.getSource() == button_history) {
                         textArea_display_in.append("History Pressed\n");
                 } else if (evt.getSource() == button_createGame) {
                         textArea_display_in.append("Create new Game Screen\n");
-                        createGame();
-                        
+                        createGame();                     
 
+                }else if (evt.getSource() == button_startCreatedGame) {
+                	//Start Game
+                    try {
+                            objectOutput.writeObject("GF"+tempGameName);
+                            System.out.println("GF"+tempGameName);
+                            
+                    } catch (IOException e) {
+                            e.printStackTrace();
+                    }  
                 }
                 //Protocol
                 //client -> server: LO;
@@ -1127,6 +1221,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 			//Attempt to join Game
 			//Join game GJgame_name;
 			try {
+				tempGameName=defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString();
                 objectOutput.writeObject("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
                 System.out.println("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
 	        } catch (IOException e) {
@@ -1134,7 +1229,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	                e.printStackTrace();
 	        }	
 		}
-
 		@Override
 		public void mouseEntered(MouseEvent arg0) {
 			// TODO Auto-generated method stub
