@@ -450,7 +450,7 @@ public class Server implements ActionListener {
 	            		}
 	            	}
 	            	
-	            	game.playerList.put(player, game.playerCount);
+	            	game.playerList.put(player, game.playerCount-1);
 	            	
 	            // No player to join at moment
 	            } else {
@@ -734,18 +734,17 @@ public class Server implements ActionListener {
 	    		    		
 	    		String roundnumber = "" + game.round;
 	    		String playername = getUsername(socket);
-	    		int max = 0;
-	    		if ((game.playerCount <= 5) && (game.playerCount >= 3)) {
-	    			max = 10;
-	    		} else if (game.playerCount == 6) {
-	    			max = 8;
-	    		} else if (game.playerCount == 7) {
-	    			max = 7;
-	    		}
+	    		
+	    		
+	    		System.out.println("Username: " + playername);
+	    		System.out.println("Player number : " + game.playerList.get(playername));
 	    		
 	    		String cards = "";
-	    		for (int i = 0; i < max; i++) {
-	    			cards += game.playerCards[game.playerList.get(playername)][i] + ":";
+	    		for (int i = 0; i < 10; i++) {
+	    			if(!game.playerCards[game.playerList.get(playername)][i].equals("")){
+	    				cards += game.playerCards[game.playerList.get(playername)][i] + ":";
+	    			}
+	    			
 	    		}
 	    		
 	    		String message = "HI" + roundnumber + ":" + cards + game.trumpSuit + ":" + game.nextPlayerToBid + ";";

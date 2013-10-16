@@ -48,8 +48,14 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		public DefaultListModel defaultList_games;
 		public JList jlist_availableGames;
 		public boolean gameNotStarted=true;
-		
+		public String username;
 		public String round_number;
+		public JPanel panel_enterBid;
+		public JTextField text_FieldEnterBid;
+		public JLabel label_enterBid;
+		public JButton button_enterBid;
+		public JFrame frame_enterBid;
+		
 		
 		public String firstPlayerToPlay;
 		public String trumpSuite;
@@ -113,6 +119,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public String tempGameName;
         public String tempKickPlayer;
         public String updateTempGameName;
+        public String recentHB;
         
         // Other
         private Socket client;
@@ -674,6 +681,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                                 StringBuilder sb = new StringBuilder();
                                 sb.append("LI");
                                 sb.append(string_userName);
+                                username=string_userName.toString();
                                 sb.append(":password");
 
                                 objectOutput.writeObject(sb.toString());
@@ -747,9 +755,11 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 													//need to turn off gameNotStated before the game starts.
 													while(gameNotStarted){
 														try {
-															Thread.sleep(5000);
-															System.out.println("GN"+tempGameName+";");
-					                                        objectOutput.writeObject("GN"+tempGameName+";");														
+															Thread.sleep(2000);
+															if(gameNotStarted){
+																System.out.println("GN"+tempGameName+";");
+						                                        objectOutput.writeObject("GN"+tempGameName+";");
+															}																													
 														} catch (Exception e) {
 															// TODO Auto-generated catch block
 															e.printStackTrace();
@@ -809,7 +819,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 											//need to turn off gameNotStated before the game starts.
 											while(gameNotStarted){
 												try {													
-													Thread.sleep(5000);
+													Thread.sleep(2000);
 													if(gameNotStarted){
 														System.out.println("GW"+tempGameName+";");
 				                                        objectOutput.writeObject("GW"+tempGameName+";");
@@ -837,6 +847,9 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	                                    objectOutput.writeObject("HN"+tempGameName+";");
 	                                    objectOutput.flush();
 	                                    updateTempGameName=tempGameName;
+	                                    //Ask player for bid
+	                                    recentHB=tempGameName;
+	                                    
                 					 }catch(Exception e){
                 						 System.out.println(e);
                 					 }
@@ -852,18 +865,27 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					
 
                 				}else if (command.equals("HI")) {//receive next hand from server
-                					//Recieve Hand
-                					//updateGame(SupdateTempGameName, String[] pCards, int[] pScores) 
+                					//Receive Hand
                 					String[] cards=new String[arguments.length-3];
                 					for(int i=0;i<arguments.length-3;i++){
                 						cards[i]=arguments[i+1];
                 					}
                 					updateGame(updateTempGameName, cards, null);
                 					firstPlayerToPlay=arguments[arguments.length-1];
+                					System.out.println("First Playe to bid:"+firstPlayerToPlay);
                 					trumpSuite=arguments[arguments.length-2];
+                					askForBid(tempGameName);
 
                 				}else if (command.equals("HC")) {//Who is next to bid, and who has bid, along with their bid
-                					
+                					//check whose turn to bid
+                					if((username.equals(firstPlayerToPlay))&&(username.equals(arguments[2]))){
+                						//Bids finished and turn to play a card!
+                						
+                					}
+                					else if(arguments[2].equals(username)){
+                						//Time to BID!!
+                						enterBid(recentHB);
+                					}
 
                 				}else if (command.equals("HL")) {//Who is next to play card, and who has played, along with their played card
                 					
@@ -969,6 +991,88 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                                 System.exit(0);
                         }
                 }
+        }
+
+        public void askForBid(String gameName){
+        	System.out.println("AskForBid");
+        	System.out.println(username);
+        	System.out.println(firstPlayerToPlay);
+        	if(username.equals(firstPlayerToPlay)){
+        		//Bid
+        		System.out.println("BidNBow");
+        		enterBid(gameName);
+        		try {
+             		System.out.println("HC"+gameName+":bid;");
+                    objectOutput.writeObject("HC"+gameName+":bid;");
+                    objectOutput.flush();
+    			 }catch(Exception e){
+    				 System.out.println(e);
+    			 }
+        		
+        	}else{
+        		//Otherwise, see whose turn it is to bid
+        		try {
+             		System.out.println("HB"+gameName+";");
+                    objectOutput.writeObject("HB"+gameName+";");
+                    objectOutput.flush();
+    			 }catch(Exception e){
+    				 System.out.println(e);
+    			 }
+        	}
+        	   	
+        }
+     // Create New Game
+        void enterBid(String gameName) {
+                // Theme
+                try {
+                        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                                if ("Nimbus".equals(info.getName())) {
+                                        UIManager.setLookAndFeel(info.getClassName());
+                                        break;
+                                }
+                        }
+                } catch (ClassNotFoundException e1) {
+                        e1.printStackTrace();
+                } catch (InstantiationException e) {
+                        e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                } catch (UnsupportedLookAndFeelException e) {
+                        e.printStackTrace();
+                }
+
+                frame_enterBid = new JFrame();
+                frame_enterBid.setSize(400, 140);
+                frame_enterBid.setLocation(frame_main.getX(), frame_main.getY());
+                frame_enterBid.setEnabled(true);
+
+                panel_enterBid = new JPanel();
+                panel_enterBid.setSize(frame_enterBid.getWidth(),
+                		frame_enterBid.getHeight());
+                frame_enterBid.setLayout(null);
+                frame_enterBid.setBackground(Color.white);
+
+                text_FieldEnterBid = new JTextField();
+                text_FieldEnterBid.setSize(200, 30);
+                text_FieldEnterBid.setLocation(150, 10);
+
+                label_enterBid = new JLabel();
+                label_enterBid.setSize(150, 30);
+                label_enterBid.setLocation(10, 10);
+                label_enterBid.setText("Enter your bid:");
+
+                button_enterBid = new JButton();
+                button_enterBid.setSize(140, 40);
+                button_enterBid.setLocation(130, 65);
+                button_enterBid.setText("Bid");
+                button_enterBid.addActionListener(this);
+
+                panel_enterBid.add(text_FieldEnterBid);
+                panel_enterBid.add(label_enterBid);
+                panel_enterBid.add(button_enterBid);
+                frame_enterBid.add(panel_enterBid);
+                frame_enterBid.setVisible(true);
+                
         }
 
         // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
