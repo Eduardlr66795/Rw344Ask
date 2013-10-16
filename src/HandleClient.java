@@ -20,16 +20,13 @@ public class HandleClient extends Thread {
 
 			while (true) {
 				String message = (String) input.readObject();
-				System.out.println("Message received from client: " + message);
 				String command = message.substring(0, 2);
 				String[] arguments = message.substring(2).replace(";", "")
 						.split(":");
-				System.out.println("Command is " + command);
-				
 
 				if (command.equals("LI")) {
 					server.login(arguments[0], arguments[1], socket);
-					
+
 				} else if (command.equals("LO")) {
 					server.logoff(socket);
 
@@ -75,6 +72,12 @@ public class HandleClient extends Thread {
 					
 				} else if (command.equals("HD")) {
 					server.bidPlay(socket, arguments[0], arguments[1]);
+					
+				} else if (command.equals("HP")) {
+					server.cardRequest(socket, arguments[0]);
+					
+				} else if (command.equals("HR")) {
+					server.cardPlay(socket, arguments[0], arguments[1]);
 
 				} else {
 					server.sendToAll(message, socket);
