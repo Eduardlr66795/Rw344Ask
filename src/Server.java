@@ -390,7 +390,7 @@ public class Server implements ActionListener {
         public void createGame(String gameName, Socket socket) {
         	
                 // handle the creation of a game object and add to the HashSet.
-                Game newGame = new Game(gameName, getUsername(socket), this);
+                Game newGame = new Game(gameName, getUsername(socket));
                 ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
                 
                 try {
@@ -400,7 +400,7 @@ public class Server implements ActionListener {
 	                        
 	                        o.writeObject("GK;");
 	                        o.flush();
-	                        textAreaGame.append("New Game: " + gameName);
+	                        textAreaGame.append("New client: " + gameName);
 	                        textAreaGame.append("\n");
 	                        
 	                // Game is not unique, error code sent
@@ -417,12 +417,6 @@ public class Server implements ActionListener {
         public void addPlayerToGame(String gameName, Socket socket) {
         	try {
 	        	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
-	        	System.out.println("Game name looked for is " + gameName);
-	        	
-	        	for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
-	        		String g = (String) e.nextElement();
-	        		System.out.println("Game found is " + g);
-	        	}
 	        	
 	        	//if game does not exist
 	    		if (!gamesList.containsKey(gameName)) {
@@ -454,7 +448,6 @@ public class Server implements ActionListener {
 	            		
 	            		if (tmpplayer.equals("EMPTYSPOTLEFTOPENBYKICKEDPLAYER")) {
 	            			game.playerList.put(player, game.playerList.get("EMPTYSPOTLEFTOPENBYKICKEDPLAYER"));
-	            			gamesList.put(gameName, game);
 	            			return;
 	            		}
 	            	}
@@ -469,7 +462,6 @@ public class Server implements ActionListener {
 	            	return;
 	            	
 	            }
-	            gamesList.put(gameName, game);
 	            
         	} catch (Exception e) {
         		System.out.println("Exception in addPlayerToGame: " + e);
@@ -498,7 +490,8 @@ public class Server implements ActionListener {
 	            } else {
 	            	
 	            	game.readyToStart = true;
-	            	gamesList.put(gameName, game);
+	            	game.deal();
+	            	game.nextPlayerToBid = game.creatorName;
 	            	
 	            	o.writeObject("GM;");
 	            	o.flush();
@@ -524,13 +517,12 @@ public class Server implements ActionListener {
         		
   	    		Game game = gamesList.get(gameName);
   	    		
-  	    		if (game.playerList.contains(playerName)) {
+  	    		if (game.playerList.containsKey(playerName)) {
   	    			
   	    			game.playerList.put("EMPTYSPOTLEFTOPENBYKICKEDPLAYER", game.playerList.get(playerName));
   	    			game.playerList.remove(playerName);
   	    			game.playerCount--;
   	    			
-  	    			gamesList.put(gameName, game);
   	    			return;
   	    			
   	    		} else {
@@ -592,7 +584,6 @@ public class Server implements ActionListener {
 	    		Game game = gamesList.get(gameName);
 	    		
 	    		game.nextPlayersToJoin.add(playerName);
-	    		gamesList.put(gameName, game);
 	    		
 	    		o.writeObject("GX;");
 	    		o.flush();
@@ -616,7 +607,7 @@ public class Server implements ActionListener {
 	    		
 	    		Game game = gamesList.get(gameName);
 	    		
-	    		if (!game.playerList.contains(getUsername(socket))) {
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
 	    			o.writeObject("ER110;");
 	    			o.flush();
 	    			return;
@@ -652,7 +643,7 @@ public class Server implements ActionListener {
 	    		
 	    		Game game = gamesList.get(gameName);
 	    		
-	    		if (!game.playerList.contains(getUsername(socket))) {
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
 	    			o.writeObject("ER110;");
 	    			o.flush();
 	    			return;
@@ -700,7 +691,7 @@ public class Server implements ActionListener {
 	    		
 	    		Game game = gamesList.get(gameName);
 	    		
-	    		if (!game.playerList.contains(getUsername(socket))) {
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
 	    			o.writeObject("ER110;");
 	    			o.flush();
 	    			return;
@@ -708,7 +699,6 @@ public class Server implements ActionListener {
 	    		
 	    		game.playerList.remove(getUsername(socket));
 	    		game.playerCount--;
-	    		gamesList.put(gameName, game);
 	    		
 	    		o.writeObject("QK;");
 	    		o.flush();
@@ -718,6 +708,120 @@ public class Server implements ActionListener {
         	} catch (Exception e) {
         		System.out.println("Exception in playersInGame " + e);
         	}
+       }
+       
+       public void handRequest(Socket socket, String gameName) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+       		try {
+       		
+       			// if game does not exist
+	    		if (!gamesList.containsKey(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		    		
+	    		String roundnumber = "" + game.round;
+	    		String playername = getUsername(socket);
+	    		int max = 0;
+	    		if ((game.playerCount <= 5) && (game.playerCount >= 3)) {
+	    			max = 10;
+	    		} else if (game.playerCount == 6) {
+	    			max = 10;
+	    		} else if (game.playerCount == 7) {
+	    			max = 10;
+	    		}
+	    		
+	    		String cards = "";
+	    		for (int i = 0; i < max; i++) {
+	    			cards += game.playerCards[game.playerList.get(playername)][i] + ":";
+	    		}
+	    		
+	    		String message = "HI" + roundnumber + ":" + cards + game.trumpSuit + ":" + game.nextPlayerToBid + ";";
+	    		o.writeObject(message);
+	    		o.flush();
+	    		
+	    		
+       		} catch (Exception e) {
+       			System.out.println("Exception in handRequest " + e);
+       		}
+       }
+       
+       public void bidRequest(Socket socket, String gameName) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+       		try {
+       		
+       			// if game does not exist
+	    		if (!gamesList.containsKey(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		String message = "HC";
+	    		String lastbid = game.lastBid;
+	    		
+	    		if (lastbid.equals("none:none")) {
+	    			game.bidRequested = true;
+	    			return;
+	    		} else {
+	    			message += lastbid + ":" + game.nextPlayerToBid + ";";
+	    			o.writeObject(message);
+	    			o.flush();
+	    		}
+	    		
+	    	
+       		} catch (Exception e) {
+       			System.out.println("Exception in handRequest " + e);
+       		}
+       }
+       
+       public void bidPlay(Socket socket, String gameName, String bid) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+       		try {
+       		
+       			// if game does not exist
+	    		if (!gamesList.containsKey(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		if (!game.nextPlayerToBid.equals(getUsername(socket))) {
+	    			o.writeObject("ER901");
+	    			o.flush();
+	    		} else {
+	    			//if ()
+	    		}
+	    		
+	    		
+       		} catch (Exception e) {
+       			System.out.println("Exception in handRequest " + e);
+       		}
        }
 
 
