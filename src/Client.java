@@ -627,13 +627,116 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
                 				if (command.compareTo("GK") == 0) {
                                     System.out.println("Game succelfully started!");
-                				}else if (command.equals("GU")) {
+                				}else if (command.equals("GP")) {//Player has joined a game
+                					
+
+                				}else if (command.equals("GZ")) {//Still waiting for player to join a game
+                					
+
+                				}else if (command.equals("GM")) {//Game full and had started
+                					
+
+                				}else if (command.equals("GQ")) {//Confirm that player has been kicked
+                					
+
+                				}else if (command.equals("GU")) {//List of games
+                					for(int i=0;i<arguments.length;i++){
+                						System.out.println(arguments[i]);
+                					}
+                				}else if (command.equals("GV")) {//truncated games list
                 					
                 					System.out.println(line);
+
+                				}else if (command.equals("GX")) {//Game joined
+                					
+
+                				}else if (command.equals("GB")) {//Game begins
+                					
+
+                				}else if (command.equals("GZ")) {//Game not ready yet, can be received after a QW command
+                					
+
+                				}else if (command.equals("GC")) {//players in a specific game
+                					
+
+                				}else if (command.equals("QK")) {//Acknowledge quit request, send to client who has quit
+                					
+
+                				}else if (command.equals("QP")) {//To inform other clients that someone has quit game
+                					
+
+                				}else if (command.equals("HI")) {//receive next hand from server
+                					
+
+                				}else if (command.equals("HC")) {//Who is next to bid, and who has bid, along with their bid
+                					
+
+                				}else if (command.equals("HL")) {//Who is next to play card, and who has played, along with their played card
+                					
+
+                				}else if (command.equals("HW")) {//Waiting for others message
+
+                					
+                				}else if (command.equals("HO")) {//Player names and scores
+                					
 
                 				}else if (command.equals("LM")) {
                 					
                 					System.out.println("Logoff Successful!");
+
+                				}else if (command.equals("100")) {//Login unsuccessful, username already logged in
+                					System.out.println("Login unsuccessful, username already logged in");
+
+                				}else if (command.equals("101")) {//Login unsuccessful, incorrect username/password pair.
+                					System.out.println("Login unsuccessful, incorrect username/password pair.");
+
+                				}else if (command.equals("102")) {//Logoff unsuccessful, not logged in.
+                					System.out.println("Logoff unsuccessful, not logged in.");
+
+                				}else if (command.equals("110")) {//Not part of a game.
+                					System.out.println("Not part of a game.");
+
+                				}else if (command.equals("120")) {//Game identifier already taken
+                					System.out.println("Game identifier already taken");
+
+                				}else if (command.equals("130")) {//Game has too many players.
+                					System.out.println("Game has too many players.");
+
+                				}else if (command.equals("131")) {//Game has too few players.
+                					System.out.println("Game has too few players.");
+
+                				}else if (command.equals("132")) {//Kicked out player not part of game
+                					System.out.println("Kicked out player not part of game");
+
+                				}else if (command.equals("133")) {//No such game identifier
+                					System.out.println("No such game identifier");
+
+                				}else if (command.equals("134")) {//Player has been kicked out of game.
+                					System.out.println("Player has been kicked out of game.");
+
+                				}else if (command.equals("139")) {//Player in game has closed connection. Game abandoned.
+                					System.out.println("Player in game has closed connection. Game abandoned.");
+
+                				}else if (command.equals("140")) {//Illegal bid (bid is higher than the number of cards in this hand)
+                					System.out.println("Illegal bid (bid is higher than the number of cards in this hand)");
+
+                				}else if (command.equals("141")) {//Illegal card (player does not have this card).
+                					System.out.println("Illegal card (player does not have this card).");
+
+                				}else if (command.equals("142")) {//Illegal card (player must play the led suit because it has suitable cards)
+                					System.out.println("Illegal card (player must play the led suit because it has suitable cards)");
+
+                				}else if (command.equals("150")) {//One or more of the player names does not exist, chat not delivered to those players
+                					System.out.println("One or more of the player names does not exist, chat not delivered to those players");
+
+                				}else if (command.equals("900")) {//Bad message format
+                					System.out.println("Bad message format");
+
+                				}else if (command.equals("901")) {//Unexpected request
+                					System.out.println("Unexpected request");
+
+                				}else if (command.equals("910")) {//Something very bad but unspecified has happened
+                					System.out.println("Something very bad but unspecified has happened");
 
                 				}else if(line.charAt(0)== 'L' && line.charAt(1) == 'C') {
                                         line = line.replaceFirst("L", "");
