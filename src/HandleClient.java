@@ -65,6 +65,13 @@ public class HandleClient extends Thread {
                     server.sendclientList();
                     
 				} else if (message.equals("HN")) {
+					server.handRequest(socket, arguments[0]);
+				
+				} else if (message.equals("HB")) {
+					server.bidRequest(socket, arguments[0]);
+					
+				} else if (message.equals("HD")) {
+					server.bidPlay(socket, arguments[0], arguments[1]);
 
 				} else {
 					server.sendToAll(message, socket);
