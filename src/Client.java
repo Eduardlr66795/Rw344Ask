@@ -127,6 +127,10 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         private ObjectInputStream objectInput;
         private ObjectOutputStream objectOutput;
         public boolean bol_mainFrameActive;
+        public boolean bidding;
+        public boolean biddingActive;
+        public boolean turnToPlayCard;
+        public boolean gameInProgress=false;
         // END--------------------------------
 
         public static void main(String[] args) {
@@ -763,6 +767,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 				if (command.compareTo("GK") == 0) {
                                     System.out.println("Game succelfully started!");
                                     //new gameui
+                                    frame_CreateGame.dispose();
                                     startingGame(tempGameName);
                                     //Now send GNgame_name; to ask for another player to join
                                     try {
@@ -849,7 +854,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 										
 										@Override
 										public void run() {
-											//need to turn off gameNotStated before the game starts.
 											while(gameNotStarted){
 												try {													
 													Thread.sleep(2000);
@@ -910,17 +914,73 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					askForBid(tempGameName);
 
                 				}else if (command.equals("HC")) {//Who is next to bid, and who has bid, along with their bid
+                					//create thread to keep sending HBgame_name; request
+                					
                 					//check whose turn to bid
-                					if((username.equals(firstPlayerToPlay))&&(username.equals(arguments[2]))){
+                					if(firstPlayerToPlay.equals(arguments[2])){
                 						//Bids finished and turn to play a card!
+                						System.out.println("All Bids Finished!!!");
+                						bidding=false;
+                						turnToPlayCard=false;
+                						gameInProgress=true;//check somewhere when no more games are in progress
+                						//send HPgame_name to server
+                						new Thread(new Runnable() {              							
+                							@Override
+                							public void run() {
+                								while(gameInProgress){
+                									try {													
+                										Thread.sleep(2000);
+                										if(gameInProgress){
+                											//cycle through all games in progress
+                											for(int i=0;i<15;i++){
+                												if(!string_games[i].equals("empty")){
+                													
+                        											System.out.println("HP"+string_games[i]+";");
+                        			                                objectOutput.writeObject("HP"+string_games[i]+";");
+                												}
+                											}
+                											
+                										}																											
+                									} catch (Exception e) {
+                										// TODO Auto-generated catch block
+                										e.printStackTrace();
+                									}
+                								}										
+                								
+                							}
+                						}).start();
+                						
+                						if(username.equals(firstPlayerToPlay)){
+                    						//Ask/allow client to play a card
+                							turnToPlayCard=true;
+                    					}
                 						
                 					}
                 					else if(arguments[2].equals(username)){
                 						//Time to BID!!
-                						enterBid(recentHB);
+                						if(!biddingActive){
+                							System.out.println("Bid2");
+                    						enterBid(recentHB);                   						
+                						}
+                						
                 					}
 
                 				}else if (command.equals("HL")) {//Who is next to play card, and who has played, along with their played card
+                					//See whose turn it is to play a card and who has played what cards
+                					//turnToPlayCard
+                					if(arguments.length==2){
+                						//End of trick
+                						System.out.println("End of trick");
+                						if(username.equals(firstPlayerToPlay)){
+                    						//Ask/allow client to play a card
+                							turnToPlayCard=true;
+                    					}
+                					}else if(username.equals(arguments[2])){
+                						turnToPlayCard=true;
+                					}else{
+                						System.out.println("turnToPlay=false:");
+                						turnToPlayCard=false;
+                					}
                 					
 
                 				}else if (command.equals("HW")) {//Waiting for others message
@@ -969,6 +1029,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 				}else if (command.equals("140")) {//Illegal bid (bid is higher than the number of cards in this hand)
                 					System.out.println("Illegal bid (bid is higher than the number of cards in this hand)");
                 					//Call enter bid
+                					bidding=true;
                 					enterBid(recentHB);
 
                 				}else if (command.equals("141")) {//Illegal card (player does not have this card).
@@ -1032,13 +1093,36 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         	System.out.println("AskForBid");
         	System.out.println(username);
         	System.out.println(firstPlayerToPlay);
+        	//Start thread
+    		bidding=true;
+			 new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					while(bidding){
+						try {													
+							Thread.sleep(2000);
+							if(bidding){
+								System.out.println("HB"+recentHB+";");
+                                objectOutput.writeObject("HB"+recentHB+";");
+							}																											
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}										
+					
+				}
+			}).start();
         	if(username.equals(firstPlayerToPlay)){
         		//Bid
         		System.out.println("BidNBow");
         		enterBid(gameName);
         		
         		
+        		
         	}else{
+        		
         		//Otherwise, see whose turn it is to bid
         		try {
              		System.out.println("HB"+gameName+";");
@@ -1053,6 +1137,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
      // Create New Game
         void enterBid(String gameName) {
                 // Theme
+        	biddingActive=true;
                 try {
                         for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                                 if ("Nimbus".equals(info.getName())) {
@@ -1162,7 +1247,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
         // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
         public void actionPerformed(ActionEvent evt) {
                 if (evt.getSource() == button_login) {
                         connectToServer();
@@ -1238,8 +1322,10 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         
                 }
                 else if (evt.getSource() == button_newGame_out) {
-                	frame_choice.dispose();    
+                	frame_choice.dispose();
+                	
                 	clientGui();//For now
+                	createGame();
                 	
                 } 
                 //Protocol
@@ -1330,6 +1416,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         			 }catch(Exception e){
         				 System.out.println(e);
         			 }
+                	frame_enterBid.dispose();
+                	biddingActive=false;
                     
          	  } 
                 
@@ -1345,7 +1433,9 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                             
                     } catch (IOException e) {
                             e.printStackTrace();
-                    }  
+                    } 
+                    //Dispose
+                    frame_waitingToStartGame.dispose();
                 }
                 //Protocol
                 //client -> server: LO;
@@ -1366,7 +1456,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                        
                         
                 } else {
-                        //A card has been played
+                	if(turnToPlayCard){
+                		//A card has been played
                         String temp = evt.toString().substring(
                                         evt.toString().indexOf(" on") + 4);
                         // Check if temp equals any special cases, i.e. logoff, get list of
@@ -1375,6 +1466,21 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         String game = temp.substring(2);
                         System.out.print(card + " ");
                         System.out.println(game);
+                        //Send played card to server;
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("HR");
+                        sb.append(game+":");
+                        sb.append(card+";");
+                        try {
+                                objectOutput.writeObject(sb.toString());
+                                System.out.println(sb.toString());
+                        } catch (IOException e) {
+                                e.printStackTrace();
+                        }
+                        turnToPlayCard=false;
+                        
+                	}
+                        
 
                 }
         }
