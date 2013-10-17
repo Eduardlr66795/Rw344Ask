@@ -38,11 +38,22 @@ public class Game extends Thread {
     // Led suit
     public String ledSuit;
     
+    // Hands played in round
+    public int handsPlayed;
+    
+    // Game in resting state
+    public boolean restingState;
+    
+    // Current trick winner name and card
+    public String trickWinner;
+    
     //Hardcoded to 7 (max players) we can change this but hardcoding it to 7 wont really
     //lead to any inefficiency
     public int [] playerBids = new int [7];
     
     public int [] playerScores = new int [7];
+    
+    public int [] handsWon = new int [7];
     
     //Also hardcoded to 10 (max cards)
     public String [][] playerCards = new String [7][10];
@@ -56,13 +67,22 @@ public class Game extends Thread {
         this.gameName = gameName;
         this.lastBid = "none:none";
         this.lastCardPlayed = "";
+        this.handsPlayed = 0;
+        this.restingState = false;
         this.cardsPlayedInTrick = 0;
+        this.ledSuit = "";
         this.nextPlayerToPlay = "";
         this.creatorName = creatorName;
         this.playerList.put(creatorName,0);
         this.playerCount = 1;
         this.round = 1;
+        this.trickWinner = "";
         this.readyToStart = false;
+        
+        for (int i = 0; i < 7; i++) {
+        	handsWon[i]  = 0;
+        	playerScores[i] = 0;
+        }
     }
    
 
