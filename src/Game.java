@@ -29,8 +29,14 @@ public class Game extends Thread {
     // Last card played
     public String lastCardPlayed;
     
+    // Total Cards played in trick
+    public int cardsPlayedInTrick; 
+    
     // Total number of cards in this hand
     public int cardsInHand;
+    
+    // Led suit
+    public String ledSuit;
     
     //Hardcoded to 7 (max players) we can change this but hardcoding it to 7 wont really
     //lead to any inefficiency
@@ -50,6 +56,7 @@ public class Game extends Thread {
         this.gameName = gameName;
         this.lastBid = "none:none";
         this.lastCardPlayed = "";
+        this.cardsPlayedInTrick = 0;
         this.nextPlayerToPlay = "";
         this.creatorName = creatorName;
         this.playerList.put(creatorName,0);
@@ -61,6 +68,7 @@ public class Game extends Thread {
 
     // deals all cards to users
     public void deal(){
+    	this.lastCardPlayed = "";
         //iterate through all users and add card into hands
     	String [] AllCards = {"H2","H3","H4","H5","H6","H7","H8","H9","HT","HJ","HQ","HK","HA","S2","S3","S4","S5","S6","S7","S8","S9","ST","SJ","SQ","SK","SA",
     	                   "D2","D3","D4","D5","D6","D7","D8","D9","DT","DJ","DQ","DK","DA","C2","C3","C4","C5","C6","D7","C8","C9","CT","CJ","CQ","CK","CA"};
@@ -73,41 +81,41 @@ public class Game extends Thread {
     		
     	}
     	
+    	//initialise player cards to blank
+    	for (int j = 0; j < 7; j++) {
+			for (int k = 0; k < 10; k++) {
+				this.playerCards[j][k] = "";
+			}
+		}
+    	
     	for (int i = 0; i < 52; i++) {
     		
     		if ((this.playerCount <= 5) && (this.playerCount >= 3)) {
-    			if (i < this.playerCount * 10) {
+    			if (i < this.playerCount * 10 - ((this.round - 1)*this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
     				this.trumpSuit = AllCards[i].substring(0,1);
+    				this.cardsInHand = 10 - this.round + 1;
     				return;
     			}
     		}
     		
     		else if (this.playerCount == 6) {
-    			if (i < 48) {
+    			if (i < 48 - ((this.round - 1)*this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
     				this.trumpSuit = AllCards[i].substring(0,1);
-    				for (int j = 0; j < 6; j++) {
-    					for (int k = 8; k < 10; k++) {
-    						this.playerCards[j][k] = "";
-    					}
-    				}
+    				this.cardsInHand = 8 - this.round + 1;
     				return;
     			}
     		}
     		
     		else if (this.playerCount == 7) {
-    			if (i < 49) {
+    			if (i < 49 - ((this.round - 1)*this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
     				this.trumpSuit = AllCards[i].substring(0,1);
-    				for (int j = 0; j < 7; j++) {
-    					for (int k = 7; k < 10; k++) {
-    						this.playerCards[j][k] = "";
-    					}
-    				}
+    				this.cardsInHand = 7 - this.round + 1;
     				return;
     			}
     		}
