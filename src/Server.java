@@ -501,6 +501,10 @@ public class Server implements ActionListener {
 	            	
 	            	game.readyToStart = true;
 	            	
+	            	game.deal();
+	            	// Get a random player to start
+	            	int rnd = (int) (Math.random() * (game.playerCount-1) );
+	            	game.nextPlayerToBid = getPlayerNameFromNumber(gameName,rnd);
 	            	
 	            	o.writeObject("GM;");
 	            	o.flush();
@@ -779,10 +783,6 @@ public class Server implements ActionListener {
 		    		game.cardsPlayedInTrick = 0;
 		    		String playername = getUsername(socket);
 		    		
-		    		game.deal();
-	            	// Get a random player to start
-	            	int rnd = (int) (Math.random() * (game.playerCount-1) );
-	            	game.nextPlayerToBid = getPlayerNameFromNumber(gameName,rnd);
 		    		
 		    		String cards = "";
 		    		for (int i = 0; i < 10; i++) {
@@ -1066,6 +1066,7 @@ public class Server implements ActionListener {
 	    			String trickwinner = game.trickWinner.split(":")[0];
 	    			int trickwinnernumber = game.playerList.get(trickwinner);
 	    			game.handsWon[trickwinnernumber]++;
+	    			game.nextPlayerToPlay = trickwinner; 
 	    			
 	    			game.cardsPlayedInTrick = 0;
 	    			game.handsPlayed++;
@@ -1088,6 +1089,8 @@ public class Server implements ActionListener {
 	    			}
 	    			game.round++;
 	    			game.nextPlayerToPlay = "";
+	    			
+	    			
 	    			game.restingState = true;
 	    			
 	    		}
@@ -1129,7 +1132,12 @@ public class Server implements ActionListener {
 	    			if (!game.playAnotherRound[i]) {
 	    				break;
 	    			}
-	    			if (i == 6) {
+	    			if (i == game.playerCount - 1) {
+	    				game.deal();
+		            	// Get a random player to start
+		            	int rnd = (int) (Math.random() * (game.playerCount-1) );
+		            	game.nextPlayerToBid = getPlayerNameFromNumber(gameName,rnd);
+		            	
 	    				game.restingState = false;
 	    				return;
 	    			}
@@ -1191,7 +1199,17 @@ public class Server implements ActionListener {
     	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
      		try {
      			for (int i = 0; i < arguments.length; i++) {
-     				// STILL BUSY
+     				//Send to username
+     				/*
+     				String playerName = (String) e.nextElement();
+		    		for (Entry<ObjectOutputStream, String> i : clientList.entrySet()) {
+		    				
+	    				if (i.getValue().equals(playerName)) {
+	    					ObjectOutputStream o2 =  i.getKey();
+	    					o2.writeObject("QP" + getUsername(socket) + ";");
+	    					o2.flush();
+	    				}
+		    		}*/
      			}
      		} catch (Exception e) {
      			System.out.println("Exception in chatToPlayers " + e);
