@@ -729,7 +729,7 @@ public class Server implements ActionListener {
 	    		
 	    		
         	} catch (Exception e) {
-        		System.out.println("Exception in playersInGame " + e);
+        		System.out.println("Exception in quitGame " + e);
         	}
        }
        
@@ -813,7 +813,7 @@ public class Server implements ActionListener {
 	    		
 	    	
        		} catch (Exception e) {
-       			System.out.println("Exception in handRequest " + e);
+       			System.out.println("Exception in bidRequest " + e);
        		}
        }
        
@@ -863,7 +863,7 @@ public class Server implements ActionListener {
 	    		
 	    		
        		} catch (Exception e) {
-       			System.out.println("Exception in handRequest " + e);
+       			System.out.println("Exception in bidPlay " + e);
        		}
        }
        
@@ -900,7 +900,7 @@ public class Server implements ActionListener {
 	    		
 	    		
        		} catch (Exception e) {
-       			System.out.println("Exception in handRequest " + e);
+       			System.out.println("Exception in cardRequest " + e);
        		}
        }
        
@@ -960,19 +960,102 @@ public class Server implements ActionListener {
 	    		game.nextPlayerToPlay = getPlayerNameFromNumber(gameName,nextplayernumber);
 	    		game.lastCardPlayed = playerName + ":" + card;
 	    		
+	    		// calculate current winner of trick
+    			if (game.cardsPlayedInTrick == 0) {
+    				game.trickWinner = game.lastCardPlayed;
+    				
+    			} else {
+    				String oldtrickwinnersuite = game.trickWinner.split(":")[1];
+    				String oldtrickwinnerdigit = game.trickWinner.split(":")[1];
+    				int oldtrickwinnerface = 0;
+    				String contendersuite = game.lastCardPlayed.split(":")[1];
+    				String contenderdigit = game.lastCardPlayed.split(":")[1];
+    				int contenderface = 0;
+    				
+    				// Convert card to integer
+    				if (oldtrickwinnerdigit.equals("T")) {
+    					oldtrickwinnerface = 10;
+    				} else if (oldtrickwinnerdigit.equals("J")) {
+    					oldtrickwinnerface = 11;
+    				} else if (oldtrickwinnerdigit.equals("Q")) {
+    					oldtrickwinnerface = 12;
+    				} else if (oldtrickwinnerdigit.equals("K")) {
+    					oldtrickwinnerface = 13;
+    				} else if (oldtrickwinnerdigit.equals("A")) {
+    					oldtrickwinnerface = 14;
+    				} else {
+    					oldtrickwinnerface = Integer.parseInt(oldtrickwinnerdigit);
+    				}
+    				
+    				// Convert card to integer
+    				if (contenderdigit.equals("T")) {
+    					contenderface = 10;
+    				} else if (contenderdigit.equals("J")) {
+    					contenderface = 11;
+    				} else if (contenderdigit.equals("Q")) {
+    					contenderface = 12;
+    				} else if (contenderdigit.equals("K")) {
+    					contenderface = 13;
+    				} else if (contenderdigit.equals("A")) {
+    					contenderface = 14;
+    				} else {
+    					contenderface = Integer.parseInt(oldtrickwinnerdigit);
+    				}
+    				
+    				if (oldtrickwinnersuite.equals(game.trumpSuit)) {
+    					if (contendersuite.equals(game.trumpSuit)) {
+    						if (contenderface > oldtrickwinnerface) {
+    							game.trickWinner = game.lastCardPlayed;
+    						} else {
+    							//oldtrickwinner stays the same
+    						}
+    					} else {
+    						//oldtrickwinner stays the same
+    					}
+    				}
+    				
+    				else if (oldtrickwinnersuite.equals(game.ledSuit)) {
+    					
+    					if (contendersuite.equals(game.trumpSuit)) {
+    						game.trickWinner = game.lastCardPlayed;
+    						
+    					} else if (contendersuite.equals(game.ledSuit)) {
+    						if (contenderface > oldtrickwinnerface) {
+    							game.trickWinner = game.lastCardPlayed;
+    						} else {
+    							//oldtrickwinner stays the same
+    						}
+    					} else {
+    						//oldtrickwinner stays the same
+    					}
+    				}
+    				
+    			}
+	    		
 	    		game.cardsPlayedInTrick++;
 	    		
+	    		
+	    		
 	    		if (game.cardsPlayedInTrick == game.playerCount) {
+	    			//add winner of trick to score and handsWon
+	    			String trickwinner = game.trickWinner.split(":")[0];
 	    			game.cardsPlayedInTrick = 0;
+	    			game.handsPlayed++;
 	    			game.nextPlayerToPlay = "";
+	    			game.ledSuit = "";
 	    		}
 	    		
-	    		o.writeObject("HL" + game.lastCardPlayed + ":;");
+	    		if (game.handsPlayed == game.cardsInHand) {
+	    			game.restingState = true;
+	    			
+	    		}
+	    		
+	    		o.writeObject("HL" + game.lastCardPlayed + ":" + game.nextPlayerToPlay + ";");
 	    		o.flush();
 	    		return;
 	    		
        		} catch (Exception e) {
-       			System.out.println("Exception in handRequest " + e);
+       			System.out.println("Exception in cardPlay " + e);
        		}
        }
        
