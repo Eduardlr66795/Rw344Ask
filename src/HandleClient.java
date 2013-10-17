@@ -78,6 +78,16 @@ public class HandleClient extends Thread {
 					
 				} else if (command.equals("HR")) {
 					server.cardPlay(socket, arguments[0], arguments[1]);
+				
+				} else if (command.equals("HA")) {
+					server.anotherHand(socket, arguments[0]);	
+					
+				} else if (command.equals("HS")) {
+					server.scoreRequest(socket, arguments[0]);	
+					
+				} else if (command.equals("CP")) {
+					server.chatToPlayers(socket, arguments);
+					
 
 				} else {
 					server.sendToAll(message, socket);
