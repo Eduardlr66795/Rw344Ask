@@ -843,7 +843,7 @@ public class Server implements ActionListener {
 	    			
 	    		} else {
 	    			int bid = Integer.parseInt(bidstring);
-	    			if (bid > game.cardsInHand) {
+	    			if (bid > game.cardsThisHand) {
 	    				o.writeObject("ER140;");
 		    			o.flush();
 		    			return;
@@ -965,11 +965,11 @@ public class Server implements ActionListener {
     				game.trickWinner = game.lastCardPlayed;
     				
     			} else {
-    				String oldtrickwinnersuite = game.trickWinner.split(":")[1];
-    				String oldtrickwinnerdigit = game.trickWinner.split(":")[1];
+    				String oldtrickwinnersuite = game.trickWinner.split(":")[1].substring(0, 1);
+    				String oldtrickwinnerdigit = game.trickWinner.split(":")[1].substring(1, 2);
     				int oldtrickwinnerface = 0;
-    				String contendersuite = game.lastCardPlayed.split(":")[1];
-    				String contenderdigit = game.lastCardPlayed.split(":")[1];
+    				String contendersuite = game.lastCardPlayed.split(":")[1].substring(0, 1);;
+    				String contenderdigit = game.lastCardPlayed.split(":")[1].substring(1, 2);;
     				int contenderface = 0;
     				
     				// Convert card to integer
@@ -1034,18 +1034,33 @@ public class Server implements ActionListener {
 	    		
 	    		game.cardsPlayedInTrick++;
 	    		
-	    		
-	    		
 	    		if (game.cardsPlayedInTrick == game.playerCount) {
-	    			//add winner of trick to score and handsWon
+	    			// Add winner to handsWon
 	    			String trickwinner = game.trickWinner.split(":")[0];
+	    			int trickwinnernumber = game.playerList.get(trickwinner);
+	    			game.handsWon[trickwinnernumber]++;
+	    			
 	    			game.cardsPlayedInTrick = 0;
 	    			game.handsPlayed++;
-	    			game.nextPlayerToPlay = "";
+	    			
 	    			game.ledSuit = "";
 	    		}
 	    		
-	    		if (game.handsPlayed == game.cardsInHand) {
+	    		
+	    		if (game.handsPlayed == game.cardsThisHand) {
+	    			
+	    			// Update scores
+	    			for (int i = 0; i < game.playerCount; i++) {
+	    				int handswon = game.handsWon[i];
+	    				if (handswon == game.playerBids[i]) {
+	    					game.playerScores[i] += handswon + 10;
+	    				} else {
+	    					game.playerScores[i] += handswon;
+	    				}
+	    				
+	    			}
+	    			
+	    			game.nextPlayerToPlay = "";
 	    			game.restingState = true;
 	    			
 	    		}
