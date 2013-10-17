@@ -752,8 +752,13 @@ public class Server implements ActionListener {
 	    			o.flush();
 	    			return;
 	    		}
+	    		
+	    		// if game is being played and user requests a hand TODO
+	    		
 	    		    		
 	    		String roundnumber = "" + game.round;
+	    		game.lastCardPlayed = "";
+	    		game.cardsPlayedInTrick = 0;
 	    		String playername = getUsername(socket);
 	    		
 	    		String cards = "";
@@ -838,8 +843,6 @@ public class Server implements ActionListener {
 	    			
 	    		} else {
 	    			int bid = Integer.parseInt(bidstring);
-	    			System.out.println("Bid is: "+bid);
-	    			System.out.println("Cards in hand is: "+game.cardsInHand);
 	    			if (bid > game.cardsInHand) {
 	    				o.writeObject("ER140;");
 		    			o.flush();
@@ -850,6 +853,7 @@ public class Server implements ActionListener {
 	    			int nextplayernumber = (game.playerList.get(getUsername(socket)) + 1) % game.playerCount;
 	    			
 	    			game.nextPlayerToBid = getPlayerNameFromNumber(gameName,nextplayernumber);
+	    			game.lastBid = getUsername(socket) + ":" + bid;
 	    			
 	    			o.writeObject("HC" + getUsername(socket) + ":" + bid + ":" + game.nextPlayerToBid + ";");
 	    			o.flush();
@@ -919,9 +923,53 @@ public class Server implements ActionListener {
 	    			o.flush();
 	    			return;
 	    		}
+	    		String playerName = getUsername(socket);
+	    		int playerNumber = game.playerList.get(playerName);
 	    		
-	    		//NOT DONE
+	    		//Check if player has this card and find position of card
+	    		boolean hasCard = false;
+	    		int cardposition = 900;
+	    		for (int i = 0; i < 10; i++) {
+	    			if (game.playerCards[playerNumber][i].equals(card)) {
+	    				hasCard = true;
+	    				cardposition = i;
+	    			}
+	    		}
 	    		
+	    		if (!hasCard) {
+	    			o.writeObject("ER141;");
+    				o.flush();
+    				return;
+	    		}
+	    		
+	    		//Check if card is not led suit and player does have led suit in hand
+	    		if (!game.ledSuit.equals(card.substring(0,1))) {
+		    		for (int i = 0; i < 10; i++) {
+		    			if(game.playerCards[playerNumber][i].substring(0,1).equals(game.ledSuit)) {
+		    				o.writeObject("ER142;");
+		    				o.flush();
+		    				return;
+		    			}
+		    		}
+	    		}
+	    		
+	    		game.playerCards[playerNumber][cardposition] = "";
+	    		
+	    		int nextplayernumber = (playerNumber + 1) % game.playerCount;
+	    		
+	    		game.nextPlayerToPlay = getPlayerNameFromNumber(gameName,nextplayernumber);
+	    		game.lastCardPlayed = playerName + ":" + card;
+	    		
+	    		game.cardsPlayedInTrick++;
+	    		
+	    		if (game.cardsPlayedInTrick == game.playerCount) {
+	    			game.cardsPlayedInTrick = 0;
+	    			game.nextPlayerToPlay = "";
+	    		}
+	    		
+	    		o.writeObject("HL" + game.lastCardPlayed + ":;");
+	    		o.flush();
+	    		return;
 	    		
        		} catch (Exception e) {
        			System.out.println("Exception in handRequest " + e);
