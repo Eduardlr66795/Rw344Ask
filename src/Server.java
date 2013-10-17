@@ -455,17 +455,7 @@ public class Server implements ActionListener {
 	            	o.writeObject("GP" + player + ";");
 	            	o.flush();
 	            	
-	            	// Search for a spot left open by a kicked player
-	            	for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
-	            		String tmpplayer = (String) e.nextElement();
-	            		
-	            		if (tmpplayer.equals("EMPTYSPOTLEFTOPENBYKICKEDPLAYER")) {
-	            			game.playerList.put(player, game.playerList.get("EMPTYSPOTLEFTOPENBYKICKEDPLAYER"));
-	            			return;
-	            		}
-	            	}
-	            	
-	            	game.playerList.put(player, game.playerCount-1);
+	            	game.playerList.put(player, 999);
 	            	
 	            // No player to join at moment
 	            } else {
@@ -502,11 +492,15 @@ public class Server implements ActionListener {
                     
 	            } else {
 	            	
+	            	int i = 0;
+	            	for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+	            		String tmpplayer = (String) e.nextElement();
+	            		game.playerList.put(tmpplayer, i);
+	            		i++;
+	            	}
+	            	
 	            	game.readyToStart = true;
-	            	game.deal();
-	            	// Get a random player to start
-	            	int rnd = (int) (Math.random() * (game.playerCount-1) );
-	            	game.nextPlayerToBid = getPlayerNameFromNumber(gameName,rnd);
+	            	
 	            	
 	            	o.writeObject("GM;");
 	            	o.flush();
@@ -534,9 +528,18 @@ public class Server implements ActionListener {
   	    		
   	    		if (game.playerList.containsKey(playerName)) {
   	    			
-  	    			game.playerList.put("EMPTYSPOTLEFTOPENBYKICKEDPLAYER", game.playerList.get(playerName));
   	    			game.playerList.remove(playerName);
   	    			game.playerCount--;
+  	    			
+  	    			for (Entry<ObjectOutputStream, String> i : clientList.entrySet()) {
+  	    				
+  	    				if (i.getValue().equals(playerName)) {
+  	    					ObjectOutputStream o2 =  i.getKey();
+  	    					o2.writeObject("ER134;");
+  	    					o2.flush();
+  	    				}
+  	    			}
+  	    		
   	    			
   	    			o.writeObject("GQ;");
   	    			o.flush();
@@ -673,7 +676,7 @@ public class Server implements ActionListener {
 	    		
 	    		//TODO if all works then remove
 	    		if (game.playerList.isEmpty()) {
-	    			System.out.println("Should never get here, started a game with 0 players?");
+	    			System.out.println("DEFENSIVE CODE: Should never get here, started a game with 0 players?");
 	    			o.writeObject(message + ";");
 	    			o.flush();
 	    			return;
@@ -699,7 +702,8 @@ public class Server implements ActionListener {
         	}
         
         }
-        
+       
+        // quit game that hasnt started TODO
        public void quitGame(Socket socket, String gameName) {
         	ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
         	try {
@@ -720,12 +724,26 @@ public class Server implements ActionListener {
 	    			return;
 	    		}
 	    		
+	    		
+	    		
 	    		game.playerList.remove(getUsername(socket));
 	    		game.playerCount--;
 	    		
 	    		o.writeObject("QK;");
 	    		o.flush();
-	    		sendToAll("QP" + getUsername(socket) + ";",socket);
+	    		
+	    		// Send quit message only to other players in game
+	    		for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+	    			String playerName = (String) e.nextElement();
+		    		for (Entry<ObjectOutputStream, String> i : clientList.entrySet()) {
+		    				
+	    				if (i.getValue().equals(playerName)) {
+	    					ObjectOutputStream o2 =  i.getKey();
+	    					o2.writeObject("QP" + getUsername(socket) + ";");
+	    					o2.flush();
+	    				}
+		    		}
+	    		}
 	    		
 	    		
         	} catch (Exception e) {
@@ -755,22 +773,28 @@ public class Server implements ActionListener {
 	    		
 	    		// if game is being played and user requests a hand TODO
 	    		
-	    		    		
-	    		String roundnumber = "" + game.round;
-	    		game.lastCardPlayed = "";
-	    		game.cardsPlayedInTrick = 0;
-	    		String playername = getUsername(socket);
-	    		
-	    		String cards = "";
-	    		for (int i = 0; i < 10; i++) {
-	    			if (!game.playerCards[game.playerList.get(playername)][i].equals("")) {
-	    				cards += game.playerCards[game.playerList.get(playername)][i] + ":";
-	    			} 
+	    		if (!game.restingState) {   		
+		    		String roundnumber = "" + game.round;
+		    		game.lastCardPlayed = "";
+		    		game.cardsPlayedInTrick = 0;
+		    		String playername = getUsername(socket);
+		    		
+		    		game.deal();
+	            	// Get a random player to start
+	            	int rnd = (int) (Math.random() * (game.playerCount-1) );
+	            	game.nextPlayerToBid = getPlayerNameFromNumber(gameName,rnd);
+		    		
+		    		String cards = "";
+		    		for (int i = 0; i < 10; i++) {
+		    			if (!game.playerCards[game.playerList.get(playername)][i].equals("")) {
+		    				cards += game.playerCards[game.playerList.get(playername)][i] + ":";
+		    			} 
+		    		}
+		    		
+		    		String message = "HI" + roundnumber + ":" + cards + game.trumpSuit + ":" + game.nextPlayerToBid + ";";
+		    		o.writeObject(message);
+		    		o.flush();
 	    		}
-	    		
-	    		String message = "HI" + roundnumber + ":" + cards + game.trumpSuit + ":" + game.nextPlayerToBid + ";";
-	    		o.writeObject(message);
-	    		o.flush();
 	    		
 	    		
        		} catch (Exception e) {
@@ -945,10 +969,12 @@ public class Server implements ActionListener {
 	    		//Check if card is not led suit and player does have led suit in hand
 	    		if (!game.ledSuit.equals(card.substring(0,1))) {
 		    		for (int i = 0; i < 10; i++) {
-		    			if(game.playerCards[playerNumber][i].substring(0,1).equals(game.ledSuit)) {
-		    				o.writeObject("ER142;");
-		    				o.flush();
-		    				return;
+		    			if (!game.playerCards[playerNumber][i].equals("")) {
+			    			if (game.playerCards[playerNumber][i].substring(0,1).equals(game.ledSuit)) {
+			    				o.writeObject("ER142;");
+			    				o.flush();
+			    				return;
+			    			}
 		    			}
 		    		}
 	    		}
@@ -963,13 +989,14 @@ public class Server implements ActionListener {
 	    		// calculate current winner of trick
     			if (game.cardsPlayedInTrick == 0) {
     				game.trickWinner = game.lastCardPlayed;
+    				game.ledSuit = game.lastCardPlayed.split(":")[1].substring(0, 1);
     				
     			} else {
     				String oldtrickwinnersuite = game.trickWinner.split(":")[1].substring(0, 1);
     				String oldtrickwinnerdigit = game.trickWinner.split(":")[1].substring(1, 2);
     				int oldtrickwinnerface = 0;
-    				String contendersuite = game.lastCardPlayed.split(":")[1].substring(0, 1);;
-    				String contenderdigit = game.lastCardPlayed.split(":")[1].substring(1, 2);;
+    				String contendersuite = game.lastCardPlayed.split(":")[1].substring(0, 1);
+    				String contenderdigit = game.lastCardPlayed.split(":")[1].substring(1, 2);
     				int contenderface = 0;
     				
     				// Convert card to integer
@@ -999,7 +1026,7 @@ public class Server implements ActionListener {
     				} else if (contenderdigit.equals("A")) {
     					contenderface = 14;
     				} else {
-    					contenderface = Integer.parseInt(oldtrickwinnerdigit);
+    					contenderface = Integer.parseInt(contenderdigit);
     				}
     				
     				if (oldtrickwinnersuite.equals(game.trumpSuit)) {
@@ -1059,7 +1086,7 @@ public class Server implements ActionListener {
 	    				}
 	    				
 	    			}
-	    			
+	    			game.round++;
 	    			game.nextPlayerToPlay = "";
 	    			game.restingState = true;
 	    			
@@ -1074,9 +1101,104 @@ public class Server implements ActionListener {
        		}
        }
        
+       public void anotherHand(Socket socket, String gameName) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+      		try {
+      		
+      			// if game does not exist
+	    		if (!gamesList.containsKey(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		// if not part of a game
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		String playerName = getUsername(socket);
+	    		int playerNumber = game.playerList.get(playerName);
+	    		
+	    		game.playAnotherRound[playerNumber] = true;
+	    		
+	    		for (int i = 0; i < game.playerCount; i++) {
+	    			if (!game.playAnotherRound[i]) {
+	    				break;
+	    			}
+	    			if (i == 6) {
+	    				game.restingState = false;
+	    				return;
+	    			}
+	    		}
+	    		
+	    		o.writeObject("HW;");
+	    		o.flush();
+	    		
+      		} catch (Exception e) {
+      			System.out.println("Exception in anotherHand " + e);
+      		}
+       }
        
        
+       public void scoreRequest(Socket socket, String gameName) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+      		try {
+      		
+      			// if game does not exist
+	    		if (!gamesList.containsKey(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		// if not part of a game
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		String message = "HO";
+	    		boolean firstitr = true;
+	    		for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+	    			if (!firstitr) {
+	    				message += ":";
+	    			}
+	    			String playerName = (String) e.nextElement();
+	    			message += playerName;
+	    			message += ":" + game.handsWon[game.playerList.get(playerName)];
+	    			message += ":" + game.playerScores[game.playerList.get(playerName)];
+	    			firstitr = false;
+	    		}
+	    		
+	    		o.writeObject(message + ";");
+	    		o.flush();
+	    		
+      		} catch (Exception e) {
+      			System.out.println("Exception in scoreRequest " + e);
+      		}
        
+       
+       }
+       
+       public void chatToPlayers(Socket socket, String [] arguments) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+     		try {
+     			for (int i = 0; i < arguments.length; i++) {
+     				// STILL BUSY
+     			}
+     		} catch (Exception e) {
+     			System.out.println("Exception in chatToPlayers " + e);
+     		}
+    	   
+    	   
+       }
 
 
         public void actionPerformed(ActionEvent e) {
