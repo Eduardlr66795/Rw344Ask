@@ -44,6 +44,9 @@ public class Game extends Thread {
     // Game in resting state
     public boolean restingState;
     
+    // Players requested to play another round
+    public boolean [] playAnotherRound = new boolean[7];
+    
     // Current trick winner name and card
     public String trickWinner;
     
@@ -80,8 +83,10 @@ public class Game extends Thread {
         this.readyToStart = false;
         
         for (int i = 0; i < 7; i++) {
+        	
         	handsWon[i]  = 0;
         	playerScores[i] = 0;
+        	playAnotherRound[i] = false;
         }
     }
    
