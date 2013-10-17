@@ -838,6 +838,8 @@ public class Server implements ActionListener {
 	    			
 	    		} else {
 	    			int bid = Integer.parseInt(bidstring);
+	    			System.out.println("Bid is: "+bid);
+	    			System.out.println("Cards in hand is: "+game.cardsInHand);
 	    			if (bid > game.cardsInHand) {
 	    				o.writeObject("ER140;");
 		    			o.flush();

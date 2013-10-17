@@ -139,6 +139,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
         public Client() {
                 bol_mainFrameActive = false;
+                
                 welcomeScreen();
 //                clientGui();
         }
@@ -381,7 +382,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 sp1.setBounds(420, 90, 150, 270);
                 panel_main.add(sp1);
 //                getClients();
-
+                
                 // TextField: Join Existing Game
                 text_message_out = new JTextField();
                 text_message_out.setBounds(15, 270, 400, 30);
@@ -390,6 +391,26 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 frame_choice.add(panel_main);
                 frame_choice.setVisible(true);
                 frame_choice.setDefaultCloseOperation(frame_choice.EXIT_ON_CLOSE);
+                
+                new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						//need to turn off gameNotStated before the game starts.
+						while(!bol_mainFrameActive){
+							try {													
+								Thread.sleep(2000);
+								if(!bol_mainFrameActive){
+									System.out.println("GL;");
+                                    objectOutput.writeObject("GL;");
+								}																											
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}										
+					}
+				}).start();
         }
 
         //Protocol
@@ -412,7 +433,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         }
         
         public void clientGui() {
-                bol_mainFrameActive = true;
+                
                 try {
                         for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
                                 if ("Nimbus".equals(info.getName())) {
@@ -517,6 +538,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 frame_main.setLocationRelativeTo(null);
                 frame_main.setVisible(true);
 
+                
+                bol_mainFrameActive = true;
                 // Just for
                 // testing--------------------------------------------------------------------
                 /*
@@ -794,6 +817,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	                                    objectOutput.writeObject("HN"+tempGameName+";");
 	                                    updateTempGameName=tempGameName;
 	                                    objectOutput.flush();
+	                                    recentHB=tempGameName;
                 					 }catch(Exception e){
                 						 System.out.println(e);
                 					 }
@@ -801,11 +825,20 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					defaultList_players.removeElement(tempKickPlayer);
 
                 				}else if (command.equals("GU")) {//List of games
-                	                defaultList_games.removeAllElements();
-                	                
-                					for(int i=0;i<arguments.length;i++){
-                						defaultList_games.addElement(arguments[i]);
+                					if(!bol_mainFrameActive){
+                						//update jlist_contactsOutsideMain
+                						jlist_contactsOutsideMain.removeAll();
+                						jlist_contactsOutsideMain.setListData(arguments);
+                						
+                					}else{
+                						defaultList_games.removeAllElements();
+                						for(int i=0;i<arguments.length;i++){
+                    						defaultList_games.addElement(arguments[i]);
+                    					}
                 					}
+                	                
+                	                
+                					
                 				}else if (command.equals("GV")) {//truncated games list
                 					
                 					System.out.println(line);
@@ -935,6 +968,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
                 				}else if (command.equals("140")) {//Illegal bid (bid is higher than the number of cards in this hand)
                 					System.out.println("Illegal bid (bid is higher than the number of cards in this hand)");
+                					//Call enter bid
+                					enterBid(recentHB);
 
                 				}else if (command.equals("141")) {//Illegal card (player does not have this card).
                 					System.out.println("Illegal card (player does not have this card).");
@@ -1001,13 +1036,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         		//Bid
         		System.out.println("BidNBow");
         		enterBid(gameName);
-        		try {
-             		System.out.println("HC"+gameName+":bid;");
-                    objectOutput.writeObject("HC"+gameName+":bid;");
-                    objectOutput.flush();
-    			 }catch(Exception e){
-    				 System.out.println(e);
-    			 }
+        		
         		
         	}else{
         		//Otherwise, see whose turn it is to bid
@@ -1049,12 +1078,14 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 panel_enterBid = new JPanel();
                 panel_enterBid.setSize(frame_enterBid.getWidth(),
                 		frame_enterBid.getHeight());
-                frame_enterBid.setLayout(null);
-                frame_enterBid.setBackground(Color.white);
+                panel_enterBid.setLayout(null);
+                panel_enterBid.setBackground(Color.white);
 
                 text_FieldEnterBid = new JTextField();
-                text_FieldEnterBid.setSize(200, 30);
-                text_FieldEnterBid.setLocation(150, 10);
+                text_FieldEnterBid.setSize(80, 30);
+                text_FieldEnterBid.setLocation(90, 10);
+                //add field for game name
+                //TODO 
 
                 label_enterBid = new JLabel();
                 label_enterBid.setSize(150, 30);
@@ -1161,10 +1192,26 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         }
                 } 
 
-                else if(evt.getSource() == button_joinGame_out) {
-                        bol_mainFrameActive = true;
+                else if(evt.getSource() == button_joinGame_out) {                      
+                        
+                        //Join game selected in list
+                        System.out.println(jlist_contactsOutsideMain.getSelectedValue().toString());
                         frame_choice.dispose();
+                        try {
+            				tempGameName=jlist_contactsOutsideMain.getSelectedValue().toString();
+                            objectOutput.writeObject("GJ"+jlist_contactsOutsideMain.getSelectedValue().toString()+";");
+                            System.out.println("GJ"+jlist_contactsOutsideMain.getSelectedValue().toString()+";");
+            	        } catch (IOException e) {
+            	                e.printStackTrace();
+            	        }
+                        
                         clientGui();
+                        try {
+							Thread.sleep(1000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+                        
 //                        getClients();
 //                        names = getClients();
 //                        jlist_contactsMain.setListData(names);
@@ -1191,8 +1238,9 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         
                 }
                 else if (evt.getSource() == button_newGame_out) {
-                        
-                        //createGame();??
+                	frame_choice.dispose();    
+                	clientGui();//For now
+                	
                 } 
                 //Protocol
                 //Once a game has begun, a player (either a joining player or the initiating player) 
@@ -1268,7 +1316,24 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
                 else if (evt.getSource() == button_history) {
                         textArea_display_in.append("History Pressed\n");
-                } else if (evt.getSource() == button_createGame) {
+                } else if (evt.getSource() == button_enterBid) {
+                	//Enter bid
+                	StringBuilder sb=new StringBuilder();
+                	sb.append("HD"+recentHB);
+                	sb.append(":");
+                	sb.append(text_FieldEnterBid.getText());
+                	sb.append(";");
+                	try {
+                 		System.out.println(sb.toString());
+                        objectOutput.writeObject(sb.toString());
+                        objectOutput.flush();
+        			 }catch(Exception e){
+        				 System.out.println(e);
+        			 }
+                    
+         	  } 
+                
+                else if (evt.getSource() == button_createGame) {
                         textArea_display_in.append("Create new Game Screen\n");
                         createGame();                     
 
