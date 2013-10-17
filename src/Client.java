@@ -55,10 +55,18 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 		public JLabel label_enterBid;
 		public JButton button_enterBid;
 		public JFrame frame_enterBid;
+		public JLabel usernameForMainFrame;
+		public JLabel turnToPlay;
+		public JLabel text_fieldTrumpSuite;
+		public int playedCardsPlacekeeper=0;
+		public int playerCountemp=0;
+		public int cardClickedJ;
+		public int cardClickedI;
 		
-		
+				
 		public String firstPlayerToPlay;
 		public String trumpSuite;
+		public String tempLastPlayer="";
         // Global Variables--------------------------------
         // Frames
         public JFrame frame_main;
@@ -81,6 +89,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public JButton button_joinGame_out;
         public JButton button_clearText_out;
         public JButton[][] button_cards;
+        public JButton[] button_playedCards;
         
 
         // Lists
@@ -361,7 +370,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 panel_main.add(button_joinGame_out);
 
                 // Button: Join Existing Game
-                button_sendMessage_out = new JButton("Send Message");
+                button_sendMessage_out = new JButton("Refresh Games");
                 button_sendMessage_out.setBounds(265, 300, 150, 30);
                 button_sendMessage_out.addActionListener(this);
                 panel_main.add(button_sendMessage_out);
@@ -396,25 +405,16 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 frame_choice.setVisible(true);
                 frame_choice.setDefaultCloseOperation(frame_choice.EXIT_ON_CLOSE);
                 
-                new Thread(new Runnable() {
-					
-					@Override
-					public void run() {
-						//need to turn off gameNotStated before the game starts.
-						while(!bol_mainFrameActive){
-							try {													
-								Thread.sleep(2000);
-								if(!bol_mainFrameActive){
-									System.out.println("GL;");
-                                    objectOutput.writeObject("GL;");
-								}																											
-							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-						}										
-					}
-				}).start();
+                try {													
+					if(!bol_mainFrameActive){
+						System.out.println("GL;");
+                        objectOutput.writeObject("GL;");
+					}																											
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+                
         }
 
         //Protocol
@@ -459,13 +459,13 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 for (int k = 0; k < 15; k++) {
                         string_games[k] = "empty";
                 }
-
+                button_playedCards=new JButton[7];
                 button_cards = new JButton[15][10];
                 panel_bigframe = new JPanel[40];
                 tabs = new JTabbedPane();
                 frame_main = new JFrame();
                 plabel_players=new JLabel[15];
-                frame_main.setSize(1000, 420);
+                frame_main.setSize(1000, 500);
                 frame_main.setLayout(null);
                 frame_main.setResizable(false);
                 frame_main.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -477,11 +477,12 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                                 // TODO : Create an exit event
                         }
                 });
-
+                text_fieldTrumpSuite=new JLabel();
+                
                 frame_main.setTitle("Example GUI");
                 text_message_in = new JTextField();
                 text_message_in.setSize(700, 30);
-                text_message_in.setLocation(3, 360);
+                text_message_in.setLocation(3, 460);
                 frame_main.add(text_message_in);
                 
                 
@@ -489,7 +490,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 JScrollPane spMain = new JScrollPane(textArea_display_in = new JTextArea());
                 spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
                 spMain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-                spMain.setBounds(3, 230, 800, 130);
+                spMain.setBounds(3, 330, 800, 130);
                 textArea_display_in.setEditable(false);
                 frame_main.add(spMain);
         
@@ -500,44 +501,50 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 jlist_contactsMain.setBackground(Color.LIGHT_GRAY);
                 jlist_contactsMain.addMouseListener(this);
                 
-                sp1.setBounds(820, 40, 160, 240);
+                sp1.setBounds(820, 40, 160, 300);
                 frame_main.add(sp1);
                 
                 
         
                 
                 button_sendMessage_in = new JButton("Send Msg");
-                button_sendMessage_in.setBounds(709, 360, 93, 30);
+                button_sendMessage_in.setBounds(709, 460, 93, 30);
+                //button_sendMessage_in.setBounds(709, 360, 93, 30);
                 button_sendMessage_in.addActionListener(this);
                 frame_main.add(button_sendMessage_in);
                 
                 button_listPlayers = new JButton("List of Players");
-                button_listPlayers.setBounds(820, 280, 160, 25);
+                button_listPlayers.setBounds(820, 380, 160, 25);
+                //button_listPlayers.setBounds(820, 280, 160, 25);
                 button_listPlayers.addActionListener(this);
                 frame_main.add(button_listPlayers);
 
                 button_listGames = new JButton("List Games");
-                button_listGames.setBounds(820, 300, 160, 25);
+                button_listGames.setBounds(820, 400, 160, 25);
+                //button_listGames.setBounds(820, 300, 160, 25);
                 button_listGames.addActionListener(this);
                 frame_main.add(button_listGames);
 
                 button_history = new JButton("History");
-                button_history.setBounds(820, 320, 160, 25);
+                button_history.setBounds(820, 420, 160, 25);
+                //button_history.setBounds(820, 320, 160, 25);
                 button_history.addActionListener(this);
                 frame_main.add(button_history);
 
                 button_logoff = new JButton("Log Off");
-                button_logoff.setBounds(820, 340, 160, 25);
+                button_logoff.setBounds(820, 440, 160, 25);
+                //button_logoff.setBounds(820, 340, 160, 25);
                 button_logoff.addActionListener(this);
                 frame_main.add(button_logoff);
 
                 button_createGame = new JButton("Create Game");
-                button_createGame.setBounds(820, 360, 160, 25);
+                button_createGame.setBounds(820, 460, 160, 25);
+                //button_createGame.setBounds(820, 360, 160, 25);
                 button_createGame.addActionListener(this);
                 frame_main.add(button_createGame);
 
                 tabs.setLocation(3, 8);
-                tabs.setSize(990, 200);
+                tabs.setSize(990, 350);
                 frame_main.add(tabs);
                 frame_main.setLocationRelativeTo(null);
                 frame_main.setVisible(true);
@@ -585,12 +592,13 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 }
                 // Initialise
                 panel_bigframe[gameNumber] = new JPanel();
-                panel_bigframe[gameNumber].setSize(990, 200);
+                panel_bigframe[gameNumber].setSize(990, 350);
                 panel_bigframe[gameNumber].setLayout(null);
                 panel_bigframe[gameNumber].setName(gName);
                 button_cards[gameNumber] = new JButton[10];
 //                plabel_layers = new JLabel[7];
 
+                
                 // Add game name label
                 label_gameName = new JLabel(gName);
                 label_gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
@@ -606,6 +614,23 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         button_cards[gameNumber][k].setEnabled(false);
                         panel_bigframe[gameNumber].add(button_cards[gameNumber][k]);
                 }
+                usernameForMainFrame = new JLabel();
+                text_fieldTrumpSuite.setText("Trump Suite: ");
+                text_fieldTrumpSuite.setSize(150, 20);
+                text_fieldTrumpSuite.setLocation(500, 8);
+                
+        		turnToPlay=new JLabel();
+        		usernameForMainFrame.setSize(180, 20);
+        		usernameForMainFrame.setLocation(50, 40);
+        		usernameForMainFrame.setText(username);
+        		turnToPlay.setSize(160, 25);
+        		turnToPlay.setLocation(100, 5);
+        		turnToPlay.setText("TURN TO PLAY!!");
+        		turnToPlay.setVisible(false);
+        		panel_bigframe[gameNumber].add(usernameForMainFrame);
+        		panel_bigframe[gameNumber].add(turnToPlay);
+        		panel_bigframe[gameNumber].add(text_fieldTrumpSuite);
+        		
                 // Add new game panel
                 panel_bigframe[gameNumber].setName(gName);
                 tabs.addTab(gName, panel_bigframe[gameNumber]);
@@ -627,10 +652,12 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
             	plabel_players[k].setBounds(750, (k * 20), 80, 15);
                 panel_bigframe[gameNumber].add(plabel_players[k]);
             }
+            panel_bigframe[gameNumber].repaint();
+            playerCountemp=pNames.length;
         	
         }
         public void updateGame(String gName, String[] pCards, int[] pScores) {
-                // Find gameNumber
+                //Find gameNumber
                 int gameNumber = 0;
                 for (int i = 0; i < 15; i++) {
                         if (string_games[i].equals(gName)) {
@@ -783,7 +810,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 													//need to turn off gameNotStated before the game starts.
 													while(gameNotStarted){
 														try {
-															Thread.sleep(2000);
+															Thread.sleep(1000);
 															if(gameNotStarted){
 																System.out.println("GN"+tempGameName+";");
 						                                        objectOutput.writeObject("GN"+tempGameName+";");
@@ -856,7 +883,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 										public void run() {
 											while(gameNotStarted){
 												try {													
-													Thread.sleep(2000);
+													Thread.sleep(1000);
 													if(gameNotStarted){
 														System.out.println("GW"+tempGameName+";");
 				                                        objectOutput.writeObject("GW"+tempGameName+";");
@@ -911,16 +938,37 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					firstPlayerToPlay=arguments[arguments.length-1];
                 					System.out.println("First Playe to bid:"+firstPlayerToPlay);
                 					trumpSuite=arguments[arguments.length-2];
+                					if(!trumpSuite.equalsIgnoreCase("x")){
+                						//Trump Round
+                						String temp="";
+                						if(trumpSuite.equalsIgnoreCase("C")){
+                							temp="Clubs";
+                						}else if(trumpSuite.equalsIgnoreCase("S")){
+                							temp="Spades";
+                						}else if(trumpSuite.equalsIgnoreCase("H")){
+                							temp="Hearts";
+                						}else if(trumpSuite.equalsIgnoreCase("D")){
+                							temp="Diamods";
+                						}
+                						text_fieldTrumpSuite.setText("Trump Suite:"+temp);
+                						
+                					}else{
+                						text_fieldTrumpSuite.setText("Trump Suite: None");
+                						
+                					}
                 					askForBid(tempGameName);
 
                 				}else if (command.equals("HC")) {//Who is next to bid, and who has bid, along with their bid
                 					//create thread to keep sending HBgame_name; request
-                					
+                					//---------------------------------------------------------------------------
+                					//TODO Keep track of other players bids, will be needed for calculating score
+                					//---------------------------------------------------------------------------
                 					//check whose turn to bid
                 					if(firstPlayerToPlay.equals(arguments[2])){
                 						//Bids finished and turn to play a card!
                 						System.out.println("All Bids Finished!!!");
                 						bidding=false;
+                						turnToPlay.setVisible(false);
                 						turnToPlayCard=false;
                 						gameInProgress=true;//check somewhere when no more games are in progress
                 						//send HPgame_name to server
@@ -929,7 +977,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 							public void run() {
                 								while(gameInProgress){
                 									try {													
-                										Thread.sleep(2000);
+                										Thread.sleep(1000);
                 										if(gameInProgress){
                 											//cycle through all games in progress
                 											for(int i=0;i<15;i++){
@@ -950,10 +998,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 							}
                 						}).start();
                 						
-                						if(username.equals(firstPlayerToPlay)){
-                    						//Ask/allow client to play a card
-                							turnToPlayCard=true;
-                    					}
+                						
                 						
                 					}
                 					else if(arguments[2].equals(username)){
@@ -964,30 +1009,113 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 						}
                 						
                 					}
+                					if(username.equals(firstPlayerToPlay)){
+                						//Ask/allow client to play a card
+                						turnToPlay.setVisible(true);
+            							turnToPlayCard=true;
+                					}
 
                 				}else if (command.equals("HL")) {//Who is next to play card, and who has played, along with their played card
                 					//See whose turn it is to play a card and who has played what cards
+                					//TODO
+                					//arguments[0]=player who played card
+                					//arguments[1]=card the player played
+                					//use tempgamename
+                					//Check if 'my' card was played
+									if(arguments[0].equals(username)){
+										//Set prev card disabled
+										//card is arguments[1]
+										button_cards[cardClickedI][cardClickedJ].setIcon(new ImageIcon("src/cards/back.gif"));       						
+									}              					
+                					if(arguments[0].equals(tempLastPlayer)){
+                						//Do nothing?
+                					}else{
+                						if(playedCardsPlacekeeper==playerCountemp){
+                							//add check for arguments.length==2
+                							if(arguments[2].equals(username)){
+                								turnToPlayCard=true;
+                							}else{
+                								turnToPlayCard=false;
+                							}
+                    						//remove previous
+                    						for(int y=0;y<playerCountemp;y++){
+                    							button_playedCards[y].setVisible(false);
+                    						}
+                    						
+                    						//set placekeeper to zero
+                    						playedCardsPlacekeeper=0;
+                    					}
+                						int gameNumber = 0;
+                		                for (int i = 0; i < 15; i++) {
+                		                        if (string_games[i].equals(tempGameName)) {
+                		                                gameNumber = i;
+                		                                break;
+                		                        }
+                		                }
+                		               // System.out.println("Print Card,"+gameNumber);
+                						tempLastPlayer=arguments[0];
+                						Icon icon = new ImageIcon("src/cards/"+arguments[1]+".gif");
+                    					button_playedCards[playedCardsPlacekeeper]=new JButton(icon);
+                    					button_playedCards[playedCardsPlacekeeper].setBounds((80 * playedCardsPlacekeeper), 175, 75, 100);
+                    					button_playedCards[playedCardsPlacekeeper].setEnabled(false);
+                    					button_playedCards[playedCardsPlacekeeper].setVisible(true);
+                    					panel_bigframe[gameNumber].repaint();
+                    					panel_bigframe[gameNumber].add(button_playedCards[playedCardsPlacekeeper]);
+                    					playedCardsPlacekeeper++;
+                    					
+                    					//remember to set playedCardsPlacekeeper to zero somewhere
+                    					
+                					}
+                					
                 					//turnToPlayCard
                 					if(arguments.length==2){
                 						//End of trick
-                						System.out.println("End of trick");
+                						System.out.println("End of all tricks in hand");              						
+                						//TODO
+                						//Ask server for current scores
+                						//Then deal next hand!
+                						 try {
+                							System.out.println("HS"+tempGameName+";");
+       	                                    objectOutput.writeObject("HS"+tempGameName+";");
+       	                                    objectOutput.flush();
+                							System.out.println("HA"+tempGameName+";");
+      	                                    objectOutput.writeObject("HA"+tempGameName+";");
+      	                                    objectOutput.flush();
+     	                                    System.out.println("HN"+tempGameName+";");
+     	                                    objectOutput.writeObject("HN"+tempGameName+";");
+     	                                    objectOutput.flush();
+     	                                    updateTempGameName=tempGameName;
+     	                                    //Ask player for bid
+     	                                    recentHB=tempGameName;
+     	                                    
+                     					 }catch(Exception e){
+                     						 System.out.println(e);
+                     					 }
+                						
+                						
                 						if(username.equals(firstPlayerToPlay)){
                     						//Ask/allow client to play a card
+                							turnToPlay.setVisible(true);
                 							turnToPlayCard=true;
                     					}
                 					}else if(username.equals(arguments[2])){
+                						turnToPlay.setVisible(true);
                 						turnToPlayCard=true;
                 					}else{
                 						System.out.println("turnToPlay=false:");
                 						turnToPlayCard=false;
+                						turnToPlay.setVisible(false);
                 					}
                 					
 
                 				}else if (command.equals("HW")) {//Waiting for others message
-
+                					
                 					
                 				}else if (command.equals("HO")) {//Player names and scores
-                					
+                					System.out.println("Players and scores: ");
+                					for(int i=0;i<arguments.length;i++){
+                						System.out.println(arguments[i]);
+                					}
 
                 				}else if (command.equals("LM")) {
                 					
@@ -1035,8 +1163,10 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 				}else if (command.equals("141")) {//Illegal card (player does not have this card).
                 					System.out.println("Illegal card (player does not have this card).");
 
-                				}else if (command.equals("142")) {//Illegal card (player must play the led suit because it has suitable cards)
+                				}else if (command.equals("ER") && arguments[0].equals(142)) {//Illegal card (player must play the led suit because it has suitable cards)
                 					System.out.println("Illegal card (player must play the led suit because it has suitable cards)");
+                					//Played Wrong Card
+                					
 
                 				}else if (command.equals("150")) {//One or more of the player names does not exist, chat not delivered to those players
                 					System.out.println("One or more of the player names does not exist, chat not delivered to those players");
@@ -1101,7 +1231,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 				public void run() {
 					while(bidding){
 						try {													
-							Thread.sleep(2000);
+							Thread.sleep(1000);
 							if(bidding){
 								System.out.println("HB"+recentHB+";");
                                 objectOutput.writeObject("HB"+recentHB+";");
@@ -1187,8 +1317,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 panel_enterBid.add(label_enterBid);
                 panel_enterBid.add(button_enterBid);
                 frame_enterBid.add(panel_enterBid);
-                frame_enterBid.setVisible(true);
-                
+                frame_enterBid.setVisible(true); 
         }
 
         // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1249,15 +1378,20 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
         public void actionPerformed(ActionEvent evt) {
                 if (evt.getSource() == button_login) {
-                        connectToServer();
+                	if(text_loginTextfieldName.getText().equals("")){
+                		frame_Welcome.dispose();
+                		welcomeScreen();
+                	}else{
+                		connectToServer();
+                	}
+                        
                 } 
-                
                 //Protocol
                 //client -> server: CAgame_name:message;
                 //server -> client: CG;
                 else if (evt.getSource() == button_sendMessage_in) {
                         String text = text_message_in.getText();
-                        if (text.length() > 0) {
+                        if ((text.length() > 0)&&(tabs.getComponentCount()!=0)) {
                                 textArea_display_in.append("<- " + text + " ->\n");
                                 StringBuilder sb = new StringBuilder();
                                 sb.append("CA");
@@ -1279,22 +1413,23 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 else if(evt.getSource() == button_joinGame_out) {                      
                         
                         //Join game selected in list
-                        System.out.println(jlist_contactsOutsideMain.getSelectedValue().toString());
-                        frame_choice.dispose();
+                        
                         try {
-            				tempGameName=jlist_contactsOutsideMain.getSelectedValue().toString();
-                            objectOutput.writeObject("GJ"+jlist_contactsOutsideMain.getSelectedValue().toString()+";");
-                            System.out.println("GJ"+jlist_contactsOutsideMain.getSelectedValue().toString()+";");
+                        	if(!jlist_contactsOutsideMain.isSelectionEmpty()){
+                        		tempGameName=jlist_contactsOutsideMain.getSelectedValue().toString();
+                				System.out.println(tempGameName);
+                                objectOutput.writeObject("GJ"+jlist_contactsOutsideMain.getSelectedValue().toString()+";");
+                                System.out.println("GJ"+jlist_contactsOutsideMain.getSelectedValue().toString()+";");
+                                frame_choice.dispose();
+                                clientGui();
+                        	}
+            				
             	        } catch (IOException e) {
             	                e.printStackTrace();
             	        }
                         
-                        clientGui();
-                        try {
-							Thread.sleep(1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+                        
+                        
                         
 //                        getClients();
 //                        names = getClients();
@@ -1329,7 +1464,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 	
                 } 
                 //Protocol
-                //Once a game has begun, a player (either a joining player or the initiating player) 
+                //Once a game has ben, a player (either a joining player or the initiating player) 
                 //may request a list of the other players. The server responds with a list of players.
                 //client -> server: GAgame_name;
                 //server -> client: GCplayer_name1:player_name2:...;
@@ -1340,29 +1475,40 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 	
                 	try {
                 		//Kick Player GOgame_name:player_name;
-                		StringBuilder sb=new StringBuilder();
-                		sb.append("GO");
-                		sb.append(tempGameName+":");
-                		sb.append(defaultList_players.getElementAt(jlist_playersJoiningGame.getSelectedIndex()).toString());
-                		sb.append(";");
-                		tempKickPlayer=defaultList_players.getElementAt(jlist_playersJoiningGame.getSelectedIndex()).toString();
-                		System.out.println(sb.toString());
-                        objectOutput.writeObject(sb.toString());
+                		if(!jlist_playersJoiningGame.isSelectionEmpty()){
+                			StringBuilder sb=new StringBuilder();
+                    		sb.append("GO");
+                    		sb.append(tempGameName+":");
+                    		sb.append(defaultList_players.getElementAt(jlist_playersJoiningGame.getSelectedIndex()).toString());
+                    		sb.append(";");
+                    		tempKickPlayer=defaultList_players.getElementAt(jlist_playersJoiningGame.getSelectedIndex()).toString();
+                    		System.out.println(sb.toString());
+                            objectOutput.writeObject(sb.toString());
+                		}
+                		
                 	} catch (IOException e) {
                         e.printStackTrace();
                 	}
-                	
-                    
+                	              
                 } 
-                
-                
-                
                 //TODO: what command should we send to the server?
                 //It is correct, read http://www.cs.sun.ac.za/rw344/project.html
                 //There is no chat to all option. . .
                 //client -> server: CAgame_name:message;
                 //server -> client: CG;
                 else if (evt.getSource() == button_sendMessage_out) {
+                	//Refreshing Games for now
+                	try {													
+    					if(!bol_mainFrameActive){
+    						System.out.println("GL;");
+                            objectOutput.writeObject("GL;");
+    					}																											
+    				} catch (Exception e) {
+    					// TODO Auto-generated catch block
+    					e.printStackTrace();
+    				}
+                	
+                	/*
                         if (text_message_out.getText().length() > 0) {
                                 String text = text_message_out.getText();
                                 textArea_display_out.append("<- " + text + " ->\n");
@@ -1383,7 +1529,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                                 
                         } else {
                                 text_message_out.setText("");
-                        }
+                        }*/
                 }
                 //Protocol
                 //client -> server: GL;
@@ -1452,12 +1598,20 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         } catch (IOException e) {
                                 System.out.println("Logoff fail");
                                 e.printStackTrace();
-                        }
-                       
-                        
+                        }      
                 } else {
                 	if(turnToPlayCard){
                 		//A card has been played
+                		for(int i=0;i<15;i++){
+                			for(int j=0;j<10;j++){
+                				if(evt.getSource().equals(button_cards[i][j])){
+                					System.out.println("Card:"+i+":"+j);
+                					cardClickedJ=j;
+                					cardClickedI=i;
+                					//button_cards[i][j].setIcon(new ImageIcon("src/cards/back.gif"));
+                				}
+                			}
+                		}
                         String temp = evt.toString().substring(
                                         evt.toString().indexOf(" on") + 4);
                         // Check if temp equals any special cases, i.e. logoff, get list of
@@ -1477,7 +1631,10 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         } catch (IOException e) {
                                 e.printStackTrace();
                         }
+                        turnToPlay.setVisible(false);
                         turnToPlayCard=false;
+                        //set played card as unclickable
+                        
                         
                 	}
                         
@@ -1495,14 +1652,18 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 			// TODO Auto-generated method stub
 			//Attempt to join Game
 			//Join game GJgame_name;
-			try {
-				tempGameName=defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString();
-                objectOutput.writeObject("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
-                System.out.println("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
-	        } catch (IOException e) {
-	                System.out.println("Logoff fail");
-	                e.printStackTrace();
-	        }	
+			System.out.println(defaultList_games.getSize());
+			if(defaultList_games.getSize()>0){
+				try {
+					tempGameName=defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString();
+	                objectOutput.writeObject("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
+	                System.out.println("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
+		        } catch (IOException e) {
+		                System.out.println("Logoff fail");
+		                e.printStackTrace();
+		        }
+			}
+				
 		}
 		@Override
 		public void mouseEntered(MouseEvent arg0) {
