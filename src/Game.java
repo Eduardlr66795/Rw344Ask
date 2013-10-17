@@ -33,7 +33,7 @@ public class Game extends Thread {
     public int cardsPlayedInTrick; 
     
     // Total number of cards in this hand
-    public int cardsInHand;
+    public int cardsThisHand;
     
     // Led suit
     public String ledSuit;
@@ -115,27 +115,27 @@ public class Game extends Thread {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
     				this.trumpSuit = AllCards[i].substring(0,1);
-    				this.cardsInHand = 10 - this.round + 1;
+    				this.cardsThisHand = 10 - this.round + 1;
     				return;
     			}
     		}
     		
     		else if (this.playerCount == 6) {
-    			if (i < 48 - ((this.round - 1)*this.playerCount)) {
+    			if (i < 48 - ((this.round - 1) * this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
     				this.trumpSuit = AllCards[i].substring(0,1);
-    				this.cardsInHand = 8 - this.round + 1;
+    				this.cardsThisHand = 8 - this.round + 1;
     				return;
     			}
     		}
     		
     		else if (this.playerCount == 7) {
-    			if (i < 49 - ((this.round - 1)*this.playerCount)) {
+    			if (i < 49 - ((this.round - 1) * this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
     				this.trumpSuit = AllCards[i].substring(0,1);
-    				this.cardsInHand = 7 - this.round + 1;
+    				this.cardsThisHand = 7 - this.round + 1;
     				return;
     			}
     		}
