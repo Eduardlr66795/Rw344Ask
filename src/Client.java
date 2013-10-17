@@ -140,6 +140,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public boolean biddingActive;
         public boolean turnToPlayCard;
         public boolean gameInProgress=false;
+        public boolean threadHN=false;
         // END--------------------------------
 
         public static void main(String[] args) {
@@ -930,6 +931,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
                 				}else if (command.equals("HI")) {//receive next hand from server
                 					//Receive Hand
+                					threadHN=false;
                 					String[] cards=new String[arguments.length-3];
                 					for(int i=0;i<arguments.length-3;i++){
                 						cards[i]=arguments[i+1];
@@ -1032,11 +1034,14 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					}else{
                 						if(playedCardsPlacekeeper==playerCountemp){
                 							//add check for arguments.length==2
-                							if(arguments[2].equals(username)){
-                								turnToPlayCard=true;
-                							}else{
-                								turnToPlayCard=false;
+                							if(arguments.length==3){
+                								if(arguments[2].equals(username)){
+                    								turnToPlayCard=true;
+                    							}else{
+                    								turnToPlayCard=false;
+                    							}
                 							}
+                							
                     						//remove previous
                     						for(int y=0;y<playerCountemp;y++){
                     							button_playedCards[y].setVisible(false);
@@ -1070,7 +1075,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 					//turnToPlayCard
                 					if(arguments.length==2){
                 						//End of trick
-                						System.out.println("End of all tricks in hand");              						
+                						System.out.println("End of all tricks in hand");    
+                						gameInProgress=false;
                 						//TODO
                 						//Ask server for current scores
                 						//Then deal next hand!
@@ -1081,9 +1087,30 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 							System.out.println("HA"+tempGameName+";");
       	                                    objectOutput.writeObject("HA"+tempGameName+";");
       	                                    objectOutput.flush();
+      	                                    //thread
+      	                                     threadHN=true;
+      	                                   new Thread(new Runnable() {              							
+                   							@Override
+                   							public void run() {
+                   								while(threadHN){
+                   									try {													
+                   										Thread.sleep(1000);
+                   										if(threadHN){
+                   											System.out.println("HN"+tempGameName);
+                   			                                objectOutput.writeObject("HN"+tempGameName);
+                   										}																											
+                   									} catch (Exception e) {
+                   										// TODO Auto-generated catch block
+                   										e.printStackTrace();
+                   									}
+                   								}										
+                   								
+                   							}
+                   						}).start();
      	                                    System.out.println("HN"+tempGameName+";");
      	                                    objectOutput.writeObject("HN"+tempGameName+";");
      	                                    objectOutput.flush();
+     	                                    
      	                                    updateTempGameName=tempGameName;
      	                                    //Ask player for bid
      	                                    recentHB=tempGameName;
