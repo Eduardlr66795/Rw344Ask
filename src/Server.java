@@ -25,8 +25,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Team //Ask
  * 
  */
-@SuppressWarnings("serial")
-public class Server extends JFrame implements ActionListener {
+public class Server extends Thread implements ActionListener {
 	@SuppressWarnings("rawtypes")
 	private Hashtable outputStreams = new Hashtable();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
@@ -45,20 +44,20 @@ public class Server extends JFrame implements ActionListener {
 	private JButton button_startServer;
 	private JButton button_closeServer;
 	private JButton button_ClearLog;
+	private JFrame frameMain;
 
 	public static void main(String[] args) throws Exception {
 		Server server = new Server();
-		server.run(9119);
+		server.runSer();
 	}
 
-	public void run(int port) {
-		try {
-			buildGui();
-			listen(port);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (NullPointerException e) {
-		}
+	
+	/**
+	 * 
+	 */
+	public void runSer() {
+		buildGui();
+		run();
 	}
 
 	/**
@@ -83,22 +82,22 @@ public class Server extends JFrame implements ActionListener {
 		}
 
 		JTabbedPane tab = new JTabbedPane();
-
-		setTitle("Server Information");
-		setBackground(Color.DARK_GRAY);
-		setSize(600, 400);
-		setLocation(300, 300);
+		frameMain = new JFrame();
+		frameMain.setTitle("Server Information");
+		frameMain.setBackground(Color.DARK_GRAY);
+		frameMain.setSize(600, 400);
+		frameMain.setLocation(300, 300);
 
 		panelClient = new JPanel();
-		panelClient.setSize(getWidth(), getHeight());
+		panelClient.setSize(frameMain.getWidth(), frameMain.getHeight());
 		panelClient.setLayout(null);
 
 		panelServer = new JPanel();
-		panelServer.setSize(getWidth(), getHeight());
+		panelServer.setSize(frameMain.getWidth(), frameMain.getHeight());
 		panelServer.setLayout(null);
 
 		panelGame = new JPanel();
-		panelGame.setSize(getWidth(), getHeight());
+		panelGame.setSize(frameMain.getWidth(), frameMain.getHeight());
 		panelGame.setLayout(null);
 
 		// TextArea for server
@@ -117,7 +116,7 @@ public class Server extends JFrame implements ActionListener {
 		JScrollPane spMain = new JScrollPane(textAreaServer,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		spMain.setSize(getWidth() - 200, getHeight() - 58);
+		spMain.setSize(frameMain.getWidth() - 200, frameMain.getHeight() - 58);
 		spMain.setLocation(0, 0);
 		panelServer.add(spMain);
 
@@ -125,7 +124,7 @@ public class Server extends JFrame implements ActionListener {
 		JScrollPane spClient = new JScrollPane(textAreaClient,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		spClient.setSize(getWidth() - 200, getHeight() - 58);
+		spClient.setSize(frameMain.getWidth() - 200, frameMain.getHeight() - 58);
 		spClient.setLocation(0, 0);
 		panelClient.add(spClient);
 
@@ -133,7 +132,7 @@ public class Server extends JFrame implements ActionListener {
 		JScrollPane spGame = new JScrollPane(textAreaGame,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		spGame.setSize(getWidth() - 200, getHeight() - 58);
+		spGame.setSize(frameMain.getWidth() - 200, frameMain.getHeight() - 58);
 		spGame.setLocation(0, 0);
 		panelGame.add(spGame);
 
@@ -142,7 +141,7 @@ public class Server extends JFrame implements ActionListener {
 		tab.add("Games", panelGame);
 
 		JPanel panel = new JPanel();
-		panel.setBounds(400, 30, 200, getHeight());
+		panel.setBounds(400, 30, 200, frameMain.getHeight());
 		panel.setBackground(Color.DARK_GRAY);
 		panel.setLayout(null);
 
@@ -160,14 +159,14 @@ public class Server extends JFrame implements ActionListener {
 		button_ClearLog.addActionListener(this);
 		button_ClearLog.setBounds(15, 90, 150, 30);
 		panel.add(button_ClearLog);
-		add(panel);
+		frameMain.add(panel);
 
-		add(tab, BorderLayout.CENTER);
-		setVisible(true);
-		setResizable(false);
+		frameMain.add(tab, BorderLayout.CENTER);
+		frameMain.setVisible(true);
+		frameMain.setResizable(false);
 
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		addWindowListener(new WindowAdapter() {
+		frameMain.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frameMain.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
 				System.exit(0);
@@ -175,18 +174,19 @@ public class Server extends JFrame implements ActionListener {
 		});
 	}
 
-	
 	/**
 	 * 
 	 * @param port
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unchecked")
-	private void listen(int port) throws IOException {
+	@SuppressWarnings({ "unchecked" })
+
+	public void run() {
 		try {
-			ServerSocket server_Socket = new ServerSocket(port);
+			ServerSocket server_Socket = new ServerSocket(9119);
 			textAreaServer.append("Server started. Listening on Port - # "
 					+ server_Socket.getLocalPort() + "\n");
+
 			while (true) {
 				Socket server = server_Socket.accept();
 				ObjectOutputStream output = new ObjectOutputStream(
@@ -200,7 +200,10 @@ public class Server extends JFrame implements ActionListener {
 				textAreaServer.append("\n");
 			}
 		} catch (BindException e) {
-
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -234,6 +237,7 @@ public class Server extends JFrame implements ActionListener {
 
 	/**
 	 * Sends a message to all clients connected to server
+	 * 
 	 * @param message
 	 * @param s
 	 */
@@ -258,9 +262,9 @@ public class Server extends JFrame implements ActionListener {
 		}
 	}
 
-
 	/**
 	 * Sends a message to a specific client
+	 * 
 	 * @param message
 	 * @param username
 	 */
@@ -285,9 +289,9 @@ public class Server extends JFrame implements ActionListener {
 		}
 	}
 
-	
 	/**
 	 * Adds a username to the hashtable
+	 * 
 	 * @param username
 	 * @param s
 	 */
@@ -302,8 +306,9 @@ public class Server extends JFrame implements ActionListener {
 	}
 
 	/**
-	 *  Removes a username from the hashtable
-	 *  @param s
+	 * Removes a username from the hashtable
+	 * 
+	 * @param s
 	 */
 	public void removeUsername(Socket s) {
 		synchronized (outputStreams) {
@@ -315,9 +320,9 @@ public class Server extends JFrame implements ActionListener {
 		}
 	}
 
-
 	/**
 	 * Gets a username from a socket
+	 * 
 	 * @param s
 	 * @return
 	 */
@@ -325,7 +330,6 @@ public class Server extends JFrame implements ActionListener {
 		ObjectOutputStream output = (ObjectOutputStream) outputStreams.get(s);
 		return (String) clientList.get(output);
 	}
-
 
 	/**
 	 * Sends a list of all clientList connected to server to all clients
@@ -339,7 +343,7 @@ public class Server extends JFrame implements ActionListener {
 		while (itr.hasNext()) {
 			usernamelist += " " + itr.next();
 		}
-		
+
 		for (Enumeration e = getOutputStreams(); e.hasMoreElements();) {
 			ObjectOutputStream output = (ObjectOutputStream) e.nextElement();
 			try {
@@ -359,6 +363,7 @@ public class Server extends JFrame implements ActionListener {
 
 	/**
 	 * Get Player Number from Player Name in a game
+	 * 
 	 * @param gameName
 	 * @param playerNumber
 	 * @return
@@ -374,7 +379,6 @@ public class Server extends JFrame implements ActionListener {
 		return "";
 	}
 
-	
 	/**
 	 * 
 	 * @return
@@ -386,7 +390,6 @@ public class Server extends JFrame implements ActionListener {
 		return dateAndTime;
 	}
 
-	
 	/**
 	 * 
 	 * @param username
@@ -425,7 +428,6 @@ public class Server extends JFrame implements ActionListener {
 		}
 	}
 
-	
 	/**
 	 * 
 	 * @param socket
@@ -587,6 +589,7 @@ public class Server extends JFrame implements ActionListener {
 
 	/**
 	 * Remove a player from a game
+	 * 
 	 * @param gameName
 	 * @param playerName
 	 * @param socket
@@ -630,7 +633,8 @@ public class Server extends JFrame implements ActionListener {
 	}
 
 	/**
-	 *  Get games list as string array for client to choose a game
+	 * Get games list as string array for client to choose a game
+	 * 
 	 * @param socket
 	 * @param prefix
 	 */
@@ -842,7 +846,6 @@ public class Server extends JFrame implements ActionListener {
 				game.lastCardPlayed = "";
 				game.cardsPlayedInTrick = 0;
 				String playername = getUsername(socket);
-
 				String cards = "";
 				for (int i = 0; i < 10; i++) {
 					if (!game.playerCards[game.playerList.get(playername)][i]
@@ -1193,7 +1196,6 @@ public class Server extends JFrame implements ActionListener {
 					game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
 							rnd);
 					game.lastBid = "none:none";
-
 					game.restingState = false;
 					return;
 				}
@@ -1333,7 +1335,6 @@ public class Server extends JFrame implements ActionListener {
 		try {
 			o.writeObject("ER900;");
 			o.flush();
-
 		} catch (Exception e) {
 			System.out.println("Exception in collectMessages " + e);
 		}
@@ -1342,7 +1343,9 @@ public class Server extends JFrame implements ActionListener {
 	/**
 	 * 
 	 */
-	public void actionPerformed(ActionEvent e) {
-
+	public void actionPerformed(ActionEvent evt) {
+		if(evt.getSource() == button_startServer) {
+			run();
+		}		
 	}
 }

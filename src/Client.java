@@ -35,7 +35,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 public class Client extends Thread implements ActionListener,
-ListSelectionListener, MouseListener {
+		ListSelectionListener, MouseListener {
 
 	// new--------------------------------
 	public JButton button_startCreatedGame;
@@ -223,7 +223,7 @@ ListSelectionListener, MouseListener {
 		button_startCreatedGame.setSize(140, 40);
 		button_startCreatedGame.setLocation(
 				(frame_waitingToStartGame.getWidth() / 2)
-				- (button_startCreatedGame.getWidth() / 2), 270);
+						- (button_startCreatedGame.getWidth() / 2), 270);
 		button_startCreatedGame.setText("Start Game");
 		button_startCreatedGame.addActionListener(this);
 
@@ -278,7 +278,7 @@ ListSelectionListener, MouseListener {
 					g.drawImage(
 							new ImageIcon(Client.class
 									.getResource("/images/ask-logo.png"))
-							.getImage(), 0, 5, width + 20, height + 10,
+									.getImage(), 0, 5, width + 20, height + 10,
 							null);
 				}
 			}
@@ -309,12 +309,16 @@ ListSelectionListener, MouseListener {
 
 		text_loginTextfieldName = new JTextField();
 		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
+
 		if (x == 1) {
 			text_loginTextfieldName.setText("Username in use..");
 			text_loginTextfieldName.setForeground(Color.RED);
+		} else if (x == 2) {
+			text_loginTextfieldName.setText("Username to Short");
+			text_loginTextfieldName.setForeground(Color.RED);
 		}
-		text_loginTextfieldName.setBounds(130, 133, 200, 25);
 
+		text_loginTextfieldName.setBounds(130, 133, 200, 25);
 		text_loginTextfieldPort = new JTextField();
 		text_loginTextfieldPort.setText("9119");
 		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
@@ -356,7 +360,6 @@ ListSelectionListener, MouseListener {
 		});
 	}
 
-	@SuppressWarnings("static-access")
 	public void afterLoginScreen() {
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -754,14 +757,13 @@ ListSelectionListener, MouseListener {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	
-		if(frame_choice.isActive()) {
-//			frame_choice.dispose();
-//			connected = false;
 
-			
-		} else if(frame_main.isActive()) {
-			
+		if (frame_choice.isActive()) {
+			// frame_choice.dispose();
+			// connected = false;
+
+		} else if (frame_main.isActive()) {
+
 		}
 		// try {
 		// if(client.isConnected()){
@@ -785,11 +787,10 @@ ListSelectionListener, MouseListener {
 		// }
 		// threadMessage.destroy()
 	}
-	
+
 	public void closeConnections() {
-		
+
 	}
-	
 
 	public void connectToServer() {
 		try {
@@ -829,7 +830,7 @@ ListSelectionListener, MouseListener {
 				} else {
 					// new Client();//TODO
 					System.out
-					.println("ERROR IN CLIENT connectToServer method");
+							.println("ERROR IN CLIENT connectToServer method");
 				}
 			} else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");
@@ -1219,11 +1220,11 @@ ListSelectionListener, MouseListener {
 						} else {
 
 							System.out
-							.println("End of all tricks in hand, game not finished");
+									.println("End of all tricks in hand, game not finished");
 							gameInProgress = false;
 							// show scores
 							System.out
-							.println("Player Count:" + playerCountemp);
+									.println("Player Count:" + playerCountemp);
 							// roundWinner();
 
 							// TODO
@@ -1250,8 +1251,8 @@ ListSelectionListener, MouseListener {
 													System.out.println("HN"
 															+ tempGameName);
 													objectOutput
-													.writeObject("HN"
-															+ tempGameName);
+															.writeObject("HN"
+																	+ tempGameName);
 												}
 											} catch (Exception e) {
 												// TODO Auto-generated catch
@@ -1344,13 +1345,13 @@ ListSelectionListener, MouseListener {
 					// username already logged
 					// in
 					System.out
-					.println("Login unsuccessful, username already logged in");
+							.println("Login unsuccessful, username already logged in");
 
 				} else if (command.equals("101")) {// Login unsuccessful,
 					// incorrect
 					// username/password pair.
 					System.out
-					.println("Login unsuccessful, incorrect username/password pair.");
+							.println("Login unsuccessful, incorrect username/password pair.");
 
 				} else if (command.equals("102")) {// Logoff unsuccessful, not
 					// logged in.
@@ -1384,13 +1385,13 @@ ListSelectionListener, MouseListener {
 					// connection. Game
 					// abandoned.
 					System.out
-					.println("Player in game has closed connection. Game abandoned.");
+							.println("Player in game has closed connection. Game abandoned.");
 
 				} else if (command.equals("140")) {// Illegal bid (bid is higher
 					// than the number of cards
 					// in this hand)
 					System.out
-					.println("Illegal bid (bid is higher than the number of cards in this hand)");
+							.println("Illegal bid (bid is higher than the number of cards in this hand)");
 					// Call enter bid
 					bidding = true;
 					enterBid(recentHB);
@@ -1398,7 +1399,7 @@ ListSelectionListener, MouseListener {
 				} else if (command.equals("141")) {// Illegal card (player does
 					// not have this card).
 					System.out
-					.println("Illegal card (player does not have this card).");
+							.println("Illegal card (player does not have this card).");
 
 				} else if (command.equals("ER") && arguments[0].equals(142)) {// Illegal
 					// card
@@ -1414,7 +1415,7 @@ ListSelectionListener, MouseListener {
 					// suitable
 					// cards)
 					System.out
-					.println("Illegal card (player must play the led suit because it has suitable cards)");
+							.println("Illegal card (player must play the led suit because it has suitable cards)");
 					// Played Wrong Card
 
 				} else if (command.equals("150")) {// One or more of the player
@@ -1422,7 +1423,7 @@ ListSelectionListener, MouseListener {
 					// chat not delivered to
 					// those players
 					System.out
-					.println("One or more of the player names does not exist, chat not delivered to those players");
+							.println("One or more of the player names does not exist, chat not delivered to those players");
 
 				} else if (command.equals("900")) {// Bad message format
 					System.out.println("Bad message format");
@@ -1433,7 +1434,7 @@ ListSelectionListener, MouseListener {
 				} else if (command.equals("910")) {// Something very bad but
 					// unspecified has happened
 					System.out
-					.println("Something very bad but unspecified has happened");
+							.println("Something very bad but unspecified has happened");
 
 				} else if (line.charAt(0) == 'L' && line.charAt(1) == 'C') {
 					line = line.replaceFirst("L", "");
@@ -1627,6 +1628,7 @@ ListSelectionListener, MouseListener {
 	}
 
 	// Winner of round
+	@SuppressWarnings("rawtypes")
 	void roundWinner() {
 		// Theme
 		try {
@@ -1754,7 +1756,7 @@ ListSelectionListener, MouseListener {
 		if (evt.getSource() == button_login) {
 			if (text_loginTextfieldName.getText().equals("")) {
 				frame_Welcome.dispose();
-				welcomeScreen(1);
+				welcomeScreen(2);
 			} else {
 				connectToServer();
 			}
@@ -1795,10 +1797,10 @@ ListSelectionListener, MouseListener {
 					System.out.println(tempGameName);
 					objectOutput.writeObject("GJ"
 							+ jlist_contactsOutsideMain.getSelectedValue()
-							.toString() + ";");
+									.toString() + ";");
 					System.out.println("GJ"
 							+ jlist_contactsOutsideMain.getSelectedValue()
-							.toString() + ";");
+									.toString() + ";");
 					frame_choice.dispose();
 					clientGui();
 				}
