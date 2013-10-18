@@ -34,6 +34,7 @@ public class Server implements ActionListener {
         private Hashtable outputStreams = new Hashtable(); // socket, outputstream
         Hashtable <String, Game> gamesList = new Hashtable<String, Game>(); // Gamename, game                                                                                                   
         private Hashtable <ObjectOutputStream, String> clientList = new Hashtable <ObjectOutputStream, String>(); // outputstream, username
+        private Hashtable Messages = new Hashtable();
         private final int MAX_PLAYERS = 7;
 
         
@@ -359,6 +360,10 @@ public class Server implements ActionListener {
             }
             try {
                     clientList.put(o, username);
+                    
+                    LinkedList <String> messages = new LinkedList<String>();
+                    Messages.put(username, messages);
+                    
                     o.writeObject("LK");
                     o.flush();
                     textAreaClient.append("New client: "+username);
@@ -829,6 +834,7 @@ public class Server implements ActionListener {
 	    			
 	    			return;
 	    		} else {
+
 	    			message += lastbid + ":" + game.nextPlayerToBid + ";";
 	    			o.writeObject(message);
 	    			o.flush();
@@ -1089,7 +1095,6 @@ public class Server implements ActionListener {
 	    			game.round++;
 	    			game.nextPlayerToPlay = "";
 	    			
-	    			
 	    			game.restingState = true;
 	    			
 	    		}
@@ -1131,11 +1136,12 @@ public class Server implements ActionListener {
 	    			if (!game.playAnotherRound[i]) {
 	    				break;
 	    			}
-	    			if (i == game.playerCount - 1) {
+	    			if ((i == game.playerCount - 1) && (game.restingState)) {
 	    				game.deal();
 		            	// Get a random player to start
 		            	int rnd = (int) (Math.random() * (game.playerCount-1) );
 		            	game.nextPlayerToBid = getPlayerNameFromNumber(gameName,rnd);
+		            	game.lastBid = "none:none";
 		            	
 	    				game.restingState = false;
 	    				return;
@@ -1197,26 +1203,91 @@ public class Server implements ActionListener {
        public void chatToPlayers(Socket socket, String [] arguments) {
     	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
      		try {
-     			for (int i = 0; i < arguments.length; i++) {
-     				//Send to username
-     				/*
-     				String playerName = (String) e.nextElement();
-		    		for (Entry<ObjectOutputStream, String> i : clientList.entrySet()) {
+     			for (int i = 0; i < arguments.length-1; i++) {
+     				
+     				String playerName = arguments[i];
+		    		for (Entry<ObjectOutputStream, String> entry : clientList.entrySet()) {
 		    				
-	    				if (i.getValue().equals(playerName)) {
-	    					ObjectOutputStream o2 =  i.getKey();
-	    					o2.writeObject("QP" + getUsername(socket) + ";");
-	    					o2.flush();
+	    				if (entry.getValue().equals(playerName)) {
+	    					LinkedList link = (LinkedList) Messages.get(playerName);
+	    					link.addLast(getUsername(socket) + ":" + arguments[arguments.length-1]);
 	    				}
-		    		}*/
+		    		}
      			}
+     			
+     			o.writeObject("CK;");
+     			o.flush();
      		} catch (Exception e) {
      			System.out.println("Exception in chatToPlayers " + e);
      		}
     	   
+       }
+       
+       public void chatToGame(Socket socket, String gameName, String message) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+     		try {
+     		
+     			// if game does not exist
+	    		if (!gamesList.containsKey(gameName)) {
+	    			o.writeObject("ER133;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		Game game = gamesList.get(gameName);
+	    		
+	    		// if not part of a game
+	    		if (!game.playerList.containsKey(getUsername(socket))) {
+	    			o.writeObject("ER110;");
+	    			o.flush();
+	    			return;
+	    		}
+	    		
+	    		// Send message only to other players in game
+	    		for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+	    			String playerName = (String) e.nextElement();
+	    			LinkedList link = (LinkedList) Messages.get(playerName);
+	    			link.addLast(getUsername(socket) + ":" + message);
+	    			
+	    		}
+	    		
+	    		
+     		} catch (Exception e) {
+     			System.out.println("Exception in chatToPlayers " + e);
+     		}
     	   
        }
+       
+       public void collectMessages(Socket socket) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+    		try {
+    			String playerName = getUsername(socket);
+    			LinkedList link = (LinkedList) Messages.get(playerName);
+    			if (link.isEmpty()) {
+    				o.writeObject("CN;");
+    				o.flush();
+    			} else {
+    				o.writeObject((String) link.pop());
+    				o.flush();
+    			}
+    			
+    			
+    			
+    		} catch (Exception e) {
+    			System.out.println("Exception in collectMessages " + e);
+    		}
+       }
+       
+       public void badMessageFormat(Socket socket) {
+    	   ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+    		try {
+    			o.writeObject("ER900;");
+    			o.flush();
 
+    		} catch (Exception e) {
+    			System.out.println("Exception in collectMessages " + e);
+    		}
+       }
 
         public void actionPerformed(ActionEvent e) {
                 // TODO Auto-generated method stub
