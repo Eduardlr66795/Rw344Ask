@@ -94,6 +94,7 @@ public class Game extends Thread {
     // deals all cards to users
     public void deal(){
     	this.lastCardPlayed = "";
+    	this.handsPlayed = 0;
         //iterate through all users and add card into hands
     	String [] AllCards = {"H2","H3","H4","H5","H6","H7","H8","H9","HT","HJ","HQ","HK","HA","S2","S3","S4","S5","S6","S7","S8","S9","ST","SJ","SQ","SK","SA",
     	                   "D2","D3","D4","D5","D6","D7","D8","D9","DT","DJ","DQ","DK","DA","C2","C3","C4","C5","C6","D7","C8","C9","CT","CJ","CQ","CK","CA"};
@@ -105,6 +106,12 @@ public class Game extends Thread {
     		AllCards[rnd] = tmp;  
     		
     	}
+    	
+    	// Reset players want to play another round
+    	for (int i = 0; i < 7; i++) {
+        	
+        	playAnotherRound[i] = false;
+        }
     	
     	//initialise player cards to blank
     	for (int j = 0; j < 7; j++) {
