@@ -171,19 +171,13 @@ public class Server implements ActionListener {
         @SuppressWarnings("unchecked")
         private void listen(int port) throws IOException {
                 ServerSocket server_Socket = new ServerSocket(port);
-                System.out.println("Server started. Listening on " + server_Socket);
-                textAreaServer.append("Server started. Listening on Port" + server_Socket.getLocalPort());
-                textAreaServer.append("\n");
+                textAreaServer.append("Server started. Listening on Port # " + server_Socket.getLocalPort()+"\n");
                 while (true) {
                         Socket server = server_Socket.accept();
-                        System.out.println("New connection from socket: " + server);
                         ObjectOutputStream output = new ObjectOutputStream(server.getOutputStream());
-
                         output.writeObject("RD");
-
                         outputStreams.put(server, output);
                         new HandleClient(this, server);
-
 
                         //textAreaServer.append("New client on "+server.getPort());
                         textAreaServer.append("New client on Port "+server.getPort());
