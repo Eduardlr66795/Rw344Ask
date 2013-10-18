@@ -829,7 +829,6 @@ public class Server implements ActionListener {
 	    			
 	    			return;
 	    		} else {
-
 	    			message += lastbid + ":" + game.nextPlayerToBid + ";";
 	    			o.writeObject(message);
 	    			o.flush();
