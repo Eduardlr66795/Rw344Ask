@@ -37,7 +37,7 @@ public class Server implements ActionListener {
         private Hashtable Messages = new Hashtable();
         private final int MAX_PLAYERS = 7;
 
-        
+ 
         
         // Gui
         private JFrame frameMain;

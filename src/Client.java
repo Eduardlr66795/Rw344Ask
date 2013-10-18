@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.rmi.ConnectException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
@@ -123,10 +124,12 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
         // TextFields
         public JTextField text_loginTextfieldName;
-        public JTextField text_loginTextfielIp;
-        public JTextField text_message_in;
-        public JTextField text_message_out;
-        public JTextField text_FieldEnterNewGameName;
+    	public JTextField text_loginTextfieldIp;
+    	public JTextField text_loginTextfieldPort;
+    	public JTextField text_message_in;
+    	public JTextField text_message_out;
+    	public JTextField text_FieldEnterNewGameName;
+
         
         // Strings
         public String string_userName;
@@ -143,7 +146,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         
         // Other
         private Socket client;
-        private int port = 9119;
         private ObjectInputStream objectInput;
         private ObjectOutputStream objectOutput;
         public boolean bol_mainFrameActive;
@@ -166,9 +168,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 
         public Client() {
                 bol_mainFrameActive = false;
-                
-                welcomeScreen();
-//                clientGui();
+                welcomeScreen(0);
         }
         public void startingGame(String GameName){
         	try {
@@ -203,7 +203,6 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	    		jlist_playersJoiningGame.setLocation(10, 50);
 	    		jlist_playersJoiningGame.setSize(150, 200);
 
-	    		
 	    		jlist_playersJoiningGame.repaint();
 	    		jlist_playersJoiningGame.setVisible(true);
 
@@ -233,115 +232,127 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 	    		frame_waitingToStartGame.setVisible(true);	
         }
 
-        @SuppressWarnings("serial")
-        void welcomeScreen() {
-                try {
-                        for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                                if ("Nimbus".equals(info.getName())) {
-                                        UIManager.setLookAndFeel(info.getClassName());
-                                        break;
-                                }
-                        }
-                } catch (ClassNotFoundException e1) {
-                        e1.printStackTrace();
-                } catch (InstantiationException e) {
-                        e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                } catch (UnsupportedLookAndFeelException e) {
-                        e.printStackTrace();
-                }
+    	@SuppressWarnings("serial")
+    	void welcomeScreen(int x) {
+    		try {
+    			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+    				if ("Nimbus".equals(info.getName())) {
+    					UIManager.setLookAndFeel(info.getClassName());
+    					break;
+    				}
+    			}
+    		} catch (ClassNotFoundException e1) {
+    			e1.printStackTrace();
+    		} catch (InstantiationException e) {
+    			e.printStackTrace();
+    		} catch (IllegalAccessException e) {
+    			e.printStackTrace();
+    		} catch (UnsupportedLookAndFeelException e) {
+    			e.printStackTrace();
+    		}
 
-                frame_Welcome = new JFrame();
-                frame_Welcome.setSize(400, 300);
-                frame_Welcome.setLocation(400, 100);
-                frame_Welcome.setEnabled(true);
+    		frame_Welcome = new JFrame();
+    		frame_Welcome.setSize(400, 300);
+    		frame_Welcome.setLocation(400, 100);
+    		frame_Welcome.setEnabled(true);
 
-                panel_welcome = new JPanel();
-                panel_welcome.setSize(frame_Welcome.getWidth(), frame_Welcome.getHeight());
-                panel_welcome.setLayout(null);
-                panel_welcome.setBackground(Color.white);
+    		panel_welcome = new JPanel();
+    		panel_welcome.setSize(frame_Welcome.getWidth(),
+    				frame_Welcome.getHeight());
+    		panel_welcome.setLayout(null);
 
-                JLabel heading = new JLabel("") {
-                        public void paintComponent(Graphics g) {
-                                super.paintComponent(g);
-                                if (new ImageIcon(
-                                                Client.class.getResource("/images/ask-logo.png")) != null) {
-                                        int width = getWidth();
-                                        int height = getHeight();
-                                        if (width > height)
-                                                width = height;
-                                        else
-                                                height = width;
-                                        g.drawImage(
-                                                        new ImageIcon(Client.class
-                                                                        .getResource("/images/ask-logo.png"))
-                                                                        .getImage(), 5, 5, width + 20, height + 10,
-                                                        null);
-                                }
-                        }
-                };
-                heading.setFont(new Font("Serif", Font.BOLD, 45));
-                heading.setBounds(100, 20, panel_welcome.getWidth(), 100);
+    		JLabel heading = new JLabel("") {
+    			public void paintComponent(Graphics g) {
+    				super.paintComponent(g);
+    				if (new ImageIcon(
+    						Client.class.getResource("/images/ask-logo.png")) != null) {
+    					int width = getWidth();
+    					int height = getHeight();
+    					if (width > height)
+    						width = height;
+    					else
+    						height = width;
+    					g.drawImage(
+    							new ImageIcon(Client.class
+    									.getResource("/images/ask-logo.png"))
+    									.getImage(), 0, 5, width + 20, height + 10,
+    							null);
+    				}
+    			}
+    		};
+    		heading.setFont(new Font("Serif", Font.BOLD, 45));
+    		heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
+    		heading.setBackground(Color.white);
 
-                JLabel created = new JLabel();
-                created.setText("Welcomes you!");
-                created.setFont(new Font("Serif", Font.BOLD, 18));
-                created.setForeground(Color.RED);
-                created.setBounds(100, 55, 280, 100);
+    		JLabel created = new JLabel();
+    		created.setText("Welcomes you!");
+    		created.setFont(new Font("Serif", Font.BOLD, 18));
+    		created.setBounds(130, 60, 280, 100);
 
-                JLabel loginName = new JLabel();
-                loginName.setText("Name: ");
-                loginName.setForeground(Color.gray);
-                loginName.setFont(new Font("Serif", Font.BOLD, 18));
-                loginName.setBounds(60, 160, 75, 25);
+    		JLabel loginName = new JLabel();
+    		loginName.setText("Name: ");
+    		loginName.setFont(new Font("Serif", Font.BOLD, 18));
+    		loginName.setBounds(60, 130, 75, 25);
+    		
+    		JLabel port = new JLabel();
+    		port.setText("Port #");
+    		port.setFont(new Font("Serif", Font.BOLD, 18));
+    		port.setBounds(60,162, 100, 25);
+    		
+    		JLabel IP = new JLabel();
+    		IP.setText("Address:");
+    		IP.setFont(new Font("Serif", Font.BOLD, 18));
+    		IP.setBounds(42, 190, 100, 25);
+    		
+    		text_loginTextfieldName = new JTextField();
+    		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
+    		if(x == 1) {
+    			text_loginTextfieldName.setText("Username in use..");
+    			text_loginTextfieldName.setForeground(Color.RED);
+    		}
+    		text_loginTextfieldName.setBounds(130, 133, 200, 25);
+    				
+    		text_loginTextfieldPort = new JTextField();
+    		text_loginTextfieldPort.setText("9119");
+    		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
+    		text_loginTextfieldPort.setBounds(130, 163, 200, 25);
+    		
+    		text_loginTextfieldIp = new JTextField();
+    		text_loginTextfieldIp.setText("localhost");
+    		text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
+    		text_loginTextfieldIp.setBounds(130, 195, 200, 25);
 
-                JLabel IP = new JLabel();
-                IP.setText("Address:");
-                IP.setForeground(Color.gray);
-                IP.setFont(new Font("Serif", Font.BOLD, 18));
-                IP.setBounds(37, 190, 100, 25);
+    		button_login = new JButton();
+    		button_login.setText("Login");
+    		button_login.setFont(new Font("Serif", Font.PLAIN, 20));
+    		button_login.setBounds(130, 225, 200, 40);
+    		button_login.addActionListener(this);
+    		
 
-                text_loginTextfieldName = new JTextField();
-                text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
-                text_loginTextfieldName.setForeground(Color.RED);
-                text_loginTextfieldName.setBounds(130, 160, 200, 25);
+    		panel_welcome.add(heading);
+    		panel_welcome.add(created);
+    		panel_welcome.add(loginName);
+    		panel_welcome.add(port);
+    		panel_welcome.add(IP);
+    		panel_welcome.add(text_loginTextfieldName);
+    		panel_welcome.add(text_loginTextfieldIp);
+    		panel_welcome.add(text_loginTextfieldPort);
+    		panel_welcome.add(button_login);
 
-                text_loginTextfielIp = new JTextField();
-                text_loginTextfielIp.setText("localhost");
-                text_loginTextfielIp.setFont(new Font("Serif", Font.BOLD, 16));
-                text_loginTextfielIp.setForeground(Color.RED);
-                text_loginTextfielIp.setBounds(130, 190, 200, 25);
+    		frame_Welcome.add(panel_welcome);
+    		frame_Welcome.setResizable(false);
+    		frame_Welcome.setVisible(true);
 
-                button_login = new JButton();
-                button_login.setText("Login");
-                button_login.setFont(new Font("Serif", Font.PLAIN, 20));
-                button_login.setBounds(130, 220, 200, 30);
-                button_login.setForeground(Color.BLACK);
-                button_login.addActionListener(this);
-
-                panel_welcome.add(heading);
-                panel_welcome.add(created);
-                panel_welcome.add(loginName);
-                panel_welcome.add(IP);
-                panel_welcome.add(text_loginTextfieldName);
-                panel_welcome.add(text_loginTextfielIp);
-                panel_welcome.add(button_login);
-
-                frame_Welcome.add(panel_welcome);
-                frame_Welcome.setResizable(false);
-                frame_Welcome.setVisible(true);
-
-                frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-                frame_Welcome.addWindowListener(new WindowAdapter() {
-                        @Override
-                        public void windowClosing(WindowEvent e) {
-                                // TODO: create window event
-                                frame_Welcome.dispose();
-                                System.exit(0);
-                        }
-                });
-        }
+    		frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    		frame_Welcome.addWindowListener(new WindowAdapter() {
+    			@Override
+    			public void windowClosing(WindowEvent e) {
+    				// TODO: create window event
+    				frame_Welcome.dispose();
+    				System.exit(0);
+    			}
+    		});
+    	}
 
         @SuppressWarnings("static-access")
         public void afterLoginScreen() {
@@ -759,8 +770,10 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                          * TODO Change the servername to IP Address to test over network
                          */
 
-                        String servername = text_loginTextfielIp.getText();
+                        String servername = text_loginTextfieldIp.getText();
                         string_userName = text_loginTextfieldName.getText();
+                        int port = Integer.parseInt(text_loginTextfieldPort.getText());
+                
                         client = new Socket(servername, port);
 
                         objectInput = new ObjectInputStream(client.getInputStream());
@@ -1641,7 +1654,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 if (evt.getSource() == button_login) {
                 	if(text_loginTextfieldName.getText().equals("")){
                 		frame_Welcome.dispose();
-                		welcomeScreen();
+                		welcomeScreen(1);
                 	}else{
                 		connectToServer();
                 	}
