@@ -77,7 +77,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public JFrame frame_CreateGame;
         public JFrame frame_Welcome;
         
-        public Hashtable <String, Integer> scores = new Hashtable <String, Integer>();
+        public Hashtable <String, String> scores = new Hashtable <String, String>();
         public Hashtable <String, Integer> bids = new Hashtable <String, Integer>();
         
         // Buttons
@@ -96,6 +96,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public JButton button_clearText_out;
         public JButton[][] button_cards;
         public JButton[] button_playedCards;
+        JLabel[][] text_roundWinner;
         
 
         // Lists
@@ -152,6 +153,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         public boolean gameInProgress=false;
         public boolean threadHN=false;
         public boolean lastRound=false;
+        public boolean roundWinnerFrame=false;
         // END--------------------------------
 
         public static void main(String[] args) {
@@ -471,9 +473,18 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 for (int k = 0; k < 15; k++) {
                         string_games[k] = "empty";
                 }
+                text_roundWinner=new JLabel[8][5];
+                for(int i=0;i<8;i++){
+                	for(int j=0;j<5;j++){
+                		text_roundWinner[i][j]=new JLabel();
+                	}
+                }
                 button_playedCards=new JButton[7];
                 button_cards = new JButton[15][10];
+                frame_roundWinner = new JFrame();
                 panel_bigframe = new JPanel[40];
+                button_closeWinner = new JButton();
+                panel_roundWinner = new JPanel();
                 tabs = new JTabbedPane();
                 frame_main = new JFrame();
                 plabel_players=new JLabel[15];
@@ -663,11 +674,13 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
         	// Add Player Names
             //totalrounds
             int k=0;
+            
             for (k=0 ; k < pNames.length; k++) {
-            	scores.put(pNames[k],0);
+            	bids.put(pNames[k],0);
             	plabel_players[k] = new JLabel(pNames[k]);
             	plabel_players[k].setBounds(750, (k * 20), 80, 15);
                 panel_bigframe[gameNumber].add(plabel_players[k]);
+                scores.put(pNames[k],"0:0:0:0");
             }
             if(k==7){
             	totalrounds=7;
@@ -836,7 +849,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 														try {
 															Thread.sleep(500);
 															if(gameNotStarted){
-																//System.out.println("GN"+tempGameName+";");
+																System.out.println("GN"+tempGameName+";");
 						                                        objectOutput.writeObject("GN"+tempGameName+";");
 															}																													
 														} catch (Exception e) {
@@ -909,7 +922,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
 												try {													
 													Thread.sleep(500);
 													if(gameNotStarted){
-														//System.out.println("GW"+tempGameName+";");
+														System.out.println("GW"+tempGameName+";");
 				                                        objectOutput.writeObject("GW"+tempGameName+";");
 													}																											
 												} catch (Exception e) {
@@ -955,6 +968,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 				}else if (command.equals("HI")) {//receive next hand from server
                 					//Receive Hand
                 					//argument[0]=round num;
+                					
                 					if(Integer.parseInt(arguments[0])==totalrounds){
                 						lastRound=true;
                 						
@@ -989,7 +1003,9 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 						text_fieldTrumpSuite.setText("Trump Suite: None");
                 						
                 					}
+                					roundWinnerFrame=true;
                 					askForBid(tempGameName);
+                					
 
                 				}else if (command.equals("HC")) {//Who is next to bid, and who has bid, along with their bid
                 					//create thread to keep sending HBgame_name; request
@@ -1027,7 +1043,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 										if(gameInProgress){
                 											//cycle through all games in progress
                 											//dont actually need to cycle through all games.. client only playes one game at a time
-                											//System.out.println("HP"+tempGameName+";");
+                											System.out.println("HP"+tempGameName+";");
                 			                                objectOutput.writeObject("HP"+tempGameName+";");
                 										}																											
                 									} catch (Exception e) {
@@ -1073,8 +1089,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 						//waiting for other player to play card
                 					}else{
                 						//Display cards other players have played
-                						System.out.println("************playedCardsPlacekeeper= "+playedCardsPlacekeeper);
-            							System.out.println("************playerCountemp= "+playerCountemp);
+                						//System.out.println("************playedCardsPlacekeeper= "+playedCardsPlacekeeper);
+            							//System.out.println("************playerCountemp= "+playerCountemp);
                 						if(playedCardsPlacekeeper==playerCountemp){
                 							//add check for arguments.length==2
                 							if(arguments.length==3){
@@ -1086,16 +1102,16 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 							}
                 							
                     						//remove previous
-                							System.out.println("-----------------------------------------");
-                							System.out.println("Removing Cards! ");
-                							System.out.print("playedCardsPlacekeeper= "+playedCardsPlacekeeper);
-                							System.out.println("playerCountemp= "+playerCountemp);
+                							//System.out.println("-----------------------------------------");
+                							//System.out.println("Removing Cards! ");
+                							//System.out.print("playedCardsPlacekeeper= "+playedCardsPlacekeeper);
+                							//System.out.println("playerCountemp= "+playerCountemp);
                     						for(int y=0;y<playerCountemp;y++){
                     							System.out.print(y+" ");
                     							button_playedCards[y].setVisible(false);
                     						}
-                    						System.out.println();
-                    						System.out.println("-----------------------------------------");
+                    						//System.out.println();
+                    						//System.out.println("-----------------------------------------");
                     						
                     						//set placekeeper to zero
                     						playedCardsPlacekeeper=0;
@@ -1130,13 +1146,16 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 							System.out.println("Game is Finished!!!");
                 							gameInProgress=false;
                 							//Show Winner Screen
-                							
+                							//TODO 
                 						}else{
 
                     						System.out.println("End of all tricks in hand, game not finished");    
                     						gameInProgress=false;
                     						//show scores
-                    						roundWinner();
+                    						System.out.println("Player Count:"+playerCountemp);
+                    						//roundWinner();
+                    						
+                    						
                     						//TODO
                     						//Ask server for current scores
                     						//Then deal next hand!
@@ -1156,7 +1175,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                        									try {													
                        										Thread.sleep(500);
                        										if(threadHN){
-                       											//System.out.println("HN"+tempGameName);
+                       											System.out.println("HN"+tempGameName);
                        			                                objectOutput.writeObject("HN"+tempGameName);
                        										}																											
                        									} catch (Exception e) {
@@ -1205,14 +1224,42 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 						//arguments[i]-current player
                 						//arguments[i+1]-tricks won in round
                 						//arguments[i+2]-score for the round
-                						//int tempScore=scores.get(arguments[i]);
-                						System.out.println("------------------------");
-                						scores.put(arguments[i], Integer.parseInt(arguments[i+2]));
+                						//int tempScore=scores.get(arguments[i]);                						
+                						//String tempMoving=scores.get(arguments[i]);
+                						String [] tempMoving=new String[4];
+                						tempMoving=scores.get(arguments[i]).split(":");
+                						tempMoving[0]=tempMoving[1];
+                						tempMoving[2]=tempMoving[3];
+                						tempMoving[1]=arguments[i+2];
+                						tempMoving[3]=arguments[i+1];
+                						StringBuilder s=new StringBuilder();
+                						s.append(tempMoving[0]);
+                						s.append(":");
+                						s.append(tempMoving[1]);
+                						s.append(":");
+                						s.append(tempMoving[2]);
+                						s.append(":");
+                						s.append(tempMoving[3]);
+                						scores.put(arguments[i], s.toString());
+                						System.out.println("------------------------");                						
                 						System.out.println("Player: "+arguments[i]);
                 						System.out.println("Total hands won: "+arguments[i+1]);
                 						System.out.println("score for last round: "+scores.get(arguments[i]));
                 						System.out.println("------------------------");
+                						
+                						
                 					}
+                					if(!lastRound){
+            							if(roundWinnerFrame){
+            								roundWinner();
+            							}
+            							
+            						}else{
+            							//End of game.
+            							if(roundWinnerFrame){
+            								roundWinner();
+            							}
+            						}
 
                 				}else if (command.equals("LM")) {
                 					
@@ -1489,31 +1536,42 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
             } catch (UnsupportedLookAndFeelException e) {
                     e.printStackTrace();
             }
+            roundWinnerFrame=false;
+            
+            frame_roundWinner.setSize(400, 170);
+            frame_roundWinner.setLocation(frame_main.getX(), frame_main.getY());
+            frame_roundWinner.setEnabled(true);
+            
+            panel_roundWinner.setSize(frame_roundWinner.getWidth(),
+            		frame_roundWinner.getHeight());
+            panel_roundWinner.setLayout(null);
+            panel_roundWinner.setBackground(Color.white);
+
             System.out.println("Player Count: "+playerCountemp);
-            JLabel[][] text_roundWinner=new JLabel[playerCountemp+1][5];
-            text_roundWinner[0][0]=new JLabel("Username");
+            
+            text_roundWinner[0][0].setText("Username");
             text_roundWinner[0][0].setSize(150,30);
             text_roundWinner[0][0].setLocation(3, 10);
             panel_roundWinner.add(text_roundWinner[0][0]);
-            
-            text_roundWinner[0][1]=new JLabel("Bid");
+
+            text_roundWinner[0][1].setText("Bid");
             text_roundWinner[0][1].setSize(150,30);
-            text_roundWinner[0][1].setLocation(70, 10);
-            panel_roundWinner.add(text_roundWinner[0][1]);
-            
-            text_roundWinner[0][2]=new JLabel("Tricks Won");
+            text_roundWinner[0][1].setLocation(80, 10);
+            panel_roundWinner.add(text_roundWinner[0][1]);    
+
+            text_roundWinner[0][2].setText("Tricks Won");
             text_roundWinner[0][2].setSize(150,30);
             text_roundWinner[0][2].setLocation(140, 10);
             panel_roundWinner.add(text_roundWinner[0][2]);
             
-            text_roundWinner[0][3]=new JLabel("Round Score");
+            text_roundWinner[0][3].setText("Round Score");
             text_roundWinner[0][3].setSize(150,30);
             text_roundWinner[0][3].setLocation(210, 10);
             panel_roundWinner.add(text_roundWinner[0][3]);
             
-            text_roundWinner[0][4]=new JLabel("Total Score");
+            text_roundWinner[0][4].setText("Total Score");
             text_roundWinner[0][4].setSize(150,30);
-            text_roundWinner[0][4].setLocation(280, 10);
+            text_roundWinner[0][4].setLocation(300, 10);
             panel_roundWinner.add(text_roundWinner[0][4]);
             //get all usernames
             String[] names=new String[playerCountemp];
@@ -1526,61 +1584,54 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
     		}
             
             for(int i=1;i<playerCountemp+1;i++){
-            	text_roundWinner[i][0]=new JLabel(names[p-1]);
+            	
+            	String [] info=new String[4];
+				info=scores.get(names[i-1]).split(":");
+				System.out.println("---------------------------------------");
+				System.out.println(scores.get(names[i-1]));
+				System.out.print(info[0]+" "+info[1]+" "+info[2]+" "+info[3]);
+				System.out.println("---------------------------------------");
+            	text_roundWinner[i][0].setText(names[i-1]);
                 text_roundWinner[i][0].setSize(100,30);
                 text_roundWinner[i][0].setLocation(3, 10+i*20);
                 panel_roundWinner.add(text_roundWinner[i][0]);
                 
                 
-                text_roundWinner[i][1]=new JLabel();//Get
+
                 text_roundWinner[i][1].setText(bids.get(names[i-1])+"");
                 text_roundWinner[i][1].setSize(100,30);
-                text_roundWinner[i][1].setLocation(70, 10+i*20);
+                text_roundWinner[i][1].setLocation(80, 10+i*20);
                 panel_roundWinner.add(text_roundWinner[i][1]);
                 
-                text_roundWinner[i][2]=new JLabel("Tricks Won");//Get
+                text_roundWinner[i][2].setText((Integer.parseInt(info[3])-Integer.parseInt(info[2]))+"");
+                System.out.println("1: "+(Integer.parseInt(info[3])-Integer.parseInt(info[2]))+"");
                 text_roundWinner[i][2].setSize(100,30);
                 text_roundWinner[i][2].setLocation(140, 10+i*20);
                 panel_roundWinner.add(text_roundWinner[i][2]);
                 
-                text_roundWinner[i][3]=new JLabel("Round Score");//Get
+                System.out.println("2: "+(Integer.parseInt(info[1])-Integer.parseInt(info[0]))+"");
+                text_roundWinner[i][3].setText((Integer.parseInt(info[1])-Integer.parseInt(info[0]))+"");
                 text_roundWinner[i][3].setSize(100,30);
                 text_roundWinner[i][3].setLocation(210, 10+i*20);
                 panel_roundWinner.add(text_roundWinner[i][3]);
                 
-                text_roundWinner[i][4]=new JLabel();//Get
-                text_roundWinner[i][4].setText(scores.get(names[i-1])+"");
+                text_roundWinner[i][4].setText(Integer.parseInt(info[1])+"");
+                System.out.println("3: "+Integer.parseInt(info[1])+"");
                 text_roundWinner[i][4].setSize(100,30);
-                text_roundWinner[i][4].setLocation(280, 10+i*20);
+                text_roundWinner[i][4].setLocation(300, 10+i*20);
                 panel_roundWinner.add(text_roundWinner[i][4]);
             }
-            
-            
-            
-            
-            frame_roundWinner = new JFrame();
-            frame_roundWinner.setSize(600, 240);
-            frame_roundWinner.setLocation(frame_main.getX(), frame_main.getY());
-            frame_roundWinner.setEnabled(true);
-
-            panel_roundWinner = new JPanel();
-            panel_roundWinner.setSize(frame_roundWinner.getWidth(),
-            		frame_roundWinner.getHeight());
-            panel_roundWinner.setLayout(null);
-            panel_roundWinner.setBackground(Color.white);
 
             
-
-            button_closeWinner = new JButton();
             button_closeWinner.setSize(140, 40);
-            button_closeWinner.setLocation(130, 65);
-            button_closeWinner.setText("Next Hand");
+            button_closeWinner.setLocation(130, 120);
+            button_closeWinner.setText("Close");
             button_closeWinner.addActionListener(this);
 
             panel_roundWinner.add(button_closeWinner);
-            panel_roundWinner.add(label_enterNewGameName);
-            frame_CreateGame.add(panel_CreateGame);
-            frame_CreateGame.setVisible(true);
+            frame_roundWinner.add(panel_roundWinner);
+            frame_roundWinner.setVisible(true);
+            frame_roundWinner.setAlwaysOnTop(true);
             
     }
 
@@ -1675,6 +1726,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 } //button_closeWinner,panel_roundWinner
                 else if (evt.getSource() == button_closeWinner) {
                 	frame_roundWinner.dispose();
+                	roundWinnerFrame=true;
 
                 	
                 }
@@ -1831,7 +1883,7 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                 		for(int i=0;i<15;i++){
                 			for(int j=0;j<10;j++){
                 				if(evt.getSource().equals(button_cards[i][j])){
-                					System.out.println("Card:"+i+":"+j);
+                					//System.out.println("Card:"+i+":"+j);
                 					cardClickedJ=j;
                 					cardClickedI=i;
                 					//button_cards[i][j].setIcon(new ImageIcon("src/cards/back.gif"));
@@ -1844,8 +1896,8 @@ public class Client extends Thread implements ActionListener, ListSelectionListe
                         // games, if not then a card has been clicked
                         String card = temp.substring(0, 2);
                         String game = temp.substring(2);
-                        System.out.print(card + " ");
-                        System.out.println(game);
+                        //System.out.print(card + " ");
+                        //System.out.println(game);
                         //Send played card to server;
                         StringBuilder sb = new StringBuilder();
                         sb.append("HR");
