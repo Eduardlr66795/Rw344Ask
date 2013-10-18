@@ -88,9 +88,14 @@ public class HandleClient extends Thread {
 				} else if (command.equals("CP")) {
 					server.chatToPlayers(socket, arguments);
 					
+				} else if (command.equals("CA")) {
+					server.chatToGame(socket, arguments[0], arguments[1]);
+					
+				} else if (command.equals("CC")) {
+					server.collectMessages(socket);	
 
 				} else {
-					server.sendToAll(message, socket);
+					server.badMessageFormat(socket);
 				}
 			}
 
