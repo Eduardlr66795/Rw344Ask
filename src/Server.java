@@ -155,7 +155,7 @@ public class Server {
 				Socket server = server_Socket.accept();
 				ObjectOutputStream output = new ObjectOutputStream(
 						server.getOutputStream());
-				output.writeObject("RD");
+				output.writeObject("RD;");
 				outputStreams.put(server, output);
 				HandleClient handleClient = new HandleClient(this, server);
 				textAreaServer.append("New client on Port " + server.getPort());
@@ -357,11 +357,13 @@ public class Server {
 	 * @param username
 	 * @param password
 	 * @param socket
+         * @return true if login was a success
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void login(String username, String password, Socket socket) {
+	public boolean login(String username, String password, Socket socket) {
 		Collection Users = clientList.values();
 		ObjectOutputStream o = null;
+                boolean success = false;
 		o = (ObjectOutputStream) outputStreams.get(socket);
 		Iterator itr = Users.iterator();
 		while (itr.hasNext()) {
@@ -369,7 +371,7 @@ public class Server {
 				try {
 					o.writeObject("ER100;");
 					o.flush();
-					return;
+					
 				} catch (IOException e) {
 					System.out.println("Exception in login " + e);
 				}
@@ -381,13 +383,15 @@ public class Server {
 			Messages.put(username, messages);
 			o.writeObject("LK");
 			o.flush();
+                        success = true;
 			textAreaClient.append("New client: " + username);
 			textAreaClient.append(" at " + getTimeAndDate());
 			textAreaClient.append("\n");
-			return;
+			
 		} catch (IOException e) {
 			System.out.println("Exception in login " + e);
 		}
+                return success;
 	}
 
 	/**
@@ -397,7 +401,7 @@ public class Server {
 	public void logoff(Socket socket) {
 		ObjectOutputStream o = null;
 		o = (ObjectOutputStream) outputStreams.get(socket);
-		if (clientList.contains(o)) {
+		if (clientList.containsKey(o)) {
 			try {
 				o.writeObject("LM");
 				o.flush();
@@ -470,7 +474,7 @@ public class Server {
 
 			// If game is full
 			if (game.playerCount > 7) {
-				o.writeObject("ER130");
+				o.writeObject("ER130;");
 				o.flush();
 				return;
 			}
@@ -1301,4 +1305,14 @@ public class Server {
 			System.out.println("Exception in collectMessages " + e);
 		}
 	}
+
+    public void unExpectedCommand(Socket socket) {
+        ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+        try {
+			o.writeObject("ER901;");
+			o.flush();
+		} catch (Exception e) {
+			System.out.println("Exception in collectMessages " + e);
+		}
+    }
 }

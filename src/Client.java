@@ -837,7 +837,7 @@ public class Client extends Thread implements ActionListener,
 
 			String serverMsg = (String) objectInput.readObject();
 
-			if (serverMsg.compareTo("RD") == 0) {
+			if (serverMsg.compareTo("RD;") == 0) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
 				sb.append(string_userName);
