@@ -1,7 +1,5 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.*;
@@ -10,7 +8,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,7 +22,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Team //Ask
  * 
  */
-public class Server extends Thread implements ActionListener {
+public class Server {
 	@SuppressWarnings("rawtypes")
 	private Hashtable outputStreams = new Hashtable();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
@@ -41,23 +38,12 @@ public class Server extends Thread implements ActionListener {
 	private JPanel panelClient;
 	private JPanel panelServer;
 	private JPanel panelGame;
-	private JButton button_startServer;
-	private JButton button_closeServer;
-	private JButton button_ClearLog;
 	private JFrame frameMain;
 
 	public static void main(String[] args) throws Exception {
 		Server server = new Server();
-		server.runSer();
-	}
-
-	
-	/**
-	 * 
-	 */
-	public void runSer() {
-		buildGui();
-		run();
+		server.buildGui();
+		server.run();
 	}
 
 	/**
@@ -85,7 +71,7 @@ public class Server extends Thread implements ActionListener {
 		frameMain = new JFrame();
 		frameMain.setTitle("Server Information");
 		frameMain.setBackground(Color.DARK_GRAY);
-		frameMain.setSize(600, 400);
+		frameMain.setSize(400, 400);
 		frameMain.setLocation(300, 300);
 
 		panelClient = new JPanel();
@@ -116,7 +102,7 @@ public class Server extends Thread implements ActionListener {
 		JScrollPane spMain = new JScrollPane(textAreaServer,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		spMain.setSize(frameMain.getWidth() - 200, frameMain.getHeight() - 58);
+		spMain.setSize(frameMain.getWidth(), frameMain.getHeight());
 		spMain.setLocation(0, 0);
 		panelServer.add(spMain);
 
@@ -124,7 +110,7 @@ public class Server extends Thread implements ActionListener {
 		JScrollPane spClient = new JScrollPane(textAreaClient,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		spClient.setSize(frameMain.getWidth() - 200, frameMain.getHeight() - 58);
+		spClient.setSize(frameMain.getWidth(), frameMain.getHeight());
 		spClient.setLocation(0, 0);
 		panelClient.add(spClient);
 
@@ -132,34 +118,13 @@ public class Server extends Thread implements ActionListener {
 		JScrollPane spGame = new JScrollPane(textAreaGame,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		spGame.setSize(frameMain.getWidth() - 200, frameMain.getHeight() - 58);
+		spGame.setSize(frameMain.getWidth(), frameMain.getHeight());
 		spGame.setLocation(0, 0);
 		panelGame.add(spGame);
 
 		tab.add("Server", panelServer);
 		tab.add("Clients", panelClient);
 		tab.add("Games", panelGame);
-
-		JPanel panel = new JPanel();
-		panel.setBounds(400, 30, 200, frameMain.getHeight());
-		panel.setBackground(Color.DARK_GRAY);
-		panel.setLayout(null);
-
-		button_startServer = new JButton("Start Server");
-		button_startServer.setBounds(15, 10, 150, 30);
-		button_startServer.addActionListener(this);
-		panel.add(button_startServer);
-
-		button_closeServer = new JButton("Stop Server");
-		button_closeServer.setBounds(15, 50, 150, 30);
-		button_closeServer.addActionListener(this);
-		panel.add(button_closeServer);
-
-		button_ClearLog = new JButton("Clear Log");
-		button_ClearLog.addActionListener(this);
-		button_ClearLog.setBounds(15, 90, 150, 30);
-		panel.add(button_ClearLog);
-		frameMain.add(panel);
 
 		frameMain.add(tab, BorderLayout.CENTER);
 		frameMain.setVisible(true);
@@ -177,25 +142,22 @@ public class Server extends Thread implements ActionListener {
 	/**
 	 * 
 	 * @param port
+	 * @return
 	 * @throws IOException
 	 */
-	@SuppressWarnings({ "unchecked" })
-
+	@SuppressWarnings({ "unchecked", "unused" })
 	public void run() {
 		try {
 			ServerSocket server_Socket = new ServerSocket(9119);
 			textAreaServer.append("Server started. Listening on Port - # "
 					+ server_Socket.getLocalPort() + "\n");
-
 			while (true) {
 				Socket server = server_Socket.accept();
 				ObjectOutputStream output = new ObjectOutputStream(
 						server.getOutputStream());
 				output.writeObject("RD");
 				outputStreams.put(server, output);
-				new HandleClient(this, server);
-
-				// textAreaServer.append("New client on "+server.getPort());
+				HandleClient handleClient = new HandleClient(this, server);
 				textAreaServer.append("New client on Port " + server.getPort());
 				textAreaServer.append("\n");
 			}
@@ -1338,14 +1300,5 @@ public class Server extends Thread implements ActionListener {
 		} catch (Exception e) {
 			System.out.println("Exception in collectMessages " + e);
 		}
-	}
-
-	/**
-	 * 
-	 */
-	public void actionPerformed(ActionEvent evt) {
-		if(evt.getSource() == button_startServer) {
-			run();
-		}		
 	}
 }

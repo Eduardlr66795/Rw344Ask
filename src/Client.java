@@ -98,6 +98,7 @@ public class Client extends Thread implements ActionListener,
 
 	// Lists
 	public JList jlist_contactsMain;
+	public JList jlist_gamesOutsideMain;
 	public JList jlist_contactsOutsideMain;
 
 	// Panels
@@ -166,6 +167,7 @@ public class Client extends Thread implements ActionListener,
 	public Client() {
 		bol_mainFrameActive = false;
 		welcomeScreen(0);
+//		clientGui();
 	}
 
 	public void startingGame(String GameName) {
@@ -201,7 +203,6 @@ public class Client extends Thread implements ActionListener,
 
 		jlist_playersJoiningGame.setLocation(10, 50);
 		jlist_playersJoiningGame.setSize(150, 200);
-
 		jlist_playersJoiningGame.repaint();
 		jlist_playersJoiningGame.setVisible(true);
 
@@ -380,7 +381,7 @@ public class Client extends Thread implements ActionListener,
 
 		frame_choice = new JFrame();
 		frame_choice.setLayout(null);
-		frame_choice.setSize(580, 400);
+		frame_choice.setSize(590, 400);
 
 		// Main Panel
 		panel_main = new JPanel();
@@ -416,15 +417,41 @@ public class Client extends Thread implements ActionListener,
 		textArea_display_out.setEditable(false);
 		textArea_display_out.setBounds(15, 90, 400, 180);
 		panel_main.add(textArea_display_out);
-
+		
+		String arr[] = {"asd","asd","aa","dd"};
 		// Scrolepane: Join Existing Game
 		JScrollPane sp1 = new JScrollPane(
+				jlist_gamesOutsideMain = new JList(arr));
+		jlist_gamesOutsideMain.setVisibleRowCount(4);
+		jlist_gamesOutsideMain.addListSelectionListener(this);
+		jlist_gamesOutsideMain.setBackground(Color.LIGHT_GRAY);
+		sp1.setBounds(0, 0, 150, 450);
+		
+	
+		
+//		jlist_gamesOutsideMain.
+		JScrollPane sp2 = new JScrollPane(
 				jlist_contactsOutsideMain = new JList());
 		jlist_contactsOutsideMain.setVisibleRowCount(4);
+		jlist_contactsOutsideMain.setBackground(Color.blue);
 		jlist_contactsOutsideMain.addListSelectionListener(this);
 		jlist_contactsOutsideMain.setBackground(Color.LIGHT_GRAY);
-		sp1.setBounds(420, 90, 150, 270);
-		panel_main.add(sp1);
+		sp1.setBounds(0, 0, 150, 350);
+
+
+		
+		JPanel test = new JPanel();
+		test.setLayout(null);
+		test.setBounds(420, 40, 150, 870);
+		JTabbedPane tab = new JTabbedPane();
+		tab.setSize(150, 500);
+
+		tab.add("Games", sp1);
+		tab.add("Clients", sp2);
+		test.add(tab);
+		
+	
+		panel_main.add(test);
 		// getClients();
 
 		// TextField: Join Existing Game
@@ -516,7 +543,7 @@ public class Client extends Thread implements ActionListener,
 		tabs = new JTabbedPane();
 		frame_main = new JFrame();
 		plabel_players = new JLabel[15];
-		frame_main.setSize(1000, 500);
+		frame_main.setSize(1000, 550);
 		frame_main.setLayout(null);
 		frame_main.setResizable(false);
 		frame_main.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -524,7 +551,7 @@ public class Client extends Thread implements ActionListener,
 			@Override
 			public void windowClosing(WindowEvent e) {
 				bol_mainFrameActive = false;
-				// System.out.println("Adfafafafafaf");
+
 				quit();
 			}
 		});
@@ -600,20 +627,20 @@ public class Client extends Thread implements ActionListener,
 		bol_mainFrameActive = true;
 		// Just for
 		// testing--------------------------------------------------------------------
-		/*
-		 * String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
-		 * "ks", "as" }; String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c",
-		 * "kh" }; String[] test3 = { "qs", "th" }; String[] names1 = { "Paul",
-		 * "Luke", "Michael", "Kristo", "James", "Gerrit", "Jukkie" }; String[]
-		 * names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie", "Luke"
-		 * }; String[] names3 = { "Michael", "James", "Kristo" };
-		 * newGameGui("Friendly"); newGameGui("Fun"); newGameGui("Hello");
-		 * newGameGui("G3"); updateGame("Friendly", test3, null);
-		 * updateGame("Fun", test1, null); updateGame("G3", test2, null);
-		 * endGame("G3"); newGameGui("Test2"); newGameGui("Test3");
-		 * updateGame("Test2", test1, null); updateGame("Test3", test2, null);
-		 * // endGame("Test3"); // endGame("Friendly");
-		 */
+		
+//		  String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
+//		  "ks", "as" }; String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c",
+//		  "kh" }; String[] test3 = { "qs", "th" }; String[] names1 = { "Paul",
+//		  "Luke", "Michael", "Kristo", "James", "Gerrit", "Jukkie" }; String[]
+//		  names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie", "Luke"
+//		  }; String[] names3 = { "Michael", "James", "Kristo" };
+//		  newGameGui("Friendly"); newGameGui("Fun"); newGameGui("Hello");
+//		  newGameGui("G3"); updateGame("Friendly", test3, null);
+////		  updateGame("Fun", test1, null); updateGame("G3", test2, null);
+//		  endGame("G3"); newGameGui("Test2"); newGameGui("Test3");
+////		  updateGame("Test2", test1, null); updateGame("Test3", test2, null);
+//		  // endGame("Test3"); // endGame("Friendly");
+		 
 		// ------------------------------------------------------------------------------------
 	}
 
@@ -948,8 +975,8 @@ public class Client extends Thread implements ActionListener,
 				} else if (command.equals("GU")) {// List of games
 					if (!bol_mainFrameActive) {
 						// update jlist_contactsOutsideMain
-						jlist_contactsOutsideMain.removeAll();
-						jlist_contactsOutsideMain.setListData(arguments);
+						jlist_gamesOutsideMain.removeAll();
+						jlist_gamesOutsideMain.setListData(arguments);
 
 					} else {
 						defaultList_games.removeAllElements();
@@ -1446,7 +1473,7 @@ public class Client extends Thread implements ActionListener,
 						jlist_contactsMain.setListData(names);
 						frame_main.repaint();
 					} else {
-						jlist_contactsOutsideMain.setListData(names);
+						jlist_gamesOutsideMain.setListData(names);
 					}
 
 				}
@@ -1791,15 +1818,15 @@ public class Client extends Thread implements ActionListener,
 			// Join game selected in list
 
 			try {
-				if (!jlist_contactsOutsideMain.isSelectionEmpty()) {
-					tempGameName = jlist_contactsOutsideMain.getSelectedValue()
+				if (!jlist_gamesOutsideMain.isSelectionEmpty()) {
+					tempGameName = jlist_gamesOutsideMain.getSelectedValue()
 							.toString();
 					System.out.println(tempGameName);
 					objectOutput.writeObject("GJ"
-							+ jlist_contactsOutsideMain.getSelectedValue()
+							+ jlist_gamesOutsideMain.getSelectedValue()
 									.toString() + ";");
 					System.out.println("GJ"
-							+ jlist_contactsOutsideMain.getSelectedValue()
+							+ jlist_gamesOutsideMain.getSelectedValue()
 									.toString() + ";");
 					frame_choice.dispose();
 					clientGui();
