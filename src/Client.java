@@ -98,8 +98,9 @@ public class Client extends Thread implements ActionListener,
 
 	// Lists
 	public JList jlist_contactsMain;
-	public JList jlist_gamesOutsideMain;
+//	public JList jlist_gamesOutsideMain;
 	public JList jlist_contactsOutsideMain;
+	public JList jlist_gmesListOutMain;
 
 	// Panels
 	public JPanel panel_mycards;
@@ -418,35 +419,35 @@ public class Client extends Thread implements ActionListener,
 		textArea_display_out.setBounds(15, 90, 400, 180);
 		panel_main.add(textArea_display_out);
 		
-		String arr[] = {"asd","asd","aa","dd"};
-		// Scrolepane: Join Existing Game
-		JScrollPane sp1 = new JScrollPane(
-				jlist_gamesOutsideMain = new JList(arr));
-		jlist_gamesOutsideMain.setVisibleRowCount(4);
-		jlist_gamesOutsideMain.addListSelectionListener(this);
-		jlist_gamesOutsideMain.setBackground(Color.LIGHT_GRAY);
-		sp1.setBounds(0, 0, 150, 450);
-		
 	
-		
-//		jlist_gamesOutsideMain.
+		String arr2[] = {"asd","asd","aa","dd"};
 		JScrollPane sp2 = new JScrollPane(
 				jlist_contactsOutsideMain = new JList());
+//		jlist_contactsOutsideMain.setListData(arr2);
 		jlist_contactsOutsideMain.setVisibleRowCount(4);
 		jlist_contactsOutsideMain.setBackground(Color.blue);
 		jlist_contactsOutsideMain.addListSelectionListener(this);
-		jlist_contactsOutsideMain.setBackground(Color.LIGHT_GRAY);
-		sp1.setBounds(0, 0, 150, 350);
+		sp2.setBounds(0, 0, 150, 350);
+		
+		String arr3[] = {"asd","asd","aa","ddxxxx"};
+		JScrollPane sp3 = new JScrollPane(jlist_gmesListOutMain = new JList());
+//		jlist_gmesListOutMain.setListData(arr3);
+		jlist_gmesListOutMain.setVisibleRowCount(4);
+		jlist_gmesListOutMain.setBackground(Color.blue);
+		jlist_gmesListOutMain.addListSelectionListener(this);
+		sp3.setBounds(0, 0, 150, 350);
 
 
 		
 		JPanel test = new JPanel();
 		test.setLayout(null);
 		test.setBounds(420, 40, 150, 870);
+		test.setBackground(Color.red);
 		JTabbedPane tab = new JTabbedPane();
 		tab.setSize(150, 500);
 
-		tab.add("Games", sp1);
+		tab.add("Games", sp3);
+		test.add(tab);
 		tab.add("Clients", sp2);
 		test.add(tab);
 		
@@ -975,8 +976,9 @@ public class Client extends Thread implements ActionListener,
 				} else if (command.equals("GU")) {// List of games
 					if (!bol_mainFrameActive) {
 						// update jlist_contactsOutsideMain
-						jlist_gamesOutsideMain.removeAll();
-						jlist_gamesOutsideMain.setListData(arguments);
+						
+						jlist_gmesListOutMain.removeAll();
+						jlist_gmesListOutMain.setListData(arguments);
 
 					} else {
 						defaultList_games.removeAllElements();
@@ -1473,7 +1475,8 @@ public class Client extends Thread implements ActionListener,
 						jlist_contactsMain.setListData(names);
 						frame_main.repaint();
 					} else {
-						jlist_gamesOutsideMain.setListData(names);
+						//TODO
+//						jlist_gamesOutsideMain.setListData(names);
 					}
 
 				}
@@ -1818,15 +1821,18 @@ public class Client extends Thread implements ActionListener,
 			// Join game selected in list
 
 			try {
-				if (!jlist_gamesOutsideMain.isSelectionEmpty()) {
-					tempGameName = jlist_gamesOutsideMain.getSelectedValue()
+				
+				
+				
+				if (!jlist_gmesListOutMain.isSelectionEmpty()) {
+					tempGameName = jlist_gmesListOutMain.getSelectedValue()
 							.toString();
 					System.out.println(tempGameName);
 					objectOutput.writeObject("GJ"
-							+ jlist_gamesOutsideMain.getSelectedValue()
+							+ jlist_gmesListOutMain.getSelectedValue()
 									.toString() + ";");
 					System.out.println("GJ"
-							+ jlist_gamesOutsideMain.getSelectedValue()
+							+ jlist_gmesListOutMain.getSelectedValue()
 									.toString() + ";");
 					frame_choice.dispose();
 					clientGui();
