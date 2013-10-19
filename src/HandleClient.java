@@ -30,6 +30,7 @@ public class HandleClient extends Thread {
                                 }
 				if (command.equals("LI")) {
 					loggedIn = server.login(arguments[0], arguments[1], socket);
+                                        if(loggedIn) continue;
 
 				} else if (command.equals("LO")) {
 					server.logoff(socket);

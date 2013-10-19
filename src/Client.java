@@ -480,6 +480,7 @@ public class Client extends Thread implements ActionListener,
 		try {
 			if (!bol_mainFrameActive) {
 				objectOutput.writeObject("GL;");
+                                objectOutput.flush();
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -499,6 +500,7 @@ public class Client extends Thread implements ActionListener,
 		// Write to server
 		try {
 			objectOutput.writeObject("LC;");
+                        objectOutput.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -829,7 +831,8 @@ public class Client extends Thread implements ActionListener,
 
 	public void quit() {
 		try {
-			objectOutput.writeObject("GO");
+			objectOutput.writeObject("GO;");
+                        objectOutput.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -888,6 +891,7 @@ public class Client extends Thread implements ActionListener,
 			String serverMsg = (String) objectInput.readObject();
 
 			if (serverMsg.compareTo("RD;") == 0) {
+                                System.out.println("RD;");
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
 				sb.append(string_userName);
@@ -899,6 +903,7 @@ public class Client extends Thread implements ActionListener,
 				String msg = (String) objectInput.readObject();
 				if (msg.compareTo("LK;") == 0) {
 					// clientGui();
+                                    System.out.println("LK sent");
 					afterLoginScreen();
 					frame_Welcome.dispose();
 
@@ -907,8 +912,7 @@ public class Client extends Thread implements ActionListener,
 					start();
 				} else {
 					// new Client();//TODO
-					System.out
-							.println("ERROR IN CLIENT connectToServer method");
+					System.out.println("ERROR IN CLIENT connectToServer method");
 				}
 			} else {
 				JOptionPane.showMessageDialog(null, "Server is not ready");
@@ -928,6 +932,7 @@ public class Client extends Thread implements ActionListener,
 				textArea_display_in.append("<- " + text + " ->\n");
 				text_message_in.setText("");
 				objectOutput.writeObject(text);
+                                objectOutput.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -939,6 +944,7 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void run() {
+            System.out.println("thread started");
 		while (connected) {
 			try {
 				String line = (String) objectInput.readObject();
@@ -1862,6 +1868,7 @@ public class Client extends Thread implements ActionListener,
 				sb.append(";");
 				try {
 					objectOutput.writeObject(sb.toString());
+                                        objectOutput.flush();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
