@@ -892,9 +892,10 @@ public class Client extends Thread implements ActionListener,
 				sb.append("LI");
 				sb.append(string_userName);
 				username = string_userName.toString();
-				sb.append(":password");
+				sb.append(":password;");
 
 				objectOutput.writeObject(sb.toString());
+                                objectOutput.flush();
 				String msg = (String) objectInput.readObject();
 				if (msg.compareTo("LK;") == 0) {
 					// clientGui();
@@ -977,6 +978,7 @@ public class Client extends Thread implements ActionListener,
 													+ tempGameName + ";");
 											objectOutput.writeObject("GN"
 													+ tempGameName + ";");
+                                                                                        objectOutput.flush();
 										}
 									} catch (SocketException e) {
 
@@ -1053,6 +1055,7 @@ public class Client extends Thread implements ActionListener,
 												+ ";");
 										objectOutput.writeObject("GW"
 												+ tempGameName + ";");
+                                                                                objectOutput.flush();
 									}
 								} catch (Exception e) {
 									// TODO Auto-generated catch block
@@ -1187,6 +1190,7 @@ public class Client extends Thread implements ActionListener,
 													+ tempGameName + ";");
 											objectOutput.writeObject("HP"
 													+ tempGameName + ";");
+                                                                                        objectOutput.flush();
 										}
 									} catch (Exception e) {
 										// TODO Auto-generated catch block
@@ -1330,7 +1334,8 @@ public class Client extends Thread implements ActionListener,
 															+ tempGameName);
 													objectOutput
 															.writeObject("HN"
-																	+ tempGameName);
+																	+ tempGameName + ";");
+                                                                                                        objectOutput.flush();
 												}
 											} catch (Exception e) {
 												// TODO Auto-generated catch
@@ -1568,6 +1573,7 @@ public class Client extends Thread implements ActionListener,
 						if (bidding) {
 							System.out.println("HB" + recentHB + ";");
 							objectOutput.writeObject("HB" + recentHB + ";");
+                                                        objectOutput.flush();
 						}
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
@@ -1880,6 +1886,7 @@ public class Client extends Thread implements ActionListener,
 					objectOutput.writeObject("GJ"
 							+ jlist_gmesListOutMain.getSelectedValue()
 									.toString() + ";");
+                                        objectOutput.flush();
 					System.out.println("GJ"
 							+ jlist_gmesListOutMain.getSelectedValue()
 									.toString() + ";");
@@ -1910,6 +1917,7 @@ public class Client extends Thread implements ActionListener,
 
 			try {
 				objectOutput.writeObject(sb.toString());
+                                objectOutput.flush();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -1954,6 +1962,7 @@ public class Client extends Thread implements ActionListener,
 							.toString();
 					System.out.println(sb.toString());
 					objectOutput.writeObject(sb.toString());
+                                        objectOutput.flush();
 				}
 
 			} catch (IOException e) {
@@ -1972,6 +1981,7 @@ public class Client extends Thread implements ActionListener,
 				if (!bol_mainFrameActive) {
 					System.out.println("GL;");
 					objectOutput.writeObject("GL;");
+                                        objectOutput.flush();
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -2001,6 +2011,7 @@ public class Client extends Thread implements ActionListener,
 			sb.append("GL;");
 			try {
 				objectOutput.writeObject(sb.toString());
+                                objectOutput.flush();
 				System.out.println(sb.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -2043,7 +2054,8 @@ public class Client extends Thread implements ActionListener,
 		} else if (evt.getSource() == button_startCreatedGame) {
 			// Start Game
 			try {
-				objectOutput.writeObject("GF" + tempGameName);
+				objectOutput.writeObject("GF" + tempGameName + ";");
+                                objectOutput.flush();
 				System.out.println("GF" + tempGameName);
 
 			} catch (IOException e) {
@@ -2062,9 +2074,10 @@ public class Client extends Thread implements ActionListener,
 
 			// Send logoff
 			StringBuilder sb = new StringBuilder();
-			sb.append("LO:");
+			sb.append("LO;");
 			try {
 				objectOutput.writeObject(sb.toString());
+                                objectOutput.flush();
 			} catch (IOException e) {
 				System.out.println("Logoff fail");
 				e.printStackTrace();
@@ -2099,6 +2112,7 @@ public class Client extends Thread implements ActionListener,
 				sb.append(card + ";");
 				try {
 					objectOutput.writeObject(sb.toString());
+                                        objectOutput.flush();
 					System.out.println(sb.toString());
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -2139,6 +2153,7 @@ public class Client extends Thread implements ActionListener,
 						+ defaultList_games.getElementAt(
 								jlist_contactsMain.getSelectedIndex())
 								.toString() + ";");
+                                objectOutput.flush();
 				// System.out.println("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
 			} catch (IOException e) {
 				System.out.println("Logoff fail");
