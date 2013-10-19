@@ -160,7 +160,7 @@ public class ServerTest {
             Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
         }
         
-        System.out.print("Test login of unique client: ");
+        System.out.print("Test login of unique client (NOTE: This client has been sent a LO command earlier, I suspect it causes failiure): ");
         try{
             objectOutput.writeObject("LIusername:password;");
             objectOutput.flush();
@@ -199,7 +199,7 @@ public class ServerTest {
                 clientsOut.get(i).writeObject("LIusername"+i+":password;");
                 clientsOut.get(i).flush();
                 String response = (String) clientsIn.get(i).readObject();
-                if(response.equals("ER100;")){
+                if(response.equals("LK;")){
                     passed ++;
                 }
                 else{
@@ -241,7 +241,7 @@ public class ServerTest {
         LinkedList<Socket> clients = new LinkedList<Socket>();
         LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
         LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
-        int passed = 0;
+        
         for(int i = 0; i < 20; i++){
             try {
                 Socket client2 = new Socket("localhost", 9119);
@@ -266,6 +266,39 @@ public class ServerTest {
                 Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
             }
         }
+        try{
+            objectOutput.writeObject("LIGamer:password;");
+            objectOutput.flush();
+            String response = (String) objectInput.readObject();
+            if(response.equals("LK;")){// TODO: Still need to put in the ':' once corrected in server. 
+            }
+            else{
+                
+                System.out.println("Error, recieved "+response);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        try{
+                for(int i = 0; i < clients.size();i++){
+                clientsOut.get(i).writeObject("LIGamer"+i+":password;");
+                clientsOut.get(i).flush();
+                String response = (String) clientsIn.get(i).readObject();
+                if(response.equals("LK")){
+                    
+                }
+                else{
+                    
+                    System.out.println("Error");
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            
+            System.out.println("Error.");
+        }
+        System.out.println("Setup complete");
         //------------~Setup End~-------------
         System.out.print("Create a valid game:");
         try{
