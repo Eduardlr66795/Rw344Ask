@@ -98,6 +98,7 @@ public class Client extends Thread implements ActionListener,
 
 	// Lists
 	public JList jlist_contactsMain;
+	public JList jlist_gameMain;
 //	public JList jlist_gamesOutsideMain;
 	public JList jlist_contactsOutsideMain;
 	public JList jlist_gmesListOutMain;
@@ -114,12 +115,7 @@ public class Client extends Thread implements ActionListener,
 	// TextArea
 	public JTextArea textArea_display_in;
 	public JTextArea textArea_display_out;
-
-	// Labels
-	public JLabel label_enterNewGameName;
-	public JLabel label_gameName;
-	public JLabel[] plabel_players;
-
+	
 	// TextFields
 	public JTextField text_loginTextfieldName;
 	public JTextField text_loginTextfieldIp;
@@ -128,6 +124,15 @@ public class Client extends Thread implements ActionListener,
 	public JTextField text_message_out;
 	public JTextField text_FieldEnterNewGameName;
 
+	// Labels
+	public JLabel label_enterNewGameName;
+	public JLabel label_gameName;
+	public JLabel[] plabel_players;
+	
+	//tabs
+	JTabbedPane tabOutside;
+	JTabbedPane tabInside;
+	
 	// Strings
 	public String string_userName;
 	public String[] string_games;
@@ -423,17 +428,15 @@ public class Client extends Thread implements ActionListener,
 		String arr2[] = {"asd","asd","aa","dd"};
 		JScrollPane sp2 = new JScrollPane(
 				jlist_contactsOutsideMain = new JList());
-//		jlist_contactsOutsideMain.setListData(arr2);
+		jlist_contactsOutsideMain.setListData(arr2);
 		jlist_contactsOutsideMain.setVisibleRowCount(4);
-		jlist_contactsOutsideMain.setBackground(Color.blue);
 		jlist_contactsOutsideMain.addListSelectionListener(this);
 		sp2.setBounds(0, 0, 150, 350);
 		
 		String arr3[] = {"asd","asd","aa","ddxxxx"};
 		JScrollPane sp3 = new JScrollPane(jlist_gmesListOutMain = new JList());
-//		jlist_gmesListOutMain.setListData(arr3);
+		jlist_gmesListOutMain.setListData(arr3);
 		jlist_gmesListOutMain.setVisibleRowCount(4);
-		jlist_gmesListOutMain.setBackground(Color.blue);
 		jlist_gmesListOutMain.addListSelectionListener(this);
 		sp3.setBounds(0, 0, 150, 350);
 
@@ -442,14 +445,14 @@ public class Client extends Thread implements ActionListener,
 		JPanel test = new JPanel();
 		test.setLayout(null);
 		test.setBounds(420, 40, 150, 870);
-		test.setBackground(Color.red);
-		JTabbedPane tab = new JTabbedPane();
-		tab.setSize(150, 500);
+//		test.setBackground(Color.red);
+		tabOutside = new JTabbedPane();
+		tabOutside.setSize(150, 500);
 
-		tab.add("Games", sp3);
-		test.add(tab);
-		tab.add("Clients", sp2);
-		test.add(tab);
+		tabOutside.addTab("Games", sp3);
+		tabOutside.addTab("Clients", sp2);
+		test.add(tabOutside);
+		
 		
 	
 		panel_main.add(test);
@@ -495,9 +498,7 @@ public class Client extends Thread implements ActionListener,
 	public void getClients() {
 		// Write to server
 		try {
-			// There is no LC; command
 			objectOutput.writeObject("LC;");
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -572,17 +573,65 @@ public class Client extends Thread implements ActionListener,
 		textArea_display_in.setEditable(false);
 		frame_main.add(spMain);
 
-		defaultList_games = new DefaultListModel();
-		JScrollPane sp1 = new JScrollPane(jlist_contactsMain = new JList(
-				defaultList_games));
+		
+		/////////////////////////////////////////////////////
+//		defaultList_games = new DefaultListModel();
+//		JScrollPane sp1 = new JScrollPane(jlist_contactsMain = new JList(
+//				defaultList_games));
+//		jlist_contactsMain.setVisibleRowCount(4);
+//		jlist_contactsMain.addListSelectionListener(this);
+//		jlist_contactsMain.setBackground(Color.LIGHT_GRAY);
+//		jlist_contactsMain.addMouseListener(this);
+//
+//		sp1.setBounds(820, 40, 160, 300);
+//		frame_main.add(sp1);
+
+		///////////////////////////////////////////////////////
+		
+		JPanel test = new JPanel();
+		test.setLayout(null);
+		test.setBounds(810, 5, 170, 370);
+		
+		tabInside = new JTabbedPane();
+		tabInside.setSize(test.getWidth(), test.getHeight());
+		
+		
+//		String arr2[] = {"asd","asd","aa","dd"};
+		JScrollPane sp2 = new JScrollPane(
+				jlist_contactsMain = new JList());
+		sp2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+//		jlist_contactsMain.setListData(arr2);
 		jlist_contactsMain.setVisibleRowCount(4);
+//		jlist_contactsMain.setBackground(Color.blue);
 		jlist_contactsMain.addListSelectionListener(this);
-		jlist_contactsMain.setBackground(Color.LIGHT_GRAY);
-		jlist_contactsMain.addMouseListener(this);
+		sp2.setBounds(825, 10, test.getWidth(), test.getHeight()-20);
+		
+		String arr3[] = {"asd","asd","aa","ddxxxx"};
+		JScrollPane sp3 = new JScrollPane(jlist_gameMain = new JList());
+		sp3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		jlist_gameMain.setListData(arr3);
+		jlist_gameMain.setVisibleRowCount(4);
 
-		sp1.setBounds(820, 40, 160, 300);
-		frame_main.add(sp1);
+//		jlist_gameMain.setBackground(Color.blue);
+		jlist_gameMain.addListSelectionListener(this);
+		sp3.setBounds(825, 10, test.getWidth(), test.getHeight()-20);
 
+
+
+		tabInside.addTab("Games", sp3);
+		tabInside.addTab("Clients", sp2);
+		test.add(tabInside);
+		
+
+		frame_main.add(test);
+		
+		
+		
+		////////////////////////////////////////////////////////
+		
+		
 		button_sendMessage_in = new JButton("Send Msg");
 		button_sendMessage_in.setBounds(709, 460, 93, 30);
 		// button_sendMessage_in.setBounds(709, 360, 93, 30);
@@ -786,13 +835,13 @@ public class Client extends Thread implements ActionListener,
 			e.printStackTrace();
 		}
 
-		if (frame_choice.isActive()) {
-			// frame_choice.dispose();
-			// connected = false;
-
-		} else if (frame_main.isActive()) {
-
-		}
+//		if (frame_choice.isActive()) {
+//			// frame_choice.dispose();
+//			// connected = false;
+//
+//		} else if (frame_main.isActive()) {
+//
+//		}
 		// try {
 		// if(client.isConnected()){
 		// client.close();
@@ -838,7 +887,7 @@ public class Client extends Thread implements ActionListener,
 
 			String serverMsg = (String) objectInput.readObject();
 
-			if (serverMsg.compareTo("RD;") == 0) {
+			if (serverMsg.compareTo("RD") == 0) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("LI");
 				sb.append(string_userName);
@@ -912,7 +961,6 @@ public class Client extends Thread implements ActionListener,
 						gameNotStarted = true;
 						new Thread(new Runnable() {
 
-							@Override
 							public void run() {
 								// need to turn off gameNotStated before the
 								// game starts.
@@ -995,7 +1043,7 @@ public class Client extends Thread implements ActionListener,
 					gameNotStarted = true;
 					new Thread(new Runnable() {
 
-						@Override
+						
 						public void run() {
 							while (gameNotStarted) {
 								try {
@@ -1124,7 +1172,7 @@ public class Client extends Thread implements ActionListener,
 						// games are in progress
 						// send HPgame_name to server
 						new Thread(new Runnable() {
-							@Override
+						
 							public void run() {
 								while (gameInProgress) {
 									try {
@@ -1272,7 +1320,7 @@ public class Client extends Thread implements ActionListener,
 								// thread
 								threadHN = true;
 								new Thread(new Runnable() {
-									@Override
+									
 									public void run() {
 										while (threadHN) {
 											try {
@@ -1512,7 +1560,7 @@ public class Client extends Thread implements ActionListener,
 		bidding = true;
 		new Thread(new Runnable() {
 
-			@Override
+		
 			public void run() {
 				while (bidding) {
 					try {
@@ -2064,12 +2112,20 @@ public class Client extends Thread implements ActionListener,
 		}
 	}
 
-	public void valueChanged(ListSelectionEvent arg0) {
-		// TODO Auto-generated method stub
-
+	public void valueChanged(ListSelectionEvent evt) {
+		//Game Tab == 0
+		//Client TaB == 1
+//		if(tabOutside.getSelectedIndex() == 0) {
+//			
+//		}
+//		
+		
+//		client -> server: GAgame_name;
+//		server -> client: GCplayer_name1:player_name2:...;
+		
 	}
 
-	@Override
+
 	public void mouseClicked(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 		// Attempt to join Game
@@ -2092,25 +2148,25 @@ public class Client extends Thread implements ActionListener,
 
 	}
 
-	@Override
+
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+	
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+
 	public void mousePressed(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
+
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
 
