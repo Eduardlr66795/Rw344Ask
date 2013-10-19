@@ -1061,6 +1061,7 @@ public class Client extends Thread implements ActionListener,
 						lastRound = false;
 					}
 					threadHN = false;
+					
 					String[] cards = new String[arguments.length - 3];
 					for (int i = 0; i < arguments.length - 3; i++) {
 						cards[i] = arguments[i + 1];
