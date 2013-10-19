@@ -300,7 +300,7 @@ public class ServerTest {
         //------------~Setup End~-------------
         System.out.print("Create a valid game:");
         try{
-            objectOutput.writeObject("GSgame_name;");
+            objectOutput.writeObject("GSgame1;");
             objectOutput.flush();
             String serverMsg = (String) objectInput.readObject();
             if(serverMsg.equals("GK;")){
