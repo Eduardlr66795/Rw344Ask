@@ -229,7 +229,7 @@ public class ServerTest {
             if(serverMsg.equals("RD;")){
             }
             else{
-                System.out.println("Error.");
+                System.out.println("Error recieved "+serverMsg+" instead of RD;");
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -253,7 +253,7 @@ public class ServerTest {
             String serverMsg = (String) objectInput2.readObject();
             if(serverMsg.equals("RD;")){
             }else{
-                System.out.println("Error");
+                System.out.println("Error recieved "+serverMsg+" instead of RD;");
             }
                 
             } catch (UnknownHostException ex) {
@@ -283,12 +283,12 @@ public class ServerTest {
                 clientsOut.get(i).writeObject("LIGamer"+i+":password;");
                 clientsOut.get(i).flush();
                 String response = (String) clientsIn.get(i).readObject();
-                if(response.equals("LK")){
+                if(response.equals("LK;")){
                     
                 }
                 else{
                     
-                    System.out.println("Error");
+                    System.out.println("Error recieved "+response+" instead of LK;");
                 }
             }
         }catch(Exception e){
@@ -300,7 +300,7 @@ public class ServerTest {
         //------------~Setup End~-------------
         System.out.print("Create a valid game:");
         try{
-            objectOutput.writeObject("GSgame1;");
+            objectOutput.writeObject("GSgame1unique;");
             objectOutput.flush();
             String serverMsg = (String) objectInput.readObject();
             if(serverMsg.equals("GK;")){

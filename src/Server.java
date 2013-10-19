@@ -24,7 +24,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class Server {
 	@SuppressWarnings("rawtypes")
-	private Hashtable outputStreams = new Hashtable();
+	private Hashtable<Socket, ObjectOutputStream> outputStreams = new Hashtable();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
 	private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>();
 	@SuppressWarnings("rawtypes")
@@ -1314,5 +1314,20 @@ public class Server {
 		} catch (Exception e) {
 			System.out.println("Exception in collectMessages " + e);
 		}
+    }
+
+    public void removeGameHostedBy(Socket socket) {
+        Collection games = gamesList.keySet();
+        Iterator<String> itr = games.iterator();
+        String temp = null;
+        while(itr.hasNext()){
+            temp = itr.next();
+            Game removing = gamesList.get(temp);
+            if(clientList.get(outputStreams.get(socket)).equals(removing.GetCreatorName())){
+                //kick all players in game temp.
+                
+                gamesList.remove(temp);
+            }
+        }
     }
 }

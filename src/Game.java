@@ -158,6 +158,9 @@ public class Game extends Thread {
     	
     }
     
+    public String GetCreatorName(){
+        return creatorName;
+    }
 	
 
 }
