@@ -36,8 +36,6 @@ public class ServerTest {
 
             String serverMsg = (String) objectInput.readObject();
             if(serverMsg.equals("RD;")){
-                objectOutput.writeObject("Bleargh");
-                objectOutput.flush();
                 System.out.println("Pass.");
             }
             else{
@@ -103,7 +101,7 @@ public class ServerTest {
                 try{
                     error = (String) objectInput.readObject();
                     if(error.equals("ER901;")){
-                    System.out.println("Passed");
+                    System.out.print("Passed");
                         passed ++;
                     } else{
                         System.out.print("Fail, recieved \'" + error + "\' instead of \'ER901;\' @ "+ notExpected[i]);

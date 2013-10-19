@@ -21,10 +21,13 @@ public class HandleClient extends Thread {
 
 			while (true) {
 				String message = (String) input.readObject();
-				String command = message.substring(0, 2);
-				String[] arguments = message.substring(2).replace(";", "")
-						.split(":");
-
+                                String command = "";
+                                String[] arguments = {};
+                                if(message.length() >= 2){
+                                     command= message.substring(0, 2);
+                                    arguments = message.substring(2).replace(";", "")
+                                                    .split(":");
+                                }
 				if (command.equals("LI")) {
 					loggedIn = server.login(arguments[0], arguments[1], socket);
 
