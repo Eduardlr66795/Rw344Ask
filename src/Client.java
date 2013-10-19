@@ -896,7 +896,7 @@ public class Client extends Thread implements ActionListener,
 
 				objectOutput.writeObject(sb.toString());
 				String msg = (String) objectInput.readObject();
-				if (msg.compareTo("LK") == 0) {
+				if (msg.compareTo("LK;") == 0) {
 					// clientGui();
 					afterLoginScreen();
 					frame_Welcome.dispose();
