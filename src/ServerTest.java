@@ -1,11 +1,22 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Reader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import junit.framework.Assert;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 /*
  * To change this template, choose Tools | Templates
@@ -16,121 +27,36 @@ import java.util.logging.Logger;
  *
  * @author MeTaBee
  */
-public class ServerTest {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        System.out.println("------~BEFORE LOGON~------");
-        testLogonPhase();
-        System.out.println("------~AFTER LOGON~------");
-        System.out.println("------~BEFORE GAME~------");
-        testGamePhase();
-        System.out.println("------~AFTER GAME~------");
-    }
+@RunWith(Parameterized.class)
+public class ServerTest extends junit.framework.TestCase {
+    static Socket client;
+    static ObjectInputStream objectInput = null;
+    static ObjectOutputStream objectOutput = null;
+    static LinkedList<Socket> clients = new LinkedList<Socket>();
+    static LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
+    static LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
+    static int passed = 0;
+    static String input = "";
+        
     
-    private static void testLogonPhase(){
-        System.out.print("Test Server connection: ");
-        Socket client;
-        ObjectInputStream objectInput = null;
-        ObjectOutputStream objectOutput = null;
-        try{
-            client = new Socket("localhost", 3000);
-
-            objectInput = new ObjectInputStream(client.getInputStream());
-            objectOutput = new ObjectOutputStream(client.getOutputStream());
-
+    public ServerTest(String input) {
+        
+  }
+    
+    @Parameterized.Parameters
+   public static Collection primeNumbers() throws FileNotFoundException, IOException {
+        String [] a = (new BufferedReader(new FileReader("InvalidInput1"))).readLine().split(",");
+      return Arrays.asList(a);
+   }
+    
+    private static void testOneConnection() throws Exception{
+       
             String serverMsg = (String) objectInput.readObject();
-            if(serverMsg.equals("RD;")){
-                System.out.println("Pass.");
-            }
-            else{
-                System.out.println("Fail.");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
+            assertTrue("Fail, ", serverMsg.equals("RD;"));
         
-        System.out.print("Test Many connections simultaneously: ");
-        LinkedList<Socket> clients = new LinkedList<Socket>();
-        LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
-        LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
-        int passed = 0;
-        for(int i = 0; i < 20; i++){
-            try {
-                Socket client2 = new Socket("localhost", 3000);
-                clients.add(client2);
-                
-            ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
-            ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
-            clientsIn.add(objectInput2);
-            clientsOut.add(objectOutput2);
-
-            String serverMsg = (String) objectInput2.readObject();
-            if(serverMsg.equals("RD;")){
-                passed ++;
-            }
-                
-            } catch (UnknownHostException ex) {
-                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException e){
-                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
-            }
-        }
-        if(passed == 20){
-            System.out.println("Pass.");
-        }else{
-            System.out.println("Fail ("+passed+"/20 passed).");
-        }
+        /////....................................................................................................
         
-        System.out.println("Test if server will send error when wrong command is sent.");
-        
-        String[] notExpected = {"GSgame_name;","GN;","GFgame_name;","GOgame_name:player_name;",
-            "GL;","GGprefix;","GJgame_name;","QWgame_name;","GAgame_name;","QTgame_name;","QPname;",
-        "HNgame_name;","HBgame_name;","HDgame_name:bid;","HPgame_name;","HRgame_name:card;",
-        "HAgame_name;","HSgame_name;","CPplayer_name1:player_name2:player_namen:message;",
-        "CAgame_name:message;","CC;",""};
-        
-        System.out.print("Anything except LO, MC or LI before login Start \n");
-        
-            passed = 0;
-            for(int i = 0; i < notExpected.length; i++){
-                System.out.print("\t" + notExpected[i] + " before login: ");
-                try{
-                objectOutput.writeObject(notExpected[i]);
-                objectOutput.flush();
-                } catch (Exception e){
-                    //Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
-                    System.out.print("Could not send message.   ");
-                }
-                String error = "";
-                try{
-                    error = (String) objectInput.readObject();
-                    if(error.equals("ER901;")){
-                    System.out.print("Passed");
-                        passed ++;
-                    } else{
-                        System.out.print("Fail, recieved \'" + error + "\' instead of \'ER901;\' @ "+ notExpected[i]);
-                    }
-                }catch(Exception e){
-                    //Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
-                    System.out.print("Could not read message.   ");
-                }
-                System.out.println("");
-            }
-            
-        
-        if(passed == notExpected.length){
-            System.out.println("Anything except LO, MC or LI before login End: All Pass.");
-        }else{
-            System.out.println("Anything except LO, MC or LI before login End: Fail ("+passed+"/"+notExpected.length+" passed).");
-        }
-        
-        System.out.print("LO before login: ");
+     /*   System.out.print("LO before login: ");
         try{
             objectOutput.writeObject("LO;");
             objectOutput.flush();
@@ -180,12 +106,7 @@ public class ServerTest {
             clientsOut.get(0).writeObject("LIusername:password;");
             clientsOut.get(0).flush();
             String response = (String) objectInput.readObject();
-            if(response.equals("ER100;")){
-                System.out.println("Pass.");
-            }
-            else{
-                System.out.println("Fail, Recieved \'" + response + "\' instead of \'ER100;\'");
-            }
+            assertTrue("Fail, Recieved \'" + response + "\' instead of \'ER100;\'", response.equals("ER100;"));
         }catch(Exception e){
             e.printStackTrace();
             System.out.println("Error.");
@@ -197,11 +118,7 @@ public class ServerTest {
                 clientsOut.get(i).writeObject("LIusername"+i+":password;");
                 clientsOut.get(i).flush();
                 String response = (String) clientsIn.get(i).readObject();
-                if(response.equals("LK;")){
-                    passed ++;
-                }
-                else{
-                }
+                assertTrue("Fail, Recieved \'" + response + "\' instead of \'ER100;\'", response.equals("LK;"));
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -212,6 +129,69 @@ public class ServerTest {
         }else{
             System.out.println("Fail ("+passed+"/19 passed).");
         }
+        
+        //----~Ending steps~----*/
+        
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+            client = new Socket("localhost", 3000);
+            objectInput = new ObjectInputStream(client.getInputStream());
+            objectOutput = new ObjectOutputStream(client.getOutputStream());   
+            
+            for(int i = 0; i < 20; i++){
+                Socket client2 = new Socket("localhost", 3000);
+                clients.add(client2);
+                ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
+                ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
+                clientsIn.add(objectInput2);
+                clientsOut.add(objectOutput2);            
+            }
+    }
+
+    @Override
+    protected void tearDown() throws Exception {
+        super.tearDown();
+        client.close();
+        int tir = clients.size();
+        for(int i = tir-1; i > 0; i--){
+                    clients.get(i).close();
+                    clients.remove(i);
+        }
+    }
+    
+    
+    private static void testManyConnections() throws Exception{
+        
+        System.out.print("Test Many connections simultaneously: ");
+        
+        for(int i = 0; i < 20; i++){
+
+            Socket client2 = new Socket("localhost", 3000);
+            clients.add(client2);
+            ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
+            ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
+            clientsIn.add(objectInput2);
+            clientsOut.add(objectOutput2);
+
+            String serverMsg = (String) objectInput2.readObject();
+            if(serverMsg.equals("RD;")){
+                passed ++;
+            }
+
+        }
+            assertTrue(passed+"/20 passed.", passed == 20);
+    }
+    
+    public static void testInvalidInputsBeforeLogin(String input) throws Exception{
+        System.out.print("Anything except LO, MC or LI before login Start \n");
+        
+                objectOutput.writeObject(input);
+                objectOutput.flush();
+                
+                String error = (String) objectInput.readObject();
+                assertTrue("recieved \'" + error + "\' instead of \'ER901;\' @ "+ input, error.equals("ER901;"));
     }
 
     private static void testGamePhase() {
