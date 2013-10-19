@@ -118,7 +118,7 @@ public class HandleClient extends Thread {
 
 		finally {
 			if (!disconnected) {
-                                server.removeGameHostedBy(socket);
+                                server.removeGamesHostedBy(socket);
                                 server.removeUsername(socket);
 				server.removeConnection(socket);
 			}

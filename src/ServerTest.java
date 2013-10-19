@@ -60,7 +60,7 @@ public class ServerTest {
         int passed = 0;
         for(int i = 0; i < 20; i++){
             try {
-                Socket client2 = new Socket("localhost", 9119);
+                Socket client2 = new Socket("localhost", 3000);
                 clients.add(client2);
                 
             ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
@@ -220,7 +220,7 @@ public class ServerTest {
         ObjectInputStream objectInput = null;
         ObjectOutputStream objectOutput = null;
         try{
-            client = new Socket("localhost", 9119);
+            client = new Socket("localhost", 3000);
 
             objectInput = new ObjectInputStream(client.getInputStream());
             objectOutput = new ObjectOutputStream(client.getOutputStream());
@@ -300,7 +300,7 @@ public class ServerTest {
         //------------~Setup End~-------------
         System.out.print("Create a valid game:");
         try{
-            objectOutput.writeObject("GSgame1unique;");
+            objectOutput.writeObject("GSgame1;");
             objectOutput.flush();
             String serverMsg = (String) objectInput.readObject();
             if(serverMsg.equals("GK;")){
@@ -313,5 +313,39 @@ public class ServerTest {
             e.printStackTrace();
             System.out.println("Error.");
         }
+        System.out.print("Create a invalid game:");
+        try{
+            clientsOut.get(0).writeObject("GSgame1;");
+            clientsOut.get(0).flush();
+            String serverMsg = (String) clientsIn.get(0).readObject();
+            if(serverMsg.equals("ER120;")){
+                System.out.println("Pass");
+            }
+            else{
+                System.out.println("Fail, Recieved \'" + serverMsg + "\' instead of \'ER120;\'");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        
+        System.out.println("Create many valid games");
+         try{
+            for(int i = 1; i < clientsOut.size(); i++){
+                clientsOut.get(i).writeObject("GSgame1"+i);
+                clientsOut.get(i).flush();
+                String serverMsg = (String) clientsIn.get(i).readObject();
+                if(serverMsg.equals("GK;")){
+                    System.out.println("Pass");
+                }
+                else{
+                    System.out.println("Fail, Recieved \'" + serverMsg + "\' instead of \'ER120;\'");
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        
     }
 }

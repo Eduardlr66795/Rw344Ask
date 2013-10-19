@@ -439,7 +439,9 @@ public class Server {
 		try {
 			if (!gamesList.containsKey(gameName)) {
 				// game is unique and was created
+                            synchronized (gamesList){
 				gamesList.put(gameName, newGame);
+                            }
 
 				o.writeObject("GK;");
 				o.flush();
@@ -1319,7 +1321,7 @@ public class Server {
     }
     
     
-    public void removeGameHostedBy(Socket socket) {
+    public void removeGamesHostedBy(Socket socket) {
         Collection games = gamesList.keySet();
         Iterator<String> itr = games.iterator();
         String temp = null;
@@ -1336,16 +1338,13 @@ public class Server {
 
                                     if (c.getValue().equals(playerName)) {
                                         ObjectOutputStream ob = c.getKey();
-                                            for (Entry<Socket, ObjectOutputStream> s : outputStreams.entrySet()) {
-                                                if (s.getValue().equals(ob)) {
-                                                    Socket client = s.getKey();
-                                                    kickPlayerFromGame(removing.gameName, playerName, client);
-                                                }
-                                            }
+                                        kickPlayerFromGame(removing.gameName, playerName, socket);
                                     }
                             }
                 }
-            gamesList.remove(temp);
+             synchronized (gamesList) {
+                 gamesList.remove(temp);
+             }
             }
         }
     }
