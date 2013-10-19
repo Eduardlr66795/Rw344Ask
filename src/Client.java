@@ -1263,7 +1263,7 @@ public class Client extends Thread implements ActionListener,
 							button_cards[cardClickedI][cardClickedJ]
 									.setIcon(new ImageIcon("src/cards/back.gif"));
 						}
-						if (arguments[0].equals(tempLastPlayer)) {
+						if (line.equals(tempLastPlayer)) {
 							// Do nothing?
 							// waiting for other player to play card
 						} else {
@@ -1303,7 +1303,7 @@ public class Client extends Thread implements ActionListener,
 								}
 							}
 							// System.out.println("Print Card,"+gameNumber);
-							tempLastPlayer = arguments[0];
+							tempLastPlayer = line;
 							Icon icon = new ImageIcon("src/cards/"
 									+ arguments[1] + ".gif");
 							button_playedCards[playedCardsPlacekeeper] = new JButton(
