@@ -24,6 +24,15 @@ public class ServerTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.out.println("------~BEFORE LOGON~------");
+        testLogonPhase();
+        System.out.println("------~AFTER LOGON~------");
+        System.out.println("------~BEFORE GAME~------");
+        testGamePhase();
+        System.out.println("------~AFTER GAME~------");
+    }
+    
+    private static void testLogonPhase(){
         System.out.print("Test Server connection: ");
         Socket client;
         ObjectInputStream objectInput = null;
@@ -48,6 +57,8 @@ public class ServerTest {
         
         System.out.print("Test Many connections simultaneously: ");
         LinkedList<Socket> clients = new LinkedList<Socket>();
+        LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
+        LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
         int passed = 0;
         for(int i = 0; i < 20; i++){
             try {
@@ -56,10 +67,11 @@ public class ServerTest {
                 
             ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
             ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
+            clientsIn.add(objectInput2);
+            clientsOut.add(objectOutput2);
 
             String serverMsg = (String) objectInput2.readObject();
             if(serverMsg.equals("RD;")){
-                objectOutput2.writeObject("blergh");
                 passed ++;
             }
                 
@@ -85,7 +97,7 @@ public class ServerTest {
         "HAgame_name;","HSgame_name;","CPplayer_name1:player_name2:player_namen:message;",
         "CAgame_name:message;","CC;",""};
         
-        System.out.print("Anything except LO, MC or LI before login: \n");
+        System.out.print("Anything except LO, MC or LI before login Start \n");
         
             passed = 0;
             for(int i = 0; i < notExpected.length; i++){
@@ -115,9 +127,9 @@ public class ServerTest {
             
         
         if(passed == notExpected.length){
-            System.out.println("Pass.");
+            System.out.println("Anything except LO, MC or LI before login End: All Pass.");
         }else{
-            System.out.println("Fail ("+passed+"/"+notExpected.length+" passed).");
+            System.out.println("Anything except LO, MC or LI before login End: Fail ("+passed+"/"+notExpected.length+" passed).");
         }
         
         System.out.print("LO before login: ");
@@ -142,10 +154,133 @@ public class ServerTest {
             if(modeList.equals("MLLI;")){
                 System.out.println("Pass.");
             } else{
-                System.out.println("Fail, recieved \'" + modeList + "\' instead of \'ER102;\'");
+                System.out.println("Fail, recieved \'" + modeList + "\' instead of \'MLLI;\'");
             }
         }catch(Exception e){
             Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
+        }
+        
+        System.out.print("Test login of unique client: ");
+        try{
+            objectOutput.writeObject("LIusername:password;");
+            objectOutput.flush();
+            String response = (String) objectInput.readObject();
+            if(response.equals("LK;")){
+                System.out.println("Pass.");
+            }
+            else{
+                System.out.println("Fail, Recieved \'" + response + "\' instead of \'LK;\'");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        
+        System.out.print("Test login of non-Unique client: ");
+        try{
+            
+            clientsOut.get(0).writeObject("LIusername:password;");
+            clientsOut.get(0).flush();
+            String response = (String) objectInput.readObject();
+            if(response.equals("ER100;")){
+                System.out.println("Pass.");
+            }
+            else{
+                System.out.println("Fail, Recieved \'" + response + "\' instead of \'ER100;\'");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        System.out.print("Test login of many unique clients: ");
+        passed = 0;
+        try{
+                for(int i = 1; i < clients.size();i++){
+                clientsOut.get(i).writeObject("LIusername"+i+":password;");
+                clientsOut.get(i).flush();
+                String response = (String) clientsIn.get(i).readObject();
+                if(response.equals("ER100;")){
+                    passed ++;
+                }
+                else{
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        if(passed == 19){
+            System.out.println("Pass.");
+        }else{
+            System.out.println("Fail ("+passed+"/19 passed).");
+        }
+    }
+
+    private static void testGamePhase() {
+        //---~Setup for testing game phase.~---
+        Socket client;
+        ObjectInputStream objectInput = null;
+        ObjectOutputStream objectOutput = null;
+        try{
+            client = new Socket("localhost", 9119);
+
+            objectInput = new ObjectInputStream(client.getInputStream());
+            objectOutput = new ObjectOutputStream(client.getOutputStream());
+
+            String serverMsg = (String) objectInput.readObject();
+            if(serverMsg.equals("RD;")){
+            }
+            else{
+                System.out.println("Error.");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
+        }
+        
+        LinkedList<Socket> clients = new LinkedList<Socket>();
+        LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
+        LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
+        int passed = 0;
+        for(int i = 0; i < 20; i++){
+            try {
+                Socket client2 = new Socket("localhost", 9119);
+                clients.add(client2);
+                
+            ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
+            ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
+            clientsIn.add(objectInput2);
+            clientsOut.add(objectOutput2);
+
+            String serverMsg = (String) objectInput2.readObject();
+            if(serverMsg.equals("RD;")){
+            }else{
+                System.out.println("Error");
+            }
+                
+            } catch (UnknownHostException ex) {
+                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException e){
+                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
+            }
+        }
+        //------------~Setup End~-------------
+        System.out.print("Create a valid game:");
+        try{
+            objectOutput.writeObject("GSgame_name;");
+            objectOutput.flush();
+            String serverMsg = (String) objectInput.readObject();
+            if(serverMsg.equals("GK;")){
+                System.out.println("Pass");
+            }
+            else{
+                System.out.println("Fail, Recieved \'" + serverMsg + "\' instead of \'GK;\'");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            System.out.println("Error.");
         }
     }
 }
