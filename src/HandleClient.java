@@ -24,7 +24,7 @@ public class HandleClient extends Thread {
                                 String command = "";
                                 String[] arguments = {};
                                 if(message.length() >= 2){
-                                     command= message.substring(0, 2);
+                                    command= message.substring(0, 2);
                                     arguments = message.substring(2).replace(";", "")
                                                     .split(":");
                                 }

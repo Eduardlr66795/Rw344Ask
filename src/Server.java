@@ -381,7 +381,7 @@ public class Server {
 			clientList.put(o, username);
 			LinkedList<String> messages = new LinkedList<String>();
 			Messages.put(username, messages);
-			o.writeObject("LK");
+			o.writeObject("LK;");
 			o.flush();
                         success = true;
 			textAreaClient.append("New client: " + username);
@@ -403,7 +403,7 @@ public class Server {
 		o = (ObjectOutputStream) outputStreams.get(socket);
 		if (clientList.containsKey(o)) {
 			try {
-				o.writeObject("LM");
+				o.writeObject("LM;");
 				o.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -413,7 +413,7 @@ public class Server {
 			removeConnection(socket);
 		} else {
 			try {
-				o.writeObject("ER102");
+				o.writeObject("ER102;");
 				o.flush();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
