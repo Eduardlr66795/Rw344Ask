@@ -8,6 +8,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,7 +26,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class Server {
 	@SuppressWarnings("rawtypes")
-	private Hashtable outputStreams = new Hashtable();
+	private Hashtable<Socket,ObjectOutputStream> outputStreams = new Hashtable();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
 	private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>();
 	@SuppressWarnings("rawtypes")
@@ -148,7 +150,7 @@ public class Server {
 	@SuppressWarnings({ "unchecked", "unused" })
 	public void run() {
 		try {
-			ServerSocket server_Socket = new ServerSocket(9119);
+			ServerSocket server_Socket = new ServerSocket(3000);
 			textAreaServer.append("Server started. Listening on Port - # "
 					+ server_Socket.getLocalPort() + "\n");
 			while (true) {
@@ -333,7 +335,7 @@ public class Server {
 	public String getPlayerNameFromNumber(String gameName, int playerNumber) {
 		Game game = gamesList.get(gameName);
 
-		for (Entry<String, Integer> i : game.playerList.entrySet()) {
+		for (Entry<String, Integer> i : game.getPlayerList().entrySet()) {
 			if (i.getValue() == playerNumber) {
 				return i.getKey();
 			}
@@ -487,7 +489,7 @@ public class Server {
 				o.writeObject("GP" + player + ";");
 				o.flush();
 
-				game.playerList.put(player, 999);
+				game.getPlayerList().put(player, 999);
 
 				// No player to join at moment
 			} else {
@@ -531,10 +533,10 @@ public class Server {
 
 			} else {
 				int i = 0;
-				for (Enumeration e = game.playerList.keys(); e
+				for (Enumeration e = game.getPlayerList().keys(); e
 						.hasMoreElements();) {
 					String tmpplayer = (String) e.nextElement();
-					game.playerList.put(tmpplayer, i);
+					game.getPlayerList().put(tmpplayer, i);
 					i++;
 				}
 
@@ -572,8 +574,8 @@ public class Server {
 				return;
 			}
 			Game game = gamesList.get(gameName);
-			if (game.playerList.containsKey(playerName)) {
-				game.playerList.remove(playerName);
+			if (game.getPlayerList().containsKey(playerName)) {
+				game.getPlayerList().remove(playerName);
 				game.playerCount--;
 				for (Entry<ObjectOutputStream, String> i : clientList
 						.entrySet()) {
@@ -715,7 +717,7 @@ public class Server {
 			}
 			String message = "GC";
 			// TODO if all works then remove
-			if (game.playerList.isEmpty()) {
+			if (game.getPlayerList().isEmpty()) {
 				System.out
 						.println("DEFENSIVE CODE: Should never get here, started a game with 0 players?");
 				o.writeObject(message + ";");
@@ -723,7 +725,7 @@ public class Server {
 				return;
 			}
 			int count = 0;
-			for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
 				if (count != 0) {
 					message += ":";
 				}
@@ -760,13 +762,13 @@ public class Server {
 				o.flush();
 				return;
 			}
-			game.playerList.remove(getUsername(socket));
+			game.getPlayerList().remove(getUsername(socket));
 			game.playerCount--;
 			o.writeObject("QK;");
 			o.flush();
 
 			// Send quit message only to other players in game
-			for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
 				String playerName = (String) e.nextElement();
 				for (Entry<ObjectOutputStream, String> i : clientList
 						.entrySet()) {
@@ -816,7 +818,7 @@ public class Server {
 				for (int i = 0; i < 10; i++) {
 					if (!game.playerCards[game.playerList.get(playername)][i]
 							.equals("")) {
-						cards += game.playerCards[game.playerList
+						cards += game.playerCards[game.getPlayerList()
 								.get(playername)][i] + ":";
 					}
 				}
@@ -888,9 +890,9 @@ public class Server {
 					o.flush();
 					return;
 				}
-				game.playerBids[game.playerList.get(getUsername(socket))] = bid;
+				game.playerBids[game.getPlayerList().get(getUsername(socket))] = bid;
 
-				int nextplayernumber = (game.playerList
+				int nextplayernumber = (game.getPlayerList()
 						.get(getUsername(socket)) + 1) % game.playerCount;
 
 				game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
@@ -964,7 +966,7 @@ public class Server {
 				return;
 			}
 			String playerName = getUsername(socket);
-			int playerNumber = game.playerList.get(playerName);
+			int playerNumber = game.getPlayerList().get(playerName);
 
 			// Check if player has this card and find position of card
 			boolean hasCard = false;
@@ -1088,7 +1090,7 @@ public class Server {
 			if (game.cardsPlayedInTrick == game.playerCount) {
 				// Add winner to handsWon
 				String trickwinner = game.trickWinner.split(":")[0];
-				int trickwinnernumber = game.playerList.get(trickwinner);
+				int trickwinnernumber = game.getPlayerList().get(trickwinner);
 				game.handsWon[trickwinnernumber]++;
 				game.nextPlayerToPlay = trickwinner;
 
@@ -1147,7 +1149,7 @@ public class Server {
 				return;
 			}
 			String playerName = getUsername(socket);
-			int playerNumber = game.playerList.get(playerName);
+			int playerNumber = game.getPlayerList().get(playerName);
 
 			game.playAnotherRound[playerNumber] = true;
 
@@ -1195,15 +1197,15 @@ public class Server {
 			}
 			String message = "HO";
 			boolean firstitr = true;
-			for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
 				if (!firstitr) {
 					message += ":";
 				}
 				String playerName = (String) e.nextElement();
 				message += playerName;
-				message += ":" + game.handsWon[game.playerList.get(playerName)];
+				message += ":" + game.handsWon[game.getPlayerList().get(playerName)];
 				message += ":"
-						+ game.playerScores[game.playerList.get(playerName)];
+						+ game.playerScores[game.getPlayerList().get(playerName)];
 				firstitr = false;
 			}
 			o.writeObject(message + ";");
@@ -1260,7 +1262,7 @@ public class Server {
 				return;
 			}
 			// Send message only to other players in game
-			for (Enumeration e = game.playerList.keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
 				String playerName = (String) e.nextElement();
 				LinkedList link = (LinkedList) Messages.get(playerName);
 				link.addLast(getUsername(socket) + ":" + message);
@@ -1314,5 +1316,37 @@ public class Server {
 		} catch (Exception e) {
 			System.out.println("Exception in collectMessages " + e);
 		}
+    }
+    
+    
+    public void removeGameHostedBy(Socket socket) {
+        Collection games = gamesList.keySet();
+        Iterator<String> itr = games.iterator();
+        String temp = null;
+        while(itr.hasNext()){
+            temp = itr.next();
+            Game removing = gamesList.get(temp);
+            if(clientList.get(outputStreams.get(socket)).equals(removing.GetCreatorName())){
+                //kick all players in game temp.
+
+                for (Enumeration g = removing.getPlayerList().keys(); g.hasMoreElements();){
+                    String playerName = (String) g.nextElement();
+                            for (Entry<ObjectOutputStream, String> c : clientList
+                                            .entrySet()) {
+
+                                    if (c.getValue().equals(playerName)) {
+                                        ObjectOutputStream ob = c.getKey();
+                                            for (Entry<Socket, ObjectOutputStream> s : outputStreams.entrySet()) {
+                                                if (s.getValue().equals(ob)) {
+                                                    Socket client = s.getKey();
+                                                    kickPlayerFromGame(removing.gameName, playerName, client);
+                                                }
+                                            }
+                                    }
+                            }
+                }
+            gamesList.remove(temp);
+            }
+        }
     }
 }

@@ -161,6 +161,13 @@ public class Game extends Thread {
     public String GetCreatorName(){
         return creatorName;
     }
+
+    /**
+     * @return the playerList
+     */
+    public Hashtable <String, Integer> getPlayerList() {
+        return playerList;
+    }
 	
 
 }

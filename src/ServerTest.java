@@ -36,7 +36,7 @@ public class ServerTest {
         ObjectInputStream objectInput = null;
         ObjectOutputStream objectOutput = null;
         try{
-            client = new Socket("localhost", 9119);
+            client = new Socket("localhost", 3000);
 
             objectInput = new ObjectInputStream(client.getInputStream());
             objectOutput = new ObjectOutputStream(client.getOutputStream());
@@ -242,7 +242,7 @@ public class ServerTest {
         
         for(int i = 0; i < 20; i++){
             try {
-                Socket client2 = new Socket("localhost", 9119);
+                Socket client2 = new Socket("localhost", 3000);
                 clients.add(client2);
                 
             ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());

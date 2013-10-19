@@ -329,7 +329,7 @@ public class Client extends Thread implements ActionListener,
 
 		text_loginTextfieldName.setBounds(130, 133, 200, 25);
 		text_loginTextfieldPort = new JTextField();
-		text_loginTextfieldPort.setText("9119");
+		text_loginTextfieldPort.setText("3000");
 		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
 		text_loginTextfieldPort.setBounds(130, 163, 200, 25);
 
@@ -821,7 +821,7 @@ public class Client extends Thread implements ActionListener,
 
 	public void quit() {
 		try {
-			objectOutput.writeObject("GO;");
+			objectOutput.writeObject("GO;");// TODO: LOGOFF for LO?
 			objectOutput.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -877,9 +877,7 @@ public class Client extends Thread implements ActionListener,
 
 			objectInput = new ObjectInputStream(client.getInputStream());
 			objectOutput = new ObjectOutputStream(client.getOutputStream());
-
 			String serverMsg = (String) objectInput.readObject();
-
 			if (serverMsg.compareTo("RD;") == 0) {
 				System.out.println("RD;");
 				StringBuilder sb = new StringBuilder();
@@ -1464,80 +1462,102 @@ public class Client extends Thread implements ActionListener,
 						closeConnections();
 						System.out.println("Logoff Successful!");
 
-					} else if (command.equals("100")) {// Login unsuccessful,
-						// username already logged
-						// in
-						System.out
-								.println("Login unsuccessful, username already logged in");
+					} 
+                                        else if (command.equals("ER") && arguments[0].equals(142)) {
+                                            // Illegal
+                                                    if (arguments[0].equals("100")) {// Login unsuccessful,
+                                                            // username already logged
+                                                            // in
+                                                            System.out
+                                                                            .println("Login unsuccessful, username already logged in");
 
-					} else if (command.equals("101")) {// Login unsuccessful,
-						// incorrect
-						// username/password pair.
-						System.out
-								.println("Login unsuccessful, incorrect username/password pair.");
+                                                    } else if (arguments[0].equals("101")) {// Login unsuccessful,
+                                                            // incorrect
+                                                            // username/password pair.
+                                                            System.out
+                                                                            .println("Login unsuccessful, incorrect username/password pair.");
 
-					} else if (command.equals("102")) {// Logoff unsuccessful,
-														// not
-						// logged in.
-						System.out
-								.println("Logoff unsuccessful, not logged in.");
+                                                    } else if (arguments[0].equals("102")) {// Logoff unsuccessful,
+                                                                                                                            // not
+                                                            // logged in.
+                                                            System.out
+                                                                            .println("Logoff unsuccessful, not logged in.");
 
-					} else if (command.equals("110")) {// Not part of a game.
-						System.out.println("Not part of a game.");
+                                                    } else if (arguments[0].equals("110")) {// Not part of a game.
+                                                            System.out.println("Not part of a game.");
 
-					} else if (command.equals("120")) {// Game identifier
-														// already
-						// taken
-						System.out.println("Game identifier already taken");
+                                                    } else if (arguments[0].equals("120")) {// Game identifier
+                                                                                                                            // already
+                                                            // taken
+                                                            System.out.println("Game identifier already taken");
 
-					} else if (command.equals("130")) {// Game has too many
-														// players.
-						System.out.println("Game has too many players.");
+                                                    } else if (arguments[0].equals("130")) {// Game has too many
+                                                                                                                            // players.
+                                                            System.out.println("Game has too many players.");
 
-					} else if (command.equals("131")) {// Game has too few
-														// players.
-						System.out.println("Game has too few players.");
+                                                    } else if (arguments[0].equals("131")) {// Game has too few
+                                                                                                                            // players.
+                                                            System.out.println("Game has too few players.");
 
-					} else if (command.equals("132")) {// Kicked out player not
-														// part
-						// of game
-						System.out
-								.println("Kicked out player not part of game");
+                                                    } else if (arguments[0].equals("132")) {// Kicked out player not
+                                                                                                                            // part
+                                                            // of game
+                                                            System.out
+                                                                            .println("Kicked out player not part of game");
 
-					} else if (command.equals("133")) {// No such game
-														// identifier
-						System.out.println("No such game identifier");
+                                                    } else if (arguments[0].equals("133")) {// No such game
+                                                                                                                            // identifier
+                                                            System.out.println("No such game identifier");
 
-					} else if (command.equals("134")) {// Player has been kicked
-														// out
-						// of game.
-						System.out
-								.println("Player has been kicked out of game.");
+                                                    } else if (arguments[0].equals("134")) {// Player has been kicked
+                                                                                                                            // out
+                                                            // of game.
+                                                            System.out
+                                                                            .println("Player has been kicked out of game.");
 
-					} else if (command.equals("139")) {// Player in game has
-														// closed
-						// connection. Game
-						// abandoned.
-						System.out
-								.println("Player in game has closed connection. Game abandoned.");
+                                                    } else if (arguments[0].equals("139")) {// Player in game has
+                                                                                                                            // closed
+                                                            // connection. Game
+                                                            // abandoned.
+                                                            System.out
+                                                                            .println("Player in game has closed connection. Game abandoned.");
 
-					} else if (command.equals("140")) {// Illegal bid (bid is
-														// higher
-						// than the number of cards
-						// in this hand)
-						System.out
-								.println("Illegal bid (bid is higher than the number of cards in this hand)");
-						// Call enter bid
-						bidding = true;
-						enterBid(recentHB);
+                                                    } else if (arguments[0].equals("140")) {// Illegal bid (bid is
+                                                                                                                            // higher
+                                                            // than the number of cards
+                                                            // in this hand)
+                                                            System.out
+                                                                            .println("Illegal bid (bid is higher than the number of cards in this hand)");
+                                                            // Call enter bid
+                                                            bidding = true;
+                                                            enterBid(recentHB);
 
-					} else if (command.equals("141")) {// Illegal card (player
-														// does
-						// not have this card).
-						System.out
-								.println("Illegal card (player does not have this card).");
+                                                    } else if (arguments[0].equals("141")) {// Illegal card (player
+                                                                                                                            // does
+                                                            // not have this card).
+                                                            System.out
+                                                                            .println("Illegal card (player does not have this card).");
 
-					} else if (command.equals("ER") && arguments[0].equals(142)) {// Illegal
+                                                    }  else if (command.equals("150")) {// One or more of the
+                                                                                                                            // player
+                                                            // names does not exist,
+                                                            // chat not delivered to
+                                                            // those players
+                                                            System.out
+                                                                            .println("One or more of the player names does not exist, chat not delivered to those players");
+
+                                                    } else if (command.equals("900")) {// Bad message format
+                                                            System.out.println("Bad message format");
+
+                                                    } else if (command.equals("901")) {// Unexpected request
+                                                            System.out.println("Unexpected request");
+
+                                                    } else if (command.equals("910")) {// Something very bad but
+                                                            // unspecified has happened
+                                                            System.out
+                                                                            .println("Something very bad but unspecified has happened");
+
+                                                    }
 						// card
 						// (player
 						// must
@@ -1549,29 +1569,10 @@ public class Client extends Thread implements ActionListener,
 						// it
 						// has
 						// suitable
-						// cards)
-						System.out
-								.println("Illegal card (player must play the led suit because it has suitable cards)");
+//						// cards)
+//						System.out
+//								.println("Illegal card (player must play the led suit because it has suitable cards)");
 						// Played Wrong Card
-
-					} else if (command.equals("150")) {// One or more of the
-														// player
-						// names does not exist,
-						// chat not delivered to
-						// those players
-						System.out
-								.println("One or more of the player names does not exist, chat not delivered to those players");
-
-					} else if (command.equals("900")) {// Bad message format
-						System.out.println("Bad message format");
-
-					} else if (command.equals("901")) {// Unexpected request
-						System.out.println("Unexpected request");
-
-					} else if (command.equals("910")) {// Something very bad but
-						// unspecified has happened
-						System.out
-								.println("Something very bad but unspecified has happened");
 
 					} else if (line.charAt(0) == 'L' && line.charAt(1) == 'C') {
 						line = line.replaceFirst("L", "");
