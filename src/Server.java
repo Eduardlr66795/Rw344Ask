@@ -41,16 +41,27 @@ public class Server implements Runnable {
 	private JPanel panelServer;
 	private JPanel panelGame;
 	private JFrame frameMain;
+	private boolean listening = true;
+	private ServerSocket server_Socket; 
 	
-	public void stop(){
-		System.exit(0);
+	public void closeServer(){
+		frameMain.dispose();
+		listening = false;
+		try {
+			server_Socket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
-	
+	public Server(){
+		buildGui();
+	}
 
 	public static void main(String[] args) throws Exception {
 		Server server = new Server();
-		server.run();
+		new Thread(server).start();
 	}
 
 	/**
@@ -154,12 +165,11 @@ public class Server implements Runnable {
 	 */
 	@SuppressWarnings({ "unchecked", "unused" })
 	public void run() {
-		buildGui();
 		try {
-			ServerSocket server_Socket = new ServerSocket(3000);
+			server_Socket = new ServerSocket(3000);
 			textAreaServer.append("Server started. Listening on Port - # "
 					+ server_Socket.getLocalPort() + "\n");
-			while (true) {
+			while (listening) {
 				Socket server = server_Socket.accept();
 				ObjectOutputStream output = new ObjectOutputStream(
 						server.getOutputStream());
@@ -1317,7 +1327,7 @@ public class Server implements Runnable {
 			o.writeObject("ER900;");
 			o.flush();
 		} catch (Exception e) {
-			System.out.println("Exception in collectMessages " + e);
+			System.out.println("Exception in badMessageFomat " + e);
 		}
 	}
 
@@ -1327,7 +1337,7 @@ public class Server implements Runnable {
 			o.writeObject("ER901;");
 			o.flush();
 		} catch (Exception e) {
-			System.out.println("Exception in collectMessages " + e);
+			System.out.println("Exception in unExpectedCommand " + e);
 		}
     }
     

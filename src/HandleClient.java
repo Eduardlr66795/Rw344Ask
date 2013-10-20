@@ -37,7 +37,7 @@ public class HandleClient extends Thread {
 				}
                                 if(loggedIn){
                                     if (command.equals("GS")) {
-					server.createGame(arguments[0], socket);
+                                    		server.createGame(arguments[0], socket);
 
                                     } else if (command.equals("GN")) {
                                             server.addPlayerToGame(arguments[0], socket);
