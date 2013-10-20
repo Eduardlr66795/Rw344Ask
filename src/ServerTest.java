@@ -4,7 +4,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Reader;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -12,10 +11,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.Assert;
-import junit.framework.Test;
 import junit.framework.TestCase;
-import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 /*
@@ -27,8 +23,8 @@ import org.junit.runners.Parameterized;
  *
  * @author MeTaBee
  */
-@RunWith(Parameterized.class)
-public class ServerTest extends junit.framework.TestCase {
+
+public class ServerTest extends TestCase {
     static Socket client;
     static ObjectInputStream objectInput = null;
     static ObjectOutputStream objectOutput = null;
@@ -39,16 +35,10 @@ public class ServerTest extends junit.framework.TestCase {
     static String input = "";
         
     
-    public ServerTest(String input) {
-        
+    public ServerTest(String name) {
+        super(name);
   }
-    
-    @Parameterized.Parameters
-   public static Collection primeNumbers() throws FileNotFoundException, IOException {
-        String [] a = (new BufferedReader(new FileReader("InvalidInput1"))).readLine().split(",");
-      return Arrays.asList(a);
-   }
-    
+
     private static void testOneConnection() throws Exception{
        
             String serverMsg = (String) objectInput.readObject();
@@ -184,15 +174,7 @@ public class ServerTest extends junit.framework.TestCase {
             assertTrue(passed+"/20 passed.", passed == 20);
     }
     
-    public static void testInvalidInputsBeforeLogin(String input) throws Exception{
-        System.out.print("Anything except LO, MC or LI before login Start \n");
-        
-                objectOutput.writeObject(input);
-                objectOutput.flush();
-                
-                String error = (String) objectInput.readObject();
-                assertTrue("recieved \'" + error + "\' instead of \'ER901;\' @ "+ input, error.equals("ER901;"));
-    }
+    
 
     private static void testGamePhase() {
         //---~Setup for testing game phase.~---
