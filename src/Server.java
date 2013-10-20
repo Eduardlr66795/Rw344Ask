@@ -24,7 +24,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  * @author Team //Ask
  * 
  */
-public class Server {
+public class Server implements Runnable {
 	@SuppressWarnings("rawtypes")
 	private Hashtable<Socket,ObjectOutputStream> outputStreams = new Hashtable();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
@@ -41,10 +41,15 @@ public class Server {
 	private JPanel panelServer;
 	private JPanel panelGame;
 	private JFrame frameMain;
+	
+	public void stop(){
+		System.exit(0);
+	}
+	
+	
 
 	public static void main(String[] args) throws Exception {
 		Server server = new Server();
-		server.buildGui();
 		server.run();
 	}
 
@@ -149,6 +154,7 @@ public class Server {
 	 */
 	@SuppressWarnings({ "unchecked", "unused" })
 	public void run() {
+		buildGui();
 		try {
 			ServerSocket server_Socket = new ServerSocket(3000);
 			textAreaServer.append("Server started. Listening on Port - # "

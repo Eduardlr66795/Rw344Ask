@@ -1,23 +1,14 @@
 import static org.junit.Assert.*;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runners.Parameterized;
 
 /*
  * To change this template, choose Tools | Templates
@@ -30,35 +21,37 @@ import org.junit.runners.Parameterized;
  */
 
 public class ServerTest {
-    static Socket client;
-    static ObjectInputStream objectInput = null;
-    static ObjectOutputStream objectOutput = null;
-    static LinkedList<Socket> clients = new LinkedList<Socket>();
-    static LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
-    static LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
-    static int passed = 0;
-    static String input = "";
-        
+    Socket client;
+    ObjectInputStream objectInput = null;
+    ObjectOutputStream objectOutput = null;
+    LinkedList<Socket> clients = new LinkedList<Socket>();
+    LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
+    LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
+    int passed = 0;
+    String input = "";
+    Server server;
+    Thread serverThread;
+    
     
     public ServerTest() {
     }
     
-    
-
     @Before
     public void setUp() throws Exception {
-            client = new Socket("localhost", 3000);
-            objectInput = new ObjectInputStream(client.getInputStream());
-            objectOutput = new ObjectOutputStream(client.getOutputStream());   
-            
-            for(int i = 0; i < 20; i++){
-                Socket client2 = new Socket("localhost", 3000);
-                clients.add(client2);
-                ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
-                ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
-                clientsIn.add(objectInput2);
-                clientsOut.add(objectOutput2);            
-            }
+    	server = new Server();
+    	serverThread = new Thread(server);
+        client = new Socket("localhost", 3000);
+        objectInput = new ObjectInputStream(client.getInputStream());
+        objectOutput = new ObjectOutputStream(client.getOutputStream());   
+        
+        for(int i = 0; i < 20; i++){
+            Socket client2 = new Socket("localhost", 3000);
+            clients.add(client2);
+            ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
+            ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
+            clientsIn.add(objectInput2);
+            clientsOut.add(objectOutput2);            
+        }
     }
 
     @After
@@ -67,8 +60,11 @@ public class ServerTest {
         int tir = clients.size();
         for(int i = tir-1; i > 0; i--){
                     clients.get(i).close();
-                    clients.remove(i);
         }
+        clients.removeAll(clients);
+        clientsIn.removeAll(clientsIn);
+        clientsOut.removeAll(clientsOut);
+        serverThread.stop();
     }
     
     @Test
@@ -77,90 +73,11 @@ public class ServerTest {
             String serverMsg = (String) objectInput.readObject();
             assertTrue("Fail, ", serverMsg.equals("RD;"));
         
-        /////....................................................................................................
-        
-     /*   System.out.print("LO before login: ");
-        try{
-            objectOutput.writeObject("LO;");
-            objectOutput.flush();
-            String error = (String) objectInput.readObject();
-            if(error.equals("ER102;")){
-                System.out.println("Pass.");
-            } else{
-                System.out.println("Fail, recieved \'" + error + "\' instead of \'ER102;\'");
-            }
-        }catch(Exception e){
-            Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
-        }
-        
-        System.out.print("MC before login: ");
-        try{
-            objectOutput.writeObject("MC;");
-            objectOutput.flush();
-            String modeList = (String) objectInput.readObject();
-            if(modeList.equals("MLLI;")){
-                System.out.println("Pass.");
-            } else{
-                System.out.println("Fail, recieved \'" + modeList + "\' instead of \'MLLI;\'");
-            }
-        }catch(Exception e){
-            Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
-        }
-        
-        System.out.print("Test login of unique client (NOTE: This client has been sent a LO command earlier, I suspect it causes failiure): ");
-        try{
-            objectOutput.writeObject("LIusername:password;");
-            objectOutput.flush();
-            String response = (String) objectInput.readObject();
-            if(response.equals("LK;")){
-                System.out.println("Pass.");
-            }
-            else{
-                System.out.println("Fail, Recieved \'" + response + "\' instead of \'LK;\'");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
-        
-        System.out.print("Test login of non-Unique client: ");
-        try{
-            
-            clientsOut.get(0).writeObject("LIusername:password;");
-            clientsOut.get(0).flush();
-            String response = (String) objectInput.readObject();
-            assertTrue("Fail, Recieved \'" + response + "\' instead of \'ER100;\'", response.equals("ER100;"));
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
-        System.out.print("Test login of many unique clients: ");
-        passed = 0;
-        try{
-                for(int i = 1; i < clients.size();i++){
-                clientsOut.get(i).writeObject("LIusername"+i+":password;");
-                clientsOut.get(i).flush();
-                String response = (String) clientsIn.get(i).readObject();
-                assertTrue("Fail, Recieved \'" + response + "\' instead of \'ER100;\'", response.equals("LK;"));
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
-        if(passed == 19){
-            System.out.println("Pass.");
-        }else{
-            System.out.println("Fail ("+passed+"/19 passed).");
-        }
-        
-        //----~Ending steps~----*/
-        
     }
     
     @Test
     public void testManyConnections() throws Exception{
         
-        System.out.print("Test Many connections simultaneously: ");
         
         for(int i = 0; i < 20; i++){
 
@@ -180,140 +97,173 @@ public class ServerTest {
             assertTrue(passed+"/20 passed.", passed == 20);
     }
     
+    @Test
+    public void testLOBeforeLogin() throws IOException, ClassNotFoundException{
+		beforeLISetupSteps();
+            objectOutput.writeObject("LO;");
+            objectOutput.flush();
+            String error = (String) objectInput.readObject();
+            assertTrue("recieved \'" + error + "\' instead of \'ER102;\'",error.equals("ER102;"));
+    }
+    
+    private void beforeLISetupSteps() throws IOException, ClassNotFoundException {
+
+    	String serverMsg = (String) objectInput.readObject();
+    	for(int i = 0; i < clients.size(); i++){
+    		serverMsg = (String) clientsIn.get(i).readObject();
+    	}
+	}
+
+	@Test
+    public void testMCBeforeLogin() throws IOException, ClassNotFoundException{
+			beforeLISetupSteps();
+            objectOutput.writeObject("MC;");
+            objectOutput.flush();
+            String modeList = (String) objectInput.readObject();
+            assertTrue("recieved \'" + modeList + "\' instead of \'MLLI;\'",modeList.equals("MLLI;"));
+    }
     
     @Test
-    public void testGamePhase() {
-        //---~Setup for testing game phase.~---
-        Socket client;
-        ObjectInputStream objectInput = null;
-        ObjectOutputStream objectOutput = null;
-        try{
-            client = new Socket("localhost", 3000);
-
-            objectInput = new ObjectInputStream(client.getInputStream());
-            objectOutput = new ObjectOutputStream(client.getOutputStream());
-
-            String serverMsg = (String) objectInput.readObject();
-            if(serverMsg.equals("RD;")){
-            }
-            else{
-                System.out.println("Error recieved "+serverMsg+" instead of RD;");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
-        
-        LinkedList<Socket> clients = new LinkedList<Socket>();
-        LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
-        LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
-        
-        for(int i = 0; i < 20; i++){
-            try {
-                Socket client2 = new Socket("localhost", 3000);
-                clients.add(client2);
-                
-            ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
-            ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
-            clientsIn.add(objectInput2);
-            clientsOut.add(objectOutput2);
-
-            String serverMsg = (String) objectInput2.readObject();
-            if(serverMsg.equals("RD;")){
-            }else{
-                System.out.println("Error recieved "+serverMsg+" instead of RD;");
-            }
-                
-            } catch (UnknownHostException ex) {
-                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ClassNotFoundException e){
-                Logger.getLogger(ServerTest.class.getName()).log(Level.SEVERE, null, e);
-            }
-        }
-        try{
-            objectOutput.writeObject("LIGamer:password;");
+    public void testLogonOfUniqueClient() throws IOException, ClassNotFoundException{
+    	beforeLISetupSteps();
+            objectOutput.writeObject("LIusername:password;");
             objectOutput.flush();
             String response = (String) objectInput.readObject();
-            if(response.equals("LK;")){// TODO: Still need to put in the ':' once corrected in server. 
-            }
-            else{
-                
-                System.out.println("Error, recieved "+response);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
-        try{
+            assertTrue("Recieved \'" + response + "\' instead of \'LK;\'",(response.equals("LK;")));
+    }
+    
+    @Test
+    public void testLogonOfNonUniqueClientName() throws IOException, ClassNotFoundException{
+    	beforeLISetupSteps();
+    		clientsOut.get(1).writeObject("LIusername:password;");
+    		clientsOut.get(1).flush();
+            clientsOut.get(0).writeObject("LIusername:password;");
+            clientsOut.get(0).flush();
+            String response = (String) clientsIn.get(0).readObject();
+            assertTrue("Recieved \'" + response + "\' instead of \'ER100;\'", response.equals("ER100;"));
+    }
+    
+    @Test
+    public void testManyUniqueLogins() throws IOException, ClassNotFoundException{
+    	beforeLISetupSteps();
+        passed = 0;
                 for(int i = 0; i < clients.size();i++){
-                clientsOut.get(i).writeObject("LIGamer"+i+":password;");
+                clientsOut.get(i).writeObject("LIusername"+i+":password;");
                 clientsOut.get(i).flush();
                 String response = (String) clientsIn.get(i).readObject();
                 if(response.equals("LK;")){
-                    
-                }
-                else{
-                    
-                    System.out.println("Error recieved "+response+" instead of LK;");
+                	passed ++;
                 }
             }
-        }catch(Exception e){
-            e.printStackTrace();
-            
-            System.out.println("Error.");
+        assertTrue(passed + "/" + clients.size() + "Passed the test.",passed == clients.size());
+    }
+    
+    public void testAfterLoginPhaseSetup() throws IOException, ClassNotFoundException{
+    	beforeLISetupSteps();
+        objectOutput.writeObject("LIGamerminus1:password;");
+        objectOutput.flush();
+        String response = (String) objectInput.readObject();
+        if(response.equals("LK;")){
         }
-        System.out.println("Setup complete");
-        //------------~Setup End~-------------
-        System.out.print("Create a valid game:");
-        try{
+        else{
+            
+            System.out.println("Error, recieved "+response);
+        }
+    
+        for(int i = 0; i < clients.size();i++){
+            clientsOut.get(i).writeObject("LIGamer"+i+":password;");
+            clientsOut.get(i).flush();
+            response = (String) clientsIn.get(i).readObject();
+            if(response.equals("LK;")){
+                
+            }
+            else{
+                
+                System.out.println("Error recieved " + response + " instead of LK; @ " + i);
+            }
+        }
+    }
+    
+    public void testAfterLoginBreakdown() throws IOException, ClassNotFoundException{
+    	testAfterLoginPhaseSetup();
+    	objectOutput.writeObject("LO;");
+    	String serverMsg = (String) objectInput.readObject();
+    	for(int i = 0; i < clients.size(); i++){
+	    	clientsOut.get(i).writeObject("LO;");
+	    	serverMsg = (String) clientsIn.get(i).readObject();
+    	}
+    }
+    
+    @Test
+    public void testSingleLogoff() throws IOException, ClassNotFoundException{
+    	testAfterLoginPhaseSetup();
+    	objectOutput.writeObject("LO;");
+    	String serverMsg = (String) objectInput.readObject();
+    	assertTrue("Recieved \'" + serverMsg + "\' instead of \'LO;\'",serverMsg.equals("LM;"));
+    }
+    
+    @Test
+    public void testManyLogoff() throws IOException, ClassNotFoundException{
+    	testAfterLoginPhaseSetup();
+    	
+    	for(int i = 0; i < clients.size(); i++){
+	    	clientsOut.get(i).writeObject("LO;");
+	    	String serverMsg = (String) clientsIn.get(i).readObject();
+	    	if(serverMsg.equals("LM;")){
+	    		passed ++;
+	    	}else{
+	    		System.out.println(serverMsg + " Recieved instead of \'LM;\'");
+	    	}
+    	}
+    	assertTrue(passed + "/"+ clients.size()+" passed the test",passed == clients.size());
+    }
+    
+    @Test
+    public void testValidGame() throws IOException, ClassNotFoundException{
+    	testAfterLoginPhaseSetup();
             objectOutput.writeObject("GSgame1;");
             objectOutput.flush();
             String serverMsg = (String) objectInput.readObject();
+            assertTrue("Recieved \'" + serverMsg + "\' instead of \'GK;\'",serverMsg.equals("GK;"));
+        testAfterLoginBreakdown();
+    }
+    
+    @Test
+    public void testInvalidGame() throws IOException, ClassNotFoundException{
+    	testAfterLoginPhaseSetup();
+         clientsOut.get(1).writeObject("GSgame1;");
+         clientsOut.get(1).flush();
+         String serverMsg = (String) clientsIn.get(1).readObject();
+         clientsOut.get(0).writeObject("GSgame1;");
+         clientsOut.get(0).flush();
+         serverMsg = (String) clientsIn.get(0).readObject(); 
+         assertTrue("Recieved \'" + serverMsg + "\' instead of \'ER120;\'",serverMsg.equals("ER120;"));
+         testAfterLoginBreakdown();
+     
+    }
+    
+    @Test
+    public void testManyValidGames() throws IOException, ClassNotFoundException{
+    	testAfterLoginPhaseSetup();
+    	passed = 0;
+        for(int i = 0; i < clientsOut.size(); i++){
+            clientsOut.get(i).writeObject("GSgame1"+i);
+            clientsOut.get(i).flush();
+            String serverMsg = (String) clientsIn.get(i).readObject();
             if(serverMsg.equals("GK;")){
-                System.out.println("Pass");
-            }
-            else{
-                System.out.println("Fail, Recieved \'" + serverMsg + "\' instead of \'GK;\'");
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
-        System.out.print("Create a invalid game:");
-        try{
-            clientsOut.get(0).writeObject("GSgame1;");
-            clientsOut.get(0).flush();
-            String serverMsg = (String) clientsIn.get(0).readObject();
-            if(serverMsg.equals("ER120;")){
-                System.out.println("Pass");
+               passed ++;
             }
             else{
                 System.out.println("Fail, Recieved \'" + serverMsg + "\' instead of \'ER120;\'");
             }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
         }
-        
-        System.out.println("Create many valid games");
-         try{
-            for(int i = 1; i < clientsOut.size(); i++){
-                clientsOut.get(i).writeObject("GSgame1"+i);
-                clientsOut.get(i).flush();
-                String serverMsg = (String) clientsIn.get(i).readObject();
-                if(serverMsg.equals("GK;")){
-                    System.out.println("Pass");
-                }
-                else{
-                    System.out.println("Fail, Recieved \'" + serverMsg + "\' instead of \'ER120;\'");
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-            System.out.println("Error.");
-        }
+        assertTrue(passed + "/" + clientsOut.size() + " passed the test" ,passed == clientsOut.size());
+        testAfterLoginBreakdown();
+    }
+    
+
+    public void testGamePhaseSetup() throws IOException, ClassNotFoundException {
+    testAfterLoginPhaseSetup();	
         
     }
 }

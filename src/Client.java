@@ -1955,7 +1955,9 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+	public void quitTheClient(){
+		System.exit(0);
+	}
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == button_login) {
 			if (text_loginTextfieldName.getText().equals("")) {
