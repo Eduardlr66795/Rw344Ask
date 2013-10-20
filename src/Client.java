@@ -615,8 +615,8 @@ public class Client extends Thread implements ActionListener,
 		JScrollPane sp3 = new JScrollPane(jlist_gameMain = new JList());
 		sp3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sp3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		jlist_gameMain.setListData(arr3);
-		jlist_gameMain.setVisibleRowCount(4);
+		//jlist_gameMain.setListData(arr3);
+		//jlist_gameMain.setVisibleRowCount(4);
 
 		// jlist_gameMain.setBackground(Color.blue);
 		jlist_gameMain.addListSelectionListener(this);
@@ -673,6 +673,7 @@ public class Client extends Thread implements ActionListener,
 		frame_main.setVisible(true);
 
 		bol_mainFrameActive = true;
+		tempLastGU[0]="";
 	}
 
 	public void newGameGui(String gName) {
@@ -1040,12 +1041,17 @@ public class Client extends Thread implements ActionListener,
 						boolean pass = true;
 						for (int i = 0; i < arguments.length; i++) {
 							if (!arguments[i].equals(tempLastGU[i])) {
+								System.out.println("false");
+								System.out.println(arguments[i]);
+								System.out.println(tempLastGU[i]);
 								pass = false;
 							}
 						}
 						if (!pass) {// List Was Changed!
+							System.out.println("Changing");
+							System.out.println("Main frame Active? "+bol_mainFrameActive);
 							for (int i = 0; i < arguments.length; i++) {
-								tempLastGU[i].equals(arguments[i]);
+								tempLastGU[i]=(arguments[i]);
 							}
 							if (!bol_mainFrameActive) {
 								// update jlist_contactsOutsideMain
@@ -1062,7 +1068,7 @@ public class Client extends Thread implements ActionListener,
 						// Thread to keep asking for active games every 2 seconds
 						new Thread(new Runnable() {
 							public void run() {
-								// need to turn off gameNotStated before the
+								// need to turn off gameNotStated before thed
 								// game starts.
 
 								try {
