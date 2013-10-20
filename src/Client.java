@@ -142,7 +142,7 @@ public class Client extends Thread implements ActionListener,
 	public String tempKickPlayer;
 	public String updateTempGameName;
 	public String recentHB;
-
+	JLabel winnerOfRound=new JLabel();
 	public JFrame frame_roundWinner;
 	public JPanel panel_roundWinner;
 	public JButton button_closeWinner;
@@ -1828,6 +1828,12 @@ public class Client extends Thread implements ActionListener,
 			e.printStackTrace();
 		}
 		roundWinnerFrame = false;
+		
+		
+		winnerOfRound.setSize(200, 30);
+		winnerOfRound.setLocation(130, 0);
+		int tempRoundWinnerScore=0;
+		int winners=0;
 
 		frame_roundWinner.setSize(400, 170);
 		frame_roundWinner.setLocation(frame_main.getX(), frame_main.getY());
@@ -1854,7 +1860,7 @@ public class Client extends Thread implements ActionListener,
 		text_roundWinner[0][2].setSize(150, 30);
 		text_roundWinner[0][2].setLocation(140, 10);
 		panel_roundWinner.add(text_roundWinner[0][2]);
-
+		
 		text_roundWinner[0][3].setText("Round Score");
 		text_roundWinner[0][3].setSize(150, 30);
 		text_roundWinner[0][3].setLocation(210, 10);
@@ -1916,15 +1922,36 @@ public class Client extends Thread implements ActionListener,
 			text_roundWinner[i][4].setSize(100, 30);
 			text_roundWinner[i][4].setLocation(300, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][4]);
+			
+			if((Integer.parseInt(info[1]) - Integer.parseInt(info[0]))>tempRoundWinnerScore){
+				//new highest score;
+				tempRoundWinnerScore=Integer.parseInt(info[1]) - Integer.parseInt(info[0]);
+				winnerOfRound.setText("Winner of round is "+names[i - 1]);
+				frame_roundWinner.repaint();
+				winners=1;
+				
+			}else if(((Integer.parseInt(info[1]) - Integer.parseInt(info[0]))==tempRoundWinnerScore)&&(tempRoundWinnerScore!=0)){
+				//Check if another player got the same score, then there is no hand winner
+				System.out.println("Two players have the same score");
+				winners++;
+			}
 		}
+		if(winners>1){
+			System.out.println("No winner for this hand");
+			winnerOfRound.setText("No winner for this hand");
+			frame_roundWinner.repaint();
+			
+		}
+		
 
 		button_closeWinner.setSize(140, 40);
 		button_closeWinner.setLocation(130, 120);
 		button_closeWinner.setText("Close");
 		button_closeWinner.addActionListener(this);
-
+		
+		panel_roundWinner.add(winnerOfRound);
 		panel_roundWinner.add(button_closeWinner);
-		frame_roundWinner.add(panel_roundWinner);
+		frame_roundWinner.add(panel_roundWinner);	
 		frame_roundWinner.setVisible(true);
 		frame_roundWinner.setAlwaysOnTop(true);
 
