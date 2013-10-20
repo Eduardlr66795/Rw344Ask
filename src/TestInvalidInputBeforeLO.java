@@ -41,7 +41,8 @@ public class TestInvalidInputBeforeLO {
     @Parameterized.Parameters
    public static Collection messageInputs() throws FileNotFoundException, IOException {
         String[] a = (new BufferedReader(new FileReader("./src/InvalidInput1"))).readLine().split(",");
-        String [][] b;
+        String [][] b = new String[1][];
+        b[0] = a;
         return Arrays.asList(b);
    }
 
