@@ -17,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 /*
  * To change this template, choose Tools | Templates
@@ -33,16 +34,16 @@ public class TestInvalidInputBeforeLO {
     Socket client;
     ObjectInputStream objectInput = null;
     ObjectOutputStream objectOutput = null;
-    LinkedList<Socket> clients = new LinkedList<Socket>();
-    LinkedList<ObjectInputStream> clientsIn = new LinkedList<ObjectInputStream>();
-    LinkedList<ObjectOutputStream> clientsOut = new LinkedList<ObjectOutputStream>();
     int passed = 0;
     
-    @Parameterized.Parameters
+    @Parameters
    public static Collection messageInputs() throws FileNotFoundException, IOException {
         String[] a = (new BufferedReader(new FileReader("./src/InvalidInput1"))).readLine().split(",");
-        String [][] b = new String[1][];
-        b[0] = a;
+        String [][] b;
+        b = new String [a.length][1];
+        for(int i = 0; i < a.length; i++){
+        	b[i][0] = a[i];
+        }
         return Arrays.asList(b);
    }
 
@@ -54,26 +55,13 @@ public class TestInvalidInputBeforeLO {
          public void setUp() throws Exception {
             client = new Socket("localhost", 3000);
             objectInput = new ObjectInputStream(client.getInputStream());
-            objectOutput = new ObjectOutputStream(client.getOutputStream());   
-            
-            for(int i = 0; i < 20; i++){
-                Socket client2 = new Socket("localhost", 3000);
-                clients.add(client2);
-                ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
-                ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
-                clientsIn.add(objectInput2);
-                clientsOut.add(objectOutput2);            
-            }
+            objectOutput = new ObjectOutputStream(client.getOutputStream());
+            String error = (String) objectInput.readObject();
     }
 
     @After
         public void tearDown() throws Exception {
         client.close();
-        int tir = clients.size();
-        for(int i = tir-1; i > 0; i--){
-                    clients.get(i).close();
-                    clients.remove(i);
-        }
     }
     
     @Test
@@ -86,6 +74,4 @@ public class TestInvalidInputBeforeLO {
         assertTrue("recieved \'" + error + "\' instead of \'ER901;\' @ "+ input, error.equals("ER901;"));
         
     }
-    
-    
 }

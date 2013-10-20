@@ -1,3 +1,5 @@
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -11,7 +13,10 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import junit.framework.TestCase;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.runners.Parameterized;
 
 /*
@@ -24,7 +29,7 @@ import org.junit.runners.Parameterized;
  * @author MeTaBee
  */
 
-public class ServerTest extends TestCase {
+public class ServerTest {
     static Socket client;
     static ObjectInputStream objectInput = null;
     static ObjectOutputStream objectOutput = null;
@@ -35,11 +40,39 @@ public class ServerTest extends TestCase {
     static String input = "";
         
     
-    public ServerTest(String name) {
-        super(name);
-  }
+    public ServerTest() {
+    }
+    
+    
 
-    private static void testOneConnection() throws Exception{
+    @Before
+    public void setUp() throws Exception {
+            client = new Socket("localhost", 3000);
+            objectInput = new ObjectInputStream(client.getInputStream());
+            objectOutput = new ObjectOutputStream(client.getOutputStream());   
+            
+            for(int i = 0; i < 20; i++){
+                Socket client2 = new Socket("localhost", 3000);
+                clients.add(client2);
+                ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
+                ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
+                clientsIn.add(objectInput2);
+                clientsOut.add(objectOutput2);            
+            }
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        client.close();
+        int tir = clients.size();
+        for(int i = tir-1; i > 0; i--){
+                    clients.get(i).close();
+                    clients.remove(i);
+        }
+    }
+    
+    @Test
+    public void testOneConnection() throws Exception{
        
             String serverMsg = (String) objectInput.readObject();
             assertTrue("Fail, ", serverMsg.equals("RD;"));
@@ -123,36 +156,9 @@ public class ServerTest extends TestCase {
         //----~Ending steps~----*/
         
     }
-
-    @Override
-    protected void setUp() throws Exception {
-            client = new Socket("localhost", 3000);
-            objectInput = new ObjectInputStream(client.getInputStream());
-            objectOutput = new ObjectOutputStream(client.getOutputStream());   
-            
-            for(int i = 0; i < 20; i++){
-                Socket client2 = new Socket("localhost", 3000);
-                clients.add(client2);
-                ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
-                ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
-                clientsIn.add(objectInput2);
-                clientsOut.add(objectOutput2);            
-            }
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
-        client.close();
-        int tir = clients.size();
-        for(int i = tir-1; i > 0; i--){
-                    clients.get(i).close();
-                    clients.remove(i);
-        }
-    }
     
-    
-    private static void testManyConnections() throws Exception{
+    @Test
+    public void testManyConnections() throws Exception{
         
         System.out.print("Test Many connections simultaneously: ");
         
@@ -175,8 +181,8 @@ public class ServerTest extends TestCase {
     }
     
     
-
-    private static void testGamePhase() {
+    @Test
+    public void testGamePhase() {
         //---~Setup for testing game phase.~---
         Socket client;
         ObjectInputStream objectInput = null;

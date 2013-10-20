@@ -575,16 +575,21 @@ public class Server {
 				o.flush();
 				return;
 			}
+			if(clientList.containsKey(o)){
+				
+			}
 			Game game = gamesList.get(gameName);
 			if (game.getPlayerList().containsKey(playerName)) {
 				game.getPlayerList().remove(playerName);
 				game.playerCount--;
-				for (Entry<ObjectOutputStream, String> i : clientList
-						.entrySet()) {
-					if (i.getValue().equals(playerName)) {
-						ObjectOutputStream o2 = i.getKey();
-						o2.writeObject("ER134;");
-						o2.flush();
+				synchronized(clientList){
+					for (Entry<ObjectOutputStream, String> i : clientList
+							.entrySet()) {
+						if (i.getValue().equals(playerName)) {
+							ObjectOutputStream o2 = i.getKey();
+							o2.writeObject("ER134;");
+							o2.flush();
+						}
 					}
 				}
 				o.writeObject("GQ;");
@@ -1322,25 +1327,28 @@ public class Server {
     
     
     public void removeGamesHostedBy(Socket socket) {
-        Collection games = gamesList.keySet();
+        Collection<String> games = gamesList.keySet();
         Iterator<String> itr = games.iterator();
         String temp = null;
         while(itr.hasNext()){
-            temp = itr.next();
+        	synchronized(itr){
+        		temp = itr.next();
+        	}
             Game removing = gamesList.get(temp);
             if(clientList.get(outputStreams.get(socket)).equals(removing.GetCreatorName())){
                 //kick all players in game temp.
 
                 for (Enumeration g = removing.getPlayerList().keys(); g.hasMoreElements();){
                     String playerName = (String) g.nextElement();
+                    synchronized(clientList){
                             for (Entry<ObjectOutputStream, String> c : clientList
                                             .entrySet()) {
 
                                     if (c.getValue().equals(playerName)) {
-                                        ObjectOutputStream ob = c.getKey();
                                         kickPlayerFromGame(removing.gameName, playerName, socket);
                                     }
                             }
+                    }
                 }
              synchronized (gamesList) {
                  gamesList.remove(temp);
