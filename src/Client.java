@@ -489,9 +489,7 @@ public class Client extends Thread implements ActionListener,
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
-
+		}		
 	}
 
 	// Protocol
@@ -642,7 +640,7 @@ public class Client extends Thread implements ActionListener,
 		button_listPlayers.addActionListener(this);
 		frame_main.add(button_listPlayers);
 
-		button_listGames = new JButton("List Games");
+		button_listGames = new JButton("Join Selected Game");
 		button_listGames.setBounds(820, 400, 160, 25);
 		// button_listGames.setBounds(820, 300, 160, 25);
 		button_listGames.addActionListener(this);
@@ -655,19 +653,19 @@ public class Client extends Thread implements ActionListener,
 		frame_main.add(button_history);
 
 		button_logoff = new JButton("Log Off");
-		button_logoff.setBounds(820, 440, 160, 25);
+		button_logoff.setBounds(820, 460, 160, 25);
 		// button_logoff.setBounds(820, 340, 160, 25);
 		button_logoff.addActionListener(this);
 		frame_main.add(button_logoff);
 
 		button_createGame = new JButton("Create Game");
-		button_createGame.setBounds(820, 460, 160, 25);
+		button_createGame.setBounds(820, 440, 160, 25);
 		// button_createGame.setBounds(820, 360, 160, 25);
 		button_createGame.addActionListener(this);
 		frame_main.add(button_createGame);
 
-		tabs.setLocation(3, 8);
-		tabs.setSize(990, 350);
+		tabs.setLocation(3, 5);
+		tabs.setSize(807, 320);
 		frame_main.add(tabs);
 		frame_main.setLocationRelativeTo(null);
 		frame_main.setVisible(true);
@@ -687,7 +685,7 @@ public class Client extends Thread implements ActionListener,
 		}
 		// Initialise
 		panel_bigframe[gameNumber] = new JPanel();
-		panel_bigframe[gameNumber].setSize(990, 350);
+		panel_bigframe[gameNumber].setSize(825, 350);
 		panel_bigframe[gameNumber].setLayout(null);
 		panel_bigframe[gameNumber].setName(gName);
 		button_cards[gameNumber] = new JButton[10];
@@ -725,7 +723,6 @@ public class Client extends Thread implements ActionListener,
 		panel_bigframe[gameNumber].add(usernameForMainFrame);
 		panel_bigframe[gameNumber].add(turnToPlay);
 		panel_bigframe[gameNumber].add(text_fieldTrumpSuite);
-
 		// Add new game panel
 		panel_bigframe[gameNumber].setName(gName);
 		tabs.addTab(gName, panel_bigframe[gameNumber]);
@@ -741,14 +738,15 @@ public class Client extends Thread implements ActionListener,
 				break;
 			}
 		}
+		//add player names to jlist 
+		jlist_contactsMain.setListData(pNames);
 		// Add Player Names
 		// totalrounds
 		int k = 0;
-
 		for (k = 0; k < pNames.length; k++) {
 			bids.put(pNames[k], 0);
 			plabel_players[k] = new JLabel(pNames[k]);
-			plabel_players[k].setBounds(750, (k * 20), 80, 15);
+			plabel_players[k].setBounds(700, (k * 20), 80, 15);
 			panel_bigframe[gameNumber].add(plabel_players[k]);
 			scores.put(pNames[k], "0:0:0:0");
 		}
@@ -761,7 +759,6 @@ public class Client extends Thread implements ActionListener,
 		}
 		panel_bigframe[gameNumber].repaint();
 		playerCountemp = pNames.length;
-
 	}
 
 	public void updateGame(String gName, String[] pCards, int[] pScores) {
@@ -2129,7 +2126,29 @@ public class Client extends Thread implements ActionListener,
 		// client -> server: GL;
 		// server -> client: GUgame_name1:game_name2:...;
 		else if (evt.getSource() == button_listGames) {
-			textArea_display_in.append("button_listGames Pressed\n");
+			//Join selected game
+			
+			try {
+
+				if (!jlist_gameMain.isSelectionEmpty()) {
+					tempGameName = jlist_gameMain.getSelectedValue()
+							.toString();
+					System.out.println(tempGameName);
+					objectOutput.writeObject("GJ"
+							+ jlist_gameMain.getSelectedValue()
+									.toString() + ";");
+					objectOutput.flush();
+					System.out.println("GJ"
+							+ jlist_gameMain.getSelectedValue()
+									.toString() + ";");
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			/*
+			textArea_display_in.append("button_joinGames Pressed\n");
 			StringBuilder sb = new StringBuilder();
 			sb.append("GL;");
 			try {
@@ -2138,7 +2157,7 @@ public class Client extends Thread implements ActionListener,
 				System.out.println(sb.toString());
 			} catch (IOException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 
 		else if (evt.getSource() == button_history) {
