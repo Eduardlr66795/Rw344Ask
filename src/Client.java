@@ -64,7 +64,7 @@ public class Client extends Thread implements ActionListener,
 	public int cardClickedI;
 	public int totalrounds = 0;
 	public int[] tempLastTrickScore={0,0,0,0,0,0,0};
-
+	JScrollPane sp4 = new JScrollPane(jlist_contactsMain = new JList());
 	public String nextPlayerToBid = "";
 	public String firstPlayerToPlay;
 	public String trumpSuite;
@@ -342,6 +342,9 @@ public class Client extends Thread implements ActionListener,
 		} else if (x == 2) {
 			text_loginTextfieldName.setText("Username to Short");
 			text_loginTextfieldName.setForeground(Color.RED);
+		}else if(x==3){
+			text_loginTextfieldName.setText("Username is Invalid");
+			text_loginTextfieldName.setForeground(Color.RED);
 		}
 
 		text_loginTextfieldName.setBounds(130, 133, 200, 25);
@@ -604,16 +607,16 @@ public class Client extends Thread implements ActionListener,
 		tabInside.setSize(test.getWidth(), test.getHeight());
 
 		// String arr2[] = {"asd","asd","aa","dd"};
-		JScrollPane sp2 = new JScrollPane(jlist_contactsMain = new JList());
-		sp2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		sp2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		sp4.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp4.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		// jlist_contactsMain.setListData(arr2);
 		jlist_contactsMain.setVisibleRowCount(4);
 		// jlist_contactsMain.setBackground(Color.blue);
 		jlist_contactsMain.addListSelectionListener(this);
 		jlist_contactsMain.addMouseListener(this);
-		sp2.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
-
+		sp4.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
+		//sp2.re
 		String arr3[] = { "asd", "asd", "aa", "ddxxxx" };
 		JScrollPane sp3 = new JScrollPane(jlist_gameMain = new JList());
 		sp3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -626,7 +629,7 @@ public class Client extends Thread implements ActionListener,
 		sp3.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
 
 		tabInside.addTab("Games", sp3);
-		tabInside.addTab("Clients", sp2);
+		tabInside.addTab("Clients", sp4);
 		test.add(tabInside);
 
 		frame_main.add(test);
@@ -962,7 +965,7 @@ public class Client extends Thread implements ActionListener,
 		}
 	}
 	
-	public void Login(){
+	public boolean Login(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("LI");
 		sb.append(string_userName);
@@ -983,19 +986,20 @@ public class Client extends Thread implements ActionListener,
 		
 		if (msg.compareTo("LK;") == 0) {
 			// clientGui();
-			System.out.println("LK sent");
-			afterLoginScreen();
+			return true;
+			
+		}else if(msg.compareTo("ER100;") == 0) {
+			//username in use
 			frame_Welcome.dispose();
-
-			// TODO
-			// getClients();
+			welcomeScreen(1);
+			return false;
 			
-			start();
-			
-		} else {
+		}
+		else {
 			// new Client();//TODO
 			System.out
 					.println("ERROR IN CLIENT connectToServer method");
+			return false;
 		}
 	}
 
@@ -1022,7 +1026,6 @@ public class Client extends Thread implements ActionListener,
 		String c2 = Character.toString(b);
 		return (c1.equals(c2));
 	}
-
 	public void run() {
 		while (connected) {
 			try {
@@ -1032,7 +1035,6 @@ public class Client extends Thread implements ActionListener,
 				if (line.contains(msg)) {
 					if (choice) {
 						boolean value = true;
-
 						for (int x = 0; x < msg.length(); x++) {
 							if (charCompare(line.charAt(x), msg.charAt(x))) {
 								continue;
@@ -1255,8 +1257,11 @@ public class Client extends Thread implements ActionListener,
 
 					} else if (command.equals("QK")) {// Acknowledge quit request
 						//Client has successfully quit
+						String[] emp={""};
+						jlist_contactsMain.setListData(emp);
+						frame_main.repaint();
 						endGame(tempGameName);
-						jlist_contactsMain.removeAll();
+						
 
 					}  else if (command.equals("CM")) {// Chat to all recieved
 						//arguments[0]=sending player name
@@ -1268,15 +1273,12 @@ public class Client extends Thread implements ActionListener,
 								textArea_display_out.append("<"+arguments[0]+">"+arguments[1]+"\n");
 							}
 						}
-
 					}  else if (command.equals("QP")) {// Someone has quit. Exit game!
+						String[] emp={""};
+						jlist_contactsMain.setListData(emp);
+						frame_main.repaint();
 						endGame(tempGameName);
-						jlist_contactsMain.removeAll();
-						jlist_contactsMain.repaint();
-
-					} else if (command.equals("HI")) {// receive next hand from
-						// server
-						// Receive Hand
+					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
 						if (Integer.parseInt(arguments[0]) == totalrounds) {
@@ -1286,7 +1288,6 @@ public class Client extends Thread implements ActionListener,
 							lastRound = false;
 						}
 						threadHN = false;
-
 						String[] cards = new String[arguments.length - 3];
 						for (int i = 0; i < arguments.length - 3; i++) {
 							cards[i] = arguments[i + 1];
@@ -1318,18 +1319,8 @@ public class Client extends Thread implements ActionListener,
 						roundWinnerFrame = true;
 						askForBid(tempGameName);
 
-					} else if (command.equals("HC")) {// Who is next to bid, and
-														// who
-						// has bid, along with their
-						// bid
-						// create thread to keep sending HBgame_name; request
-						// ---------------------------------------------------------------------------
-						// TODO Keep track of other players bids, will be needed
-						// for
-						// calculating score
+					} else if (command.equals("HC")) {
 						bids.put(arguments[0], Integer.parseInt(arguments[1]));
-						// ---------------------------------------------------------------------------
-						// check if server accepted out bid
 						if (arguments[0].equals(username)) {
 							// bid was accepted
 							// is frame active?
@@ -1337,8 +1328,6 @@ public class Client extends Thread implements ActionListener,
 								frame_enterBid.dispose();
 								biddingActive = false;
 							}
-
-							// dispose screen and what not
 						}
 						// check whose turn to bid
 						if (firstPlayerToPlay.equals(arguments[2])) {
@@ -1351,10 +1340,7 @@ public class Client extends Thread implements ActionListener,
 							bidding = false;
 							turnToPlay.setVisible(false);
 							turnToPlayCard = false;
-							gameInProgress = true;// check somewhere when no
-													// more
-							// games are in progress
-							// send HPgame_name to server
+							gameInProgress = true;
 							new Thread(new Runnable() {
 
 								public void run() {
@@ -1362,12 +1348,6 @@ public class Client extends Thread implements ActionListener,
 										try {
 											Thread.sleep(500);
 											if (gameInProgress) {
-												// cycle through all games in
-												// progress
-												// dont actually need to cycle
-												// through all games.. client
-												// only
-												// playes one game at a time
 												System.out.println("HP"
 														+ tempGameName + ";");
 												objectOutput.writeObject("HP"
@@ -1375,7 +1355,6 @@ public class Client extends Thread implements ActionListener,
 												objectOutput.flush();
 											}
 										} catch (Exception e) {
-											// TODO Auto-generated catch block
 											e.printStackTrace();
 										}
 									}
@@ -2149,12 +2128,24 @@ public class Client extends Thread implements ActionListener,
 	}
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == button_login) {
+			String testEmpty=text_loginTextfieldName.getText().replace(" ", "");
 			if (text_loginTextfieldName.getText().equals("")) {
 				frame_Welcome.dispose();
 				welcomeScreen(2);
-			} else {
+			}else if(testEmpty.equals("")){
+				frame_Welcome.dispose();
+				welcomeScreen(3);
+			}
+			else {
 				connectToServer();
-				if(getServerReady())Login();
+				if(getServerReady()){
+					if(Login()){
+						System.out.println("LK sent");
+						afterLoginScreen();
+						frame_Welcome.dispose();
+						start();
+				}
+				}
 			}
 
 		}
