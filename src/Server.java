@@ -32,7 +32,6 @@ public class Server implements Runnable {
 	@SuppressWarnings("rawtypes")
 	private Hashtable Messages = new Hashtable();
 	// TODO
-
 	// Gui
 	private JTextArea textAreaServer;
 	private JTextArea textAreaClient;
@@ -42,11 +41,11 @@ public class Server implements Runnable {
 	private JPanel panelGame;
 	private JFrame frameMain;
 	private boolean listening = true;
-	private ServerSocket server_Socket; 
+	private ServerSocket server_Socket;
 	
 	public void closeServer(){
-		frameMain.dispose();
 		listening = false;
+		frameMain.dispose();
 		try {
 			server_Socket.close();
 		} catch (IOException e) {
