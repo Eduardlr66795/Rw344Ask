@@ -81,6 +81,7 @@ public class Client extends Thread implements ActionListener,
 	public Hashtable<String, Integer> bids = new Hashtable<String, Integer>();
 
 	// Buttons
+	public JButton button_sendPrivateMessage_in;
 	public JButton button_sendMessage_in;
 	public JButton button_sendMessage_out;
 	public JButton button_history;
@@ -123,6 +124,7 @@ public class Client extends Thread implements ActionListener,
 	public JTextField text_loginTextfieldName;
 	public JTextField text_loginTextfieldIp;
 	public JTextField text_loginTextfieldPort;
+	public JTextField text_messagePrivate_in;
 	public JTextField text_message_in;
 	public JTextField text_message_out;
 	public JTextField text_FieldEnterNewGameName;
@@ -424,7 +426,7 @@ public class Client extends Thread implements ActionListener,
 		panel_main.add(button_joinGame_out);
 
 		// Button: Join Existing Game
-		button_sendMessage_out = new JButton("Refresh Games");
+		button_sendMessage_out = new JButton("Send Private Message");
 		button_sendMessage_out.setBounds(265, 300, 150, 30);
 		button_sendMessage_out.addActionListener(this);
 		panel_main.add(button_sendMessage_out);
@@ -578,10 +580,16 @@ public class Client extends Thread implements ActionListener,
 		text_fieldTrumpSuite = new JLabel();
 
 		frame_main.setTitle("Example GUI");
+		
 		text_message_in = new JTextField();
 		text_message_in.setSize(700, 30);
 		text_message_in.setLocation(3, 460);
 		frame_main.add(text_message_in);
+		
+		text_messagePrivate_in = new JTextField();
+		text_messagePrivate_in.setSize(700, 30);
+		text_messagePrivate_in.setLocation(3, 500);
+		frame_main.add(text_messagePrivate_in);
 
 		JScrollPane spMain = new JScrollPane(
 				textArea_display_in = new JTextArea());
@@ -628,11 +636,15 @@ public class Client extends Thread implements ActionListener,
 
 		// //////////////////////////////////////////////////////
 
-		button_sendMessage_in = new JButton("Send Msg");
-		button_sendMessage_in.setBounds(709, 460, 93, 30);
-		// button_sendMessage_in.setBounds(709, 360, 93, 30);
+		button_sendMessage_in = new JButton("Send Message");
+		button_sendMessage_in.setBounds(709, 460, 140, 30);
 		button_sendMessage_in.addActionListener(this);
 		frame_main.add(button_sendMessage_in);
+		
+		button_sendPrivateMessage_in= new JButton("Send Private Msg");
+		button_sendPrivateMessage_in.setBounds(709, 500, 140, 30);
+		button_sendPrivateMessage_in.addActionListener(this);
+		frame_main.add(button_sendPrivateMessage_in);
 
 		button_listPlayers = new JButton("List of Players");
 		button_listPlayers.setBounds(1020, 380, 160, 25);
@@ -2186,7 +2198,7 @@ public class Client extends Thread implements ActionListener,
 			frame_choice.dispose();
 			choice = false;
 
-			clientGui();// For now
+			clientGui();
 			createGame();
 
 		} // button_closeWinner,panel_roundWinner
@@ -2252,31 +2264,7 @@ public class Client extends Thread implements ActionListener,
 		// client -> server: CAgame_name:message;
 		// server -> client: CG;
 		else if (evt.getSource() == button_sendMessage_out) {
-			// Refreshing Games for now
-			try {
-				if (!bol_mainFrameActive) {
-					System.out.println("GL;");
-					objectOutput.writeObject("GL;");
-					objectOutput.flush();
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			/*
-			 * if (text_message_out.getText().length() > 0) { String text =
-			 * text_message_out.getText(); textArea_display_out.append("<- " +
-			 * text + " ->\n"); StringBuilder sb = new StringBuilder();
-			 * sb.append("CA"); //Read protocol, this must be here. . .
-			 * sb.append(tabs.getSelectedComponent().getName()); sb.append(":");
-			 * sb.append(text); sb.append(";"); try {
-			 * objectOutput.writeObject(sb.toString()); } catch (IOException e)
-			 * { e.printStackTrace(); } text_message_out.setText("");
-			 * 
-			 * 
-			 * } else { text_message_out.setText(""); }
-			 */
+			// Send private message
 		}
 		// Protocol
 		// client -> server: GL;
