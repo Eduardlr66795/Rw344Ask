@@ -50,6 +50,9 @@ public class Game extends Thread {
     // Current trick winner name and card
     public String trickWinner;
     
+    // State of game
+    public String state;
+    
     //Hardcoded to 7 (max players) we can change this but hardcoding it to 7 wont really
     //lead to any inefficiency
     public int [] playerBids = new int [7];

@@ -149,8 +149,8 @@ public class Client extends Thread implements ActionListener,
 	public String names[] = null;
 	public String tempGameName;
 	public String tempKickPlayer;
-	public String updateTempGameName;
-	public String recentHB;
+	//public String tempGameName;
+	//public String tempGameName;
 	JLabel winnerOfRound=new JLabel();
 	public JFrame frame_roundWinner;
 	public JPanel panel_roundWinner;
@@ -452,6 +452,7 @@ public class Client extends Thread implements ActionListener,
 		// jlist_contactsOutsideMain.setListData(arr2);
 		jlist_contactsOutsideMain.setVisibleRowCount(4);
 		jlist_contactsOutsideMain.addListSelectionListener(this);
+		jlist_contactsOutsideMain.addMouseListener(this);
 		sp2.setBounds(0, 0, 150, 350);
 		tabOutside.addTab("Clients", sp2);
 
@@ -615,6 +616,7 @@ public class Client extends Thread implements ActionListener,
 		jlist_contactsMain.setVisibleRowCount(4);
 		// jlist_contactsMain.setBackground(Color.blue);
 		jlist_contactsMain.addListSelectionListener(this);
+		jlist_contactsMain.addMouseListener(this);
 		sp2.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
 
 		String arr3[] = { "asd", "asd", "aa", "ddxxxx" };
@@ -1039,13 +1041,9 @@ public class Client extends Thread implements ActionListener,
 							.split(":");
 					if (command.compareTo("GK") == 0) {
 						System.out.println("Game succelfully started!");
-						// new gameui
 						frame_CreateGame.dispose();
 						startingGame(tempGameName);
-						// Now send GNgame_name; to ask for another player to
-						// join
 						try {
-							// System.out.println("GN"+tempGameName+";");
 							objectOutput.writeObject("GN" + tempGameName + ";");
 							objectOutput.flush();
 							// add thread with wait and keep asking GN
@@ -1100,9 +1098,9 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.flush();
 							System.out.println("HN" + tempGameName + ";");
 							objectOutput.writeObject("HN" + tempGameName + ";");
-							updateTempGameName = tempGameName;
+							tempGameName = tempGameName;
 							objectOutput.flush();
-							recentHB = tempGameName;
+							tempGameName = tempGameName;
 						} catch (Exception e) {
 							System.out.println(e);
 						}
@@ -1135,7 +1133,6 @@ public class Client extends Thread implements ActionListener,
 							} else {
 								jlist_gameMain.removeAll();
 								jlist_gameMain.setListData(arguments);
-								
 							}
 						}
 						// Thread to keep asking for active games every 2 seconds
@@ -1143,9 +1140,7 @@ public class Client extends Thread implements ActionListener,
 							public void run() {
 								// need to turn off gameNotStated before thed
 								// game starts.
-
 								try {
-
 									Thread.sleep(2000);
 									System.out.println("GL;");
 									objectOutput.writeObject("GL;");
@@ -1153,8 +1148,6 @@ public class Client extends Thread implements ActionListener,
 									System.out.println("CC;");
 									objectOutput.writeObject("CC;");
 									objectOutput.flush();
-
-
 								} catch (SocketException e) {
 									e.printStackTrace();
 								} catch (IOException e) {
@@ -1164,9 +1157,7 @@ public class Client extends Thread implements ActionListener,
 									e.printStackTrace();
 								}
 							}
-
 						}).start();
-
 					} else if (command.equals("GV")) {// truncated games list
 						boolean pass = true;
 						for (int i = 0; i < arguments.length; i++) {
@@ -1229,9 +1220,9 @@ public class Client extends Thread implements ActionListener,
 							// System.out.println("HN"+tempGameName+";");
 							objectOutput.writeObject("HN" + tempGameName + ";");
 							objectOutput.flush();
-							updateTempGameName = tempGameName;
+							tempGameName = tempGameName;
 							// Ask player for bid
-							recentHB = tempGameName;
+							tempGameName = tempGameName;
 
 						} catch (Exception e) {
 							System.out.println(e);
@@ -1280,7 +1271,7 @@ public class Client extends Thread implements ActionListener,
 						for (int i = 0; i < arguments.length - 3; i++) {
 							cards[i] = arguments[i + 1];
 						}
-						updateGame(updateTempGameName, cards, null);
+						updateGame(tempGameName, cards, null);
 						nextPlayerToBid = arguments[arguments.length - 1];
 						firstPlayerToPlay = arguments[arguments.length - 1];
 						System.out.println("First Playe to bid:"
@@ -1376,7 +1367,7 @@ public class Client extends Thread implements ActionListener,
 							// Time to BID!!
 							if (!biddingActive) {
 								System.out.println("Bid2");
-								enterBid(recentHB);
+								enterBid(tempGameName);
 							}
 
 						}
@@ -1542,9 +1533,9 @@ public class Client extends Thread implements ActionListener,
 											+ tempGameName + ";");
 									objectOutput.flush();
 
-									updateTempGameName = tempGameName;
+									tempGameName = tempGameName;
 									// Ask player for bid
-									recentHB = tempGameName;
+									tempGameName = tempGameName;
 
 								} catch (Exception e) {
 									System.out.println(e);
@@ -1703,7 +1694,7 @@ public class Client extends Thread implements ActionListener,
 									.println("Illegal bid (bid is higher than the number of cards in this hand)");
 							// Call enter bid
 							bidding = true;
-							enterBid(recentHB);
+							enterBid(tempGameName);
 
 						} else if (arguments[0].equals("141")) {// Illegal card
 																// (player
@@ -1801,8 +1792,8 @@ public class Client extends Thread implements ActionListener,
 					try {
 						Thread.sleep(500);
 						if (bidding) {
-							System.out.println("HB" + recentHB + ";");
-							objectOutput.writeObject("HB" + recentHB + ";");
+							System.out.println("HB" + tempGameName + ";");
+							objectOutput.writeObject("HB" + tempGameName + ";");
 							objectOutput.flush();
 						}
 					} catch (Exception e) {
@@ -2122,23 +2113,48 @@ public class Client extends Thread implements ActionListener,
 		
 		
 		else if (evt.getSource() == button_sendMessage_in) {
+			
 			String text = text_message_in.getText();
 			if ((text.length() > 0) && (tabs.getComponentCount() != 0)) {
 				textArea_display_in.append("<- " + text + " ->\n");
-				StringBuilder sb = new StringBuilder();
-				sb.append("CA");
-				sb.append(tabs.getSelectedComponent().getName());
-				sb.append(":");
-				sb.append(text);
-				sb.append(";");
-				try {
-					System.out.println(sb.toString());
-					objectOutput.writeObject(sb.toString());
-					objectOutput.flush();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if(text.charAt(0)=='@'){
+					//Private Message
+					System.out.println(text);
+					String[] arguments = text.replace(":", "@")
+							.split("@");
+					StringBuilder sb = new StringBuilder();
+					sb.append("CP");
+					for(int i=1;i<arguments.length-1;i++){
+						sb.append(arguments[i]);
+						sb.append(":");
+					}
+					sb.append(arguments[arguments.length-1]+";");
+					try {
+						System.out.println(sb.toString());
+						objectOutput.writeObject(sb.toString());
+						objectOutput.flush();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					text_message_in.setText("");
+				}else{
+					//Send to all
+					StringBuilder sb = new StringBuilder();
+					sb.append("CA");
+					sb.append(tabs.getSelectedComponent().getName());
+					sb.append(":");
+					sb.append(text);
+					sb.append(";");
+					try {
+						System.out.println(sb.toString());
+						objectOutput.writeObject(sb.toString());
+						objectOutput.flush();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					text_message_in.setText("");
 				}
-				text_message_in.setText("");
+				
 			} else {
 				text_message_in.setText("");
 			}
@@ -2265,6 +2281,37 @@ public class Client extends Thread implements ActionListener,
 		// server -> client: CG;
 		else if (evt.getSource() == button_sendMessage_out) {
 			// Send private message
+			String text = text_message_out.getText();
+			if ((text.length() > 0)) {
+				textArea_display_out.append("<- " + text + " ->\n");
+				if(text.charAt(0)=='@'){
+					//Private Message
+					System.out.println(text);
+					String[] arguments = text.replace(":", "@")
+							.split("@");
+					StringBuilder sb = new StringBuilder();
+					sb.append("CP");
+					for(int i=1;i<arguments.length-1;i++){
+						sb.append(arguments[i]);
+						sb.append(":");
+					}
+					sb.append(arguments[arguments.length-1]+";");
+					try {
+						System.out.println(sb.toString());
+						objectOutput.writeObject(sb.toString());
+						objectOutput.flush();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					text_message_out.setText("");
+				}else{
+					
+					text_message_out.setText("");
+				}
+				
+			} else {
+				text_message_out.setText("");
+			}
 		}
 		// Protocol
 		// client -> server: GL;
@@ -2310,9 +2357,8 @@ public class Client extends Thread implements ActionListener,
 			// Enter bid
 			try {
 				int temp_bid = Integer.parseInt(text_FieldEnterBid.getText());
-
 				StringBuilder sb = new StringBuilder();
-				sb.append("HD" + recentHB);
+				sb.append("HD" + tempGameName);
 				sb.append(":");
 				sb.append(temp_bid);
 				sb.append(";");
@@ -2426,25 +2472,72 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+		// TODO Auto-generated s[2 stub
 		// Attempt to join Game
 		// Join game GJgame_name;
-		System.out.println(defaultList_games.getSize());
-		if (defaultList_games.getSize() > 0) {
-			try {
-				tempGameName = defaultList_games.getElementAt(
-						jlist_contactsMain.getSelectedIndex()).toString();
-				objectOutput.writeObject("GJ"
-						+ defaultList_games.getElementAt(
-								jlist_contactsMain.getSelectedIndex())
-								.toString() + ";");
-				objectOutput.flush();
-				// System.out.println("GJ"+defaultList_games.getElementAt(jlist_contactsMain.getSelectedIndex()).toString()+";");
-			} catch (IOException e) {
-				System.out.println("Logoff fail");
-				e.printStackTrace();
+		
+		if(bol_mainFrameActive){
+			if (jlist_contactsMain.getComponentCount() > 0) {
+				System.out.println("Clicked Name: "+jlist_contactsMain.getSelectedValue().toString());
+				String curText=text_message_in.getText();
+				if(!jlist_contactsMain.getSelectedValue().toString().equals(username)){
+					if(curText.length()!=0){
+						if((curText.charAt(0)=='@')&&(curText.charAt(curText.length()-1)==':')){
+							System.out.println("Already a private chat, add another user");
+							//Check if user is in private chat already
+							String[] arguments = curText.replace(":", "@").split("@");
+							boolean add=true;
+							for(int i=0;i<arguments.length;i++){
+								System.out.println(arguments[0]);
+								if(jlist_contactsMain.getSelectedValue().toString().equals(arguments[i])){
+									add=false;
+								}
+							}
+							if(add){
+								curText=curText.substring(0, curText.length()-1);
+								text_message_in.setText(curText+"@"+jlist_contactsMain.getSelectedValue().toString()+":");
+							}
+							
+							
+						}
+					}else{
+						text_message_in.setText("@"+jlist_contactsMain.getSelectedValue().toString()+":");
+					}
+				}
+				
+				
+			}
+		}else{
+			if (jlist_contactsOutsideMain.getComponentCount() > 0) {
+				System.out.println("Clicked Name: "+jlist_contactsOutsideMain.getSelectedValue().toString());
+				String curText=text_message_out.getText();
+				if(!jlist_contactsOutsideMain.getSelectedValue().toString().equals(username)){
+					if(curText.length()!=0){
+						if((curText.charAt(0)=='@')&&(curText.charAt(curText.length()-1)==':')){
+							System.out.println("Already a private chat, add another user");
+							//Check if user is in private chat already
+							String[] arguments = curText.replace(":", "@").split("@");
+							boolean add=true;
+							for(int i=0;i<arguments.length;i++){
+								System.out.println(arguments[0]);
+								if(jlist_contactsOutsideMain.getSelectedValue().toString().equals(arguments[i])){
+									add=false;
+								}
+							}
+							if(add){
+								curText=curText.substring(0, curText.length()-1);
+								text_message_out.setText(curText+"@"+jlist_contactsOutsideMain.getSelectedValue().toString()+":");
+							}	
+						}
+					}else{
+						text_message_out.setText("@"+jlist_contactsOutsideMain.getSelectedValue().toString()+":");
+					}
+				}
+				
+				
 			}
 		}
+		
 
 	}
 
