@@ -76,6 +76,8 @@ public class Client extends Thread implements ActionListener,
 	public JFrame frame_choice;
 	public JFrame frame_CreateGame;
 	public JFrame frame_Welcome;
+	
+	public JPanel panel_backRed=new JPanel();
 
 	public Hashtable<String, String> scores = new Hashtable<String, String>();
 	public Hashtable<String, Integer> bids = new Hashtable<String, Integer>();
@@ -256,138 +258,175 @@ public class Client extends Thread implements ActionListener,
 		frame_waitingToStartGame.setVisible(true);
 	}
 
+
 	@SuppressWarnings("serial")
-	void welcomeScreen(int x) {
-		try {
-			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-		// for constantly updating active games
-		tempLastGU = new String[30];
-		for (int i = 0; i < tempLastGU.length; i++) {
-			tempLastGU[i] = "";
-		}
+    void welcomeScreen(int x) {
+            try {
+                    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                            if ("Nimbus".equals(info.getName())) {
+                                    UIManager.setLookAndFeel(info.getClassName());
+                                    break;
+                            }
+                    }
+            } catch (ClassNotFoundException e1) {
+                    e1.printStackTrace();
+            } catch (InstantiationException e) {
+                    e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+            } catch (UnsupportedLookAndFeelException e) {
+                    e.printStackTrace();
+            }
+            // for constantly updating active games
+            tempLastGU = new String[30];
+            for (int i = 0; i < tempLastGU.length; i++) {
+                    tempLastGU[i] = "";
+            }
 
-		frame_Welcome = new JFrame();
-		frame_Welcome.setSize(400, 300);
-		frame_Welcome.setLocation(400, 100);
-		frame_Welcome.setEnabled(true);
+            frame_Welcome = new JFrame();
+            frame_Welcome.setSize(400, 300);
+            frame_Welcome.setLocation(400, 100);
+            frame_Welcome.setEnabled(true);
+            frame_Welcome.setTitle("//Ask Login");
 
-		panel_welcome = new JPanel();
-		panel_welcome.setSize(frame_Welcome.getWidth(),
-				frame_Welcome.getHeight());
-		panel_welcome.setLayout(null);
+            panel_welcome = new JPanel() {
+                    public void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            if (new ImageIcon(
+                                            Client.class.getResource("/images/frame.jpg")) != null) {
+                                    int width = getWidth();
+                                    int height = getHeight();
+                                    if (width > height)
+                                            width = height;
+                                    else
+                                            height = width;
+                                    g.drawImage(
+                                                    new ImageIcon(Client.class
+                                                                    .getResource("/images/frame.jpg"))
+                                                                    .getImage(), 70, -80, width+160 , height,null);
+                            }
+                    }
+            };
+            
+            panel_welcome.setSize(frame_Welcome.getWidth(),
+            frame_Welcome.getHeight());
+            panel_welcome.setBackground(Color.black);
+            panel_welcome.setLayout(null);
+            
 
-		JLabel heading = new JLabel("") {
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				if (new ImageIcon(
-						Client.class.getResource("/images/ask-logo.png")) != null) {
-					int width = getWidth();
-					int height = getHeight();
-					if (width > height)
-						width = height;
-					else
-						height = width;
-					g.drawImage(
-							new ImageIcon(Client.class
-									.getResource("/images/ask-logo.png"))
-									.getImage(), 0, 5, width + 20, height + 10,
-							null);
-				}
-			}
-		};
-		heading.setFont(new Font("Serif", Font.BOLD, 45));
-		heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
-		heading.setBackground(Color.white);
+            JLabel heading = new JLabel("") {
+                    public void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            if (new ImageIcon(
+                                            Client.class.getResource("/images/ask-logo.png")) != null) {
+                                    int width = getWidth();
+                                    int height = getHeight();
+                                    if (width > height)
+                                            width = height;
+                                    else
+                                            height = width;
+                                    g.drawImage(
+                                                    new ImageIcon(Client.class
+                                                                    .getResource("/images/ask-logo.png"))
+                                                                    .getImage(), 0, 5, width + 20, height + 10,
+                                                    null);
+                            }
+                    }
+            };
+            heading.setFont(new Font("Serif", Font.BOLD, 45));
+            heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
+            heading.setBackground(Color.white);
 
-		JLabel created = new JLabel();
-		created.setText("Welcomes you!");
-		created.setFont(new Font("Serif", Font.BOLD, 18));
-		created.setBounds(130, 60, 280, 100);
+            JLabel loginName = new JLabel();
+            loginName.setText("Name");
+            loginName.setForeground(Color.red);
+            loginName.setFont(new Font("cmmi10", Font.BOLD, 16));
+            loginName.setBounds(165, 130, 75, 25);
 
-		JLabel loginName = new JLabel();
-		loginName.setText("Name: ");
-		loginName.setFont(new Font("Serif", Font.BOLD, 18));
-		loginName.setBounds(60, 130, 75, 25);
+            JLabel port = new JLabel();
+            port.setText("Port");
+            port.setForeground(Color.red);
+            port.setFont(new Font("cmmi10", Font.BOLD, 16));
+            port.setBounds(165, 162, 100, 25);
 
-		JLabel port = new JLabel();
-		port.setText("Port #");
-		port.setFont(new Font("Serif", Font.BOLD, 18));
-		port.setBounds(60, 162, 100, 25);
+            JLabel IP = new JLabel();
+            IP.setText("Address");
+            IP.setForeground(Color.red);
+            IP.setFont(new Font("cmmi10", Font.BOLD, 16));
+            IP.setBounds(170, 215, 100, 25);
 
-		JLabel IP = new JLabel();
-		IP.setText("Address:");
-		IP.setFont(new Font("Serif", Font.BOLD, 18));
-		IP.setBounds(42, 190, 100, 25);
+            text_loginTextfieldName = new JTextField();
+            text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
 
-		text_loginTextfieldName = new JTextField();
-		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
+            if (x == 1) {
+                    text_loginTextfieldName.setText("taken..");
+                    text_loginTextfieldName.setForeground(Color.RED);
+            } else if (x == 2) {
+                    text_loginTextfieldName.setText("too Short..");
+                    text_loginTextfieldName.setForeground(Color.RED);
+            }else if(x==3){
+            	text_loginTextfieldName.setText("invalid..");
+                text_loginTextfieldName.setForeground(Color.RED);
+            	
+            }
 
-		if (x == 1) {
-			text_loginTextfieldName.setText("Username in use..");
-			text_loginTextfieldName.setForeground(Color.RED);
-		} else if (x == 2) {
-			text_loginTextfieldName.setText("Username to Short");
-			text_loginTextfieldName.setForeground(Color.RED);
-		}else if(x==3){
-			text_loginTextfieldName.setText("Username is Invalid");
-			text_loginTextfieldName.setForeground(Color.RED);
-		}
+            text_loginTextfieldName.setBounds(10, 133, 150, 25);
+            text_loginTextfieldPort = new JTextField();
+            text_loginTextfieldPort.setText("3000");
+            text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
+            text_loginTextfieldPort.setBounds(10, 163, 150, 25);
 
-		text_loginTextfieldName.setBounds(130, 133, 200, 25);
-		text_loginTextfieldPort = new JTextField();
-		text_loginTextfieldPort.setText("3000");
-		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldPort.setBounds(130, 163, 200, 25);
+            text_loginTextfieldIp = new JTextField();
+            text_loginTextfieldIp.setText("localhost");
+            text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
+            text_loginTextfieldIp.setBounds(245, 215, 150, 25);
 
-		text_loginTextfieldIp = new JTextField();
-		text_loginTextfieldIp.setText("localhost");
-		text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldIp.setBounds(130, 195, 200, 25);
+             button_login = new JButton() {
+                    public void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            if (new ImageIcon(
+                                            Client.class.getResource("/images/enter.png")) != null) {
+                                    int width = getWidth();
+                                    int height = getHeight();
+                                    if (width > height)
+                                            width = height;
+                                    else
+                                            height = width;
+                                    g.drawImage(
+                                                    new ImageIcon(Client.class
+                                                                    .getResource("/images/enter.png"))
+                                                                    .getImage(), -2, 0, width + 130 , height+5,null);
+                            }
+                    }
+            };
+            button_login.setFont(new Font("Serif", Font.PLAIN, 20));
+            button_login.setBounds(245, 245, 150, 30);
+            button_login.setBackground(Color.black);
+            button_login.addActionListener(this);
+            
+            panel_welcome.add(heading);
+            panel_welcome.add(loginName);
+            panel_welcome.add(port);
+            panel_welcome.add(IP);
+            panel_welcome.add(text_loginTextfieldName);
+            panel_welcome.add(text_loginTextfieldIp);
+            panel_welcome.add(text_loginTextfieldPort);
+            panel_welcome.add(button_login);
 
-		button_login = new JButton();
-		button_login.setText("Login");
-		button_login.setFont(new Font("Serif", Font.PLAIN, 20));
-		button_login.setBounds(130, 225, 200, 40);
-		button_login.addActionListener(this);
+            frame_Welcome.add(panel_welcome);
+            frame_Welcome.setResizable(false);
+            frame_Welcome.setVisible(true);
 
-		panel_welcome.add(heading);
-		panel_welcome.add(created);
-		panel_welcome.add(loginName);
-		panel_welcome.add(port);
-		panel_welcome.add(IP);
-		panel_welcome.add(text_loginTextfieldName);
-		panel_welcome.add(text_loginTextfieldIp);
-		panel_welcome.add(text_loginTextfieldPort);
-		panel_welcome.add(button_login);
-
-		frame_Welcome.add(panel_welcome);
-		frame_Welcome.setResizable(false);
-		frame_Welcome.setVisible(true);
-
-		frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame_Welcome.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// TODO: create window event
-				frame_Welcome.dispose();
-				System.exit(0);
-			}
-		});
-	}
+            frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            frame_Welcome.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                            // TODO: create window event
+                            frame_Welcome.dispose();
+                            System.exit(0);
+                    }
+            });
+    }
 
 	public void afterLoginScreen() {
 		try {
@@ -414,6 +453,7 @@ public class Client extends Thread implements ActionListener,
 		// Main Panel
 		panel_main = new JPanel();
 		panel_main.setLayout(null);
+		
 		panel_main.setSize(frame_choice.getWidth(), frame_choice.getHeight());
 
 		// Button: Create New Game
@@ -429,7 +469,7 @@ public class Client extends Thread implements ActionListener,
 		panel_main.add(button_joinGame_out);
 
 		// Button: Join Existing Game
-		button_sendMessage_out = new JButton("Send Private Message");
+		button_sendMessage_out = new JButton("Send Private Msg");
 		button_sendMessage_out.setBounds(265, 300, 150, 30);
 		button_sendMessage_out.addActionListener(this);
 		panel_main.add(button_sendMessage_out);
@@ -567,6 +607,7 @@ public class Client extends Thread implements ActionListener,
 		panel_roundWinner = new JPanel();
 		tabs = new JTabbedPane();
 		frame_main = new JFrame();
+		
 		plabel_players = new JLabel[15];
 		
 		frame_main.setSize(1300, 550);
@@ -581,6 +622,12 @@ public class Client extends Thread implements ActionListener,
 				quit();
 			}
 		});
+		
+		panel_backRed.setSize(frame_main.getWidth(), frame_main.getHeight());
+		panel_backRed.setLayout(null);
+		panel_backRed.setBackground(Color.red);
+		
+		frame_main.add(panel_backRed);
 		text_fieldTrumpSuite = new JLabel();
 
 		frame_main.setTitle("Example GUI");
@@ -588,7 +635,8 @@ public class Client extends Thread implements ActionListener,
 		text_message_in = new JTextField();
 		text_message_in.setSize(700, 30);
 		text_message_in.setLocation(3, 460);
-		frame_main.add(text_message_in);
+		panel_backRed.add(text_message_in);
+		//frame_main.add(text_message_in);
 		
 
 		JScrollPane spMain = new JScrollPane(textArea_display_in = new JTextArea());
@@ -596,12 +644,15 @@ public class Client extends Thread implements ActionListener,
 		spMain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		spMain.setBounds(3, 330, 800, 130);
 		textArea_display_in.setEditable(false);
-		frame_main.add(spMain);
+		panel_backRed.add(spMain);
+		panel_backRed.setLayout(null);
+		//frame_main.add(spMain);
 
 
 		JPanel test = new JPanel();
 		test.setLayout(null);
 		test.setBounds(1010, 5, 170, 370);
+		test.setBackground(Color.red);
 
 		tabInside = new JTabbedPane();
 		tabInside.setSize(test.getWidth(), test.getHeight());
@@ -631,15 +682,15 @@ public class Client extends Thread implements ActionListener,
 		tabInside.addTab("Games", sp3);
 		tabInside.addTab("Clients", sp4);
 		test.add(tabInside);
-
-		frame_main.add(test);
-
-		// //////////////////////////////////////////////////////
+		
+		panel_backRed.add(test);
+		//frame_main.add(test);
 
 		button_sendMessage_in = new JButton("Send Message");
 		button_sendMessage_in.setBounds(709, 460, 140, 30);
 		button_sendMessage_in.addActionListener(this);
-		frame_main.add(button_sendMessage_in);
+		panel_backRed.add(button_sendMessage_in);
+		//frame_main.add(button_sendMessage_in);
 		
 
 
@@ -647,35 +698,41 @@ public class Client extends Thread implements ActionListener,
 		button_listPlayers.setBounds(1020, 380, 160, 25);
 		// button_listPlayers.setBounds(820, 280, 160, 25);
 		button_listPlayers.addActionListener(this);
-		frame_main.add(button_listPlayers);
+		panel_backRed.add(button_listPlayers);
+		//frame_main.add(button_listPlayers);
 
 		button_listGames = new JButton("Join Selected Game");
 		button_listGames.setBounds(1020, 400, 160, 25);
 		// button_listGames.setBounds(820, 300, 160, 25);
 		button_listGames.addActionListener(this);
-		frame_main.add(button_listGames);
+		panel_backRed.add(button_listGames);
+		//frame_main.add(button_listGames);
 
 		button_history = new JButton("History");
 		button_history.setBounds(1020, 420, 160, 25);
 		// button_history.setBounds(820, 320, 160, 25);
 		button_history.addActionListener(this);
-		frame_main.add(button_history);
+		panel_backRed.add(button_history);
+		//frame_main.add(button_history);
 
 		button_logoff = new JButton("Log Off");
 		button_logoff.setBounds(1020, 460, 160, 25);
 		// button_logoff.setBounds(820, 340, 160, 25);
 		button_logoff.addActionListener(this);
-		frame_main.add(button_logoff);
+		panel_backRed.add(button_logoff);
+		//frame_main.add(button_logoff);
 
 		button_createGame = new JButton("Create Game");
 		button_createGame.setBounds(1020, 440, 160, 25);
 		// button_createGame.setBounds(820, 360, 160, 25);
 		button_createGame.addActionListener(this);
-		frame_main.add(button_createGame);
+		panel_backRed.add(button_createGame);
+		//frame_main.add(button_createGame);
 
 		tabs.setLocation(3, 5);
 		tabs.setSize(1007, 320);
-		frame_main.add(tabs);
+		panel_backRed.add(tabs);
+		//frame_main.add(tabs);
 		frame_main.setLocationRelativeTo(null);
 		frame_main.setVisible(true);
 
@@ -722,8 +779,10 @@ public class Client extends Thread implements ActionListener,
 		}
 		// Initialise
 		panel_bigframe[gameNumber] = new JPanel();
+		//panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setSize(825, 350);
 		panel_bigframe[gameNumber].setLayout(null);
+		panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setName(gName);
 		button_cards[gameNumber] = new JButton[10];
 		// plabel_layers = new JLabel[7];
@@ -993,7 +1052,6 @@ public class Client extends Thread implements ActionListener,
 			frame_Welcome.dispose();
 			welcomeScreen(1);
 			return false;
-			
 		}
 		else {
 			// new Client();//TODO
@@ -1103,10 +1161,12 @@ public class Client extends Thread implements ActionListener,
 							e.printStackTrace();
 						}
 					} else if (command.equals("GP")) {
-						defaultList_players.addElement(arguments[0]);
-
-						System.out.println("Player Has joined " + arguments[0]);
-
+						if(arguments.length==1){
+							defaultList_players.addElement(arguments[0]);
+							System.out.println("Player Has joined " + arguments[0]);
+						}else{
+							System.out.println("Error");
+						}						
 					} else if (command.equals("GZ")) {
 
 					} else if (command.equals("GM")) {// Game full and had
@@ -1120,9 +1180,7 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.flush();
 							System.out.println("HN" + tempGameName + ";");
 							objectOutput.writeObject("HN" + tempGameName + ";");
-							tempGameName = tempGameName;
 							objectOutput.flush();
-							tempGameName = tempGameName;
 						} catch (Exception e) {
 							System.out.println(e);
 						}
@@ -1131,80 +1189,86 @@ public class Client extends Thread implements ActionListener,
 						defaultList_players.removeElement(tempKickPlayer);
 
 					} else if (command.equals("GU")) {// List of games
-						boolean pass = true;
-						for (int i = 0; i < arguments.length; i++) {
-							if (!arguments[i].equals(tempLastGU[i])) {
-								System.out.println("false");
-								System.out.println(arguments[i]);
-								System.out.println(tempLastGU[i]);
-								pass = false;
-							}
-						}
-						if (!pass) {// List Was Changed!
-							System.out.println("Changing");
-							System.out.println("Main frame Active? "+bol_mainFrameActive);
+						if(arguments.length>0){
+							boolean pass = true;
 							for (int i = 0; i < arguments.length; i++) {
-								tempLastGU[i]=(arguments[i]);
-							}
-							if (!bol_mainFrameActive) {
-								// update jlist_contactsOutsideMain
-
-								jlist_gmesListOutMain.removeAll();
-								jlist_gmesListOutMain.setListData(arguments);
-
-							} else {
-								jlist_gameMain.removeAll();
-								jlist_gameMain.setListData(arguments);
-							}
-						}
-						// Thread to keep asking for active games every 2 seconds
-						new Thread(new Runnable() {
-							public void run() {
-								// need to turn off gameNotStated before thed
-								// game starts.
-								try {
-									Thread.sleep(2000);
-									System.out.println("GL;");
-									objectOutput.writeObject("GL;");
-									objectOutput.flush();
-									System.out.println("CC;");
-									objectOutput.writeObject("CC;");
-									objectOutput.flush();
-								} catch (SocketException e) {
-									e.printStackTrace();
-								} catch (IOException e) {
-									e.printStackTrace();
-								} catch (InterruptedException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
+								if (!arguments[i].equals(tempLastGU[i])) {
+									System.out.println("false");
+									System.out.println(arguments[i]);
+									System.out.println(tempLastGU[i]);
+									pass = false;
 								}
 							}
-						}).start();
-					} else if (command.equals("GV")) {// truncated games list
-						boolean pass = true;
-						for (int i = 0; i < arguments.length; i++) {
-							if (!arguments[i].equals(tempLastGU[i])) {
-								System.out.println("false");
-								System.out.println(arguments[i]);
-								System.out.println(tempLastGU[i]);
-								pass = false;
+							if (!pass) {// List Was Changed!
+								System.out.println("Changing");
+								System.out.println("Main frame Active? "+bol_mainFrameActive);
+								for (int i = 0; i < arguments.length; i++) {
+									tempLastGU[i]=(arguments[i]);
+								}
+								if (!bol_mainFrameActive) {
+									// update jlist_contactsOutsideMain
+
+									jlist_gmesListOutMain.removeAll();
+									jlist_gmesListOutMain.setListData(arguments);
+
+								} else {
+									jlist_gameMain.removeAll();
+									jlist_gameMain.setListData(arguments);
+								}
 							}
+							// Thread to keep asking for active games every 2 seconds
+							new Thread(new Runnable() {
+								public void run() {
+									// need to turn off gameNotStated before thed
+									// game starts.
+									try {
+										Thread.sleep(2000);
+										System.out.println("GL;");
+										objectOutput.writeObject("GL;");
+										objectOutput.flush();
+										System.out.println("CC;");
+										objectOutput.writeObject("CC;");
+										objectOutput.flush();
+									} catch (SocketException e) {
+										e.printStackTrace();
+									} catch (IOException e) {
+										e.printStackTrace();
+									} catch (InterruptedException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							}).start();
 						}
-						if (!pass) {// List Was Changed!
-							System.out.println("Changing");
-							System.out.println("Main frame Active? "+bol_mainFrameActive);
+						
+					} else if (command.equals("GV")) {// truncated games list
+						if(arguments.length>0){
+							boolean pass = true;
 							for (int i = 0; i < arguments.length; i++) {
-								tempLastGU[i]=(arguments[i]);
+								if (!arguments[i].equals(tempLastGU[i])) {
+									System.out.println("false");
+									System.out.println(arguments[i]);
+									System.out.println(tempLastGU[i]);
+									pass = false;
+								}
 							}
-							if (!bol_mainFrameActive) {
-								// update jlist_contactsOutsideMain
-								jlist_gmesListOutMain.removeAll();
-								jlist_gmesListOutMain.setListData(arguments);
-							} else {
-								jlist_gameMain.removeAll();
-								jlist_gameMain.setListData(arguments);								
-							}
-						}						
+							if (!pass) {// List Was Changed!
+								System.out.println("Changing");
+								System.out.println("Main frame Active? "+bol_mainFrameActive);
+								for (int i = 0; i < arguments.length; i++) {
+									tempLastGU[i]=(arguments[i]);
+								}
+								if (!bol_mainFrameActive) {
+									// update jlist_contactsOutsideMain
+									jlist_gmesListOutMain.removeAll();
+									jlist_gmesListOutMain.setListData(arguments);
+								} else {
+									jlist_gameMain.removeAll();
+									jlist_gameMain.setListData(arguments);								
+								}
+							}	
+						}
+											
 					} else if (command.equals("GX")) {// Game joined
 						gameNotStarted = true;
 						new Thread(new Runnable() {
@@ -1240,9 +1304,7 @@ public class Client extends Thread implements ActionListener,
 							// System.out.println("HN"+tempGameName+";");
 							objectOutput.writeObject("HN" + tempGameName + ";");
 							objectOutput.flush();
-							tempGameName = tempGameName;
 							// Ask player for bid
-							tempGameName = tempGameName;
 						} catch (Exception e) {
 							System.out.println(e);
 						}
@@ -1266,6 +1328,9 @@ public class Client extends Thread implements ActionListener,
 					}  else if (command.equals("CM")) {// Chat to all recieved
 						//arguments[0]=sending player name
 						//arguments[1]=message
+						if(arguments.length<2){
+							continue;
+						}
 						if(!arguments[0].equals(username)){
 							if(bol_mainFrameActive){
 								textArea_display_in.append("<"+arguments[0]+">"+arguments[1]+"\n");
@@ -1320,6 +1385,9 @@ public class Client extends Thread implements ActionListener,
 						askForBid(tempGameName);
 
 					} else if (command.equals("HC")) {
+						if(arguments.length!=3){
+							continue;
+						}
 						bids.put(arguments[0], Integer.parseInt(arguments[1]));
 						if (arguments[0].equals(username)) {
 							// bid was accepted
@@ -1377,7 +1445,9 @@ public class Client extends Thread implements ActionListener,
 						}
 
 					} else if (command.equals("HL")) {// Who is next to play
-														// card,
+						if(arguments.length<2){
+							continue;		// card,
+						}
 						// and who has played, along
 						// with their played card
 						// See whose turn it is to play a card and who has
@@ -1683,6 +1753,7 @@ public class Client extends Thread implements ActionListener,
 
 						} else if (arguments[0].equals("131")) {// Game has too
 																// few
+							
 																// players.
 							System.out.println("Game has too few players.");
 
@@ -1751,21 +1822,6 @@ public class Client extends Thread implements ActionListener,
 									.println("Something very bad but unspecified has happened");
 
 						}
-						// card
-						// (player
-						// must
-						// play
-						// the
-						// led
-						// suit
-						// because
-						// it
-						// has
-						// suitable
-						// // cards)
-						// System.out
-						// .println("Illegal card (player must play the led suit because it has suitable cards)");
-						// Played Wrong Card
 
 					} else if (line.charAt(0) == 'L' && line.charAt(1) == 'C') {
 						line = line.replaceFirst("L", "");
@@ -2158,9 +2214,9 @@ public class Client extends Thread implements ActionListener,
 			
 			String text = text_message_in.getText();
 			if ((text.length() > 0) && (tabs.getComponentCount() != 0)) {
-				//textArea_display_in.append("<" + text + ">\n");
-				textArea_display_in.append("<");
+				//textArea_display_in.append("<" + text + ">\n");				
 				if(text.charAt(0)=='@'){
+					textArea_display_in.append("<");
 					//Private Message
 					System.out.println(text);
 					String[] arguments = text.replace(":", "@")
@@ -2329,8 +2385,9 @@ public class Client extends Thread implements ActionListener,
 			// Send private message
 			String text = text_message_out.getText();
 			if ((text.length() > 0)) {
-				textArea_display_out.append("<");
+				
 				if(text.charAt(0)=='@'){
+					textArea_display_out.append("<");
 					//Private Message
 					System.out.println(text);
 					String[] arguments = text.replace(":", "@")
