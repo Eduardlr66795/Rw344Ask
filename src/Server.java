@@ -32,6 +32,7 @@ public class Server implements Runnable {
 	@SuppressWarnings("rawtypes")
 	private Hashtable Messages = new Hashtable();
 	// TODO
+
 	// Gui
 	private JTextArea textAreaServer;
 	private JTextArea textAreaClient;
@@ -41,11 +42,11 @@ public class Server implements Runnable {
 	private JPanel panelGame;
 	private JFrame frameMain;
 	private boolean listening = true;
-	private ServerSocket server_Socket;
+	private ServerSocket server_Socket; 
 	
 	public void closeServer(){
-		listening = false;
 		frameMain.dispose();
+		listening = false;
 		try {
 			server_Socket.close();
 		} catch (IOException e) {
@@ -1342,9 +1343,15 @@ public class Server implements Runnable {
 					String state = game.state;
 					
 					if (state.equals("joining")) {
-						o.writeObject("MLGW" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
-						o.flush();
-						return;
+						if (game.creatorName.equals(username)) {
+							o.writeObject("MLGW" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						} else {
+							o.writeObject("MLGN" + game.gameName + ":GF" + game.gameName + ":GO" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						}
 					} else if (state.equals("bidding")) {
 						if (game.nextPlayerToBid.equals(username)) {
 							o.writeObject("MLHN" + game.gameName + ":HB" + game.gameName + ":HD" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName  + ":LO:CP:CC;");
@@ -1380,6 +1387,12 @@ public class Server implements Runnable {
 						}
 					}
 				}
+			}
+			
+			if (!isInGame) {
+				o.writeObject("MLGS:GL:GG:LO:CP:CC;");
+				o.flush();
+				return;
 			}
 		} catch (Exception e) {
 			System.out.println("Exception in modeConfusion " + e);
