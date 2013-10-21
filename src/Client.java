@@ -63,6 +63,7 @@ public class Client extends Thread implements ActionListener,
 	public int cardClickedJ;
 	public int cardClickedI;
 	public int totalrounds = 0;
+	public int[] tempLastTrickScore={0,0,0,0,0,0,0};
 
 	public String nextPlayerToBid = "";
 	public String firstPlayerToPlay;
@@ -80,6 +81,7 @@ public class Client extends Thread implements ActionListener,
 	public Hashtable<String, Integer> bids = new Hashtable<String, Integer>();
 
 	// Buttons
+	public JButton button_sendPrivateMessage_in;
 	public JButton button_sendMessage_in;
 	public JButton button_sendMessage_out;
 	public JButton button_history;
@@ -95,6 +97,7 @@ public class Client extends Thread implements ActionListener,
 	public JButton button_clearText_out;
 	public JButton[][] button_cards;
 	public JButton[] button_playedCards;
+	public JButton button_exitGame=new JButton();
 	JLabel[][] text_roundWinner;
 
 	// Lists
@@ -121,6 +124,7 @@ public class Client extends Thread implements ActionListener,
 	public JTextField text_loginTextfieldName;
 	public JTextField text_loginTextfieldIp;
 	public JTextField text_loginTextfieldPort;
+	public JTextField text_messagePrivate_in;
 	public JTextField text_message_in;
 	public JTextField text_message_out;
 	public JTextField text_FieldEnterNewGameName;
@@ -129,7 +133,12 @@ public class Client extends Thread implements ActionListener,
 	public JLabel label_enterNewGameName;
 	public JLabel label_gameName;
 	public JLabel[] plabel_players;
-
+	public JLabel[] plabel_playersScores=new JLabel[7];
+	public JLabel[] plabel_playersBids=new JLabel[7];
+	public JLabel label_usernameScores;
+	public JLabel scoreScores;
+	public JLabel label_bids=new JLabel("Bid");
+	
 	// tabs
 	JTabbedPane tabOutside;
 	JTabbedPane tabInside;
@@ -159,6 +168,7 @@ public class Client extends Thread implements ActionListener,
 	public boolean threadHN = false;
 	public boolean lastRound = false;
 	public boolean roundWinnerFrame = false;
+	boolean onlyEndOfTrick=true;
 	boolean connected;
 	boolean choice;
 	public String clientArr[];
@@ -204,6 +214,7 @@ public class Client extends Thread implements ActionListener,
 		panel_waitingToStartGame = new JPanel();
 		frame_waitingToStartGame = new JFrame();
 		panel_waitingToStartGame.setLayout(null);
+		
 
 		frame_waitingToStartGame.setSize(300, 350);
 		frame_waitingToStartGame.setLocation(frame_main.getX(),
@@ -415,7 +426,7 @@ public class Client extends Thread implements ActionListener,
 		panel_main.add(button_joinGame_out);
 
 		// Button: Join Existing Game
-		button_sendMessage_out = new JButton("Refresh Games");
+		button_sendMessage_out = new JButton("Send Private Message");
 		button_sendMessage_out.setBounds(265, 300, 150, 30);
 		button_sendMessage_out.addActionListener(this);
 		panel_main.add(button_sendMessage_out);
@@ -485,11 +496,14 @@ public class Client extends Thread implements ActionListener,
 			if (!bol_mainFrameActive) {
 				objectOutput.writeObject("GL;");
 				objectOutput.flush();
+				objectOutput.writeObject("CC;");
+				objectOutput.flush();
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
+		
 	}
 
 	// Protocol
@@ -550,7 +564,8 @@ public class Client extends Thread implements ActionListener,
 		tabs = new JTabbedPane();
 		frame_main = new JFrame();
 		plabel_players = new JLabel[15];
-		frame_main.setSize(1000, 550);
+		
+		frame_main.setSize(1300, 550);
 		frame_main.setLayout(null);
 		frame_main.setResizable(false);
 		frame_main.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -565,10 +580,16 @@ public class Client extends Thread implements ActionListener,
 		text_fieldTrumpSuite = new JLabel();
 
 		frame_main.setTitle("Example GUI");
+		
 		text_message_in = new JTextField();
 		text_message_in.setSize(700, 30);
 		text_message_in.setLocation(3, 460);
 		frame_main.add(text_message_in);
+		
+		text_messagePrivate_in = new JTextField();
+		text_messagePrivate_in.setSize(700, 30);
+		text_messagePrivate_in.setLocation(3, 500);
+		frame_main.add(text_messagePrivate_in);
 
 		JScrollPane spMain = new JScrollPane(
 				textArea_display_in = new JTextArea());
@@ -578,23 +599,10 @@ public class Client extends Thread implements ActionListener,
 		textArea_display_in.setEditable(false);
 		frame_main.add(spMain);
 
-		// ///////////////////////////////////////////////////
-		// defaultList_games = new DefaultListModel();
-		// JScrollPane sp1 = new JScrollPane(jlist_contactsMain = new JList(
-		// defaultList_games));
-		// jlist_contactsMain.setVisibleRowCount(4);
-		// jlist_contactsMain.addListSelectionListener(this);
-		// jlist_contactsMain.setBackground(Color.LIGHT_GRAY);
-		// jlist_contactsMain.addMouseListener(this);
-		//
-		// sp1.setBounds(820, 40, 160, 300);
-		// frame_main.add(sp1);
-
-		// /////////////////////////////////////////////////////
 
 		JPanel test = new JPanel();
 		test.setLayout(null);
-		test.setBounds(810, 5, 170, 370);
+		test.setBounds(1010, 5, 170, 370);
 
 		tabInside = new JTabbedPane();
 		tabInside.setSize(test.getWidth(), test.getHeight());
@@ -607,7 +615,7 @@ public class Client extends Thread implements ActionListener,
 		jlist_contactsMain.setVisibleRowCount(4);
 		// jlist_contactsMain.setBackground(Color.blue);
 		jlist_contactsMain.addListSelectionListener(this);
-		sp2.setBounds(825, 10, test.getWidth(), test.getHeight() - 20);
+		sp2.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
 
 		String arr3[] = { "asd", "asd", "aa", "ddxxxx" };
 		JScrollPane sp3 = new JScrollPane(jlist_gameMain = new JList());
@@ -618,7 +626,7 @@ public class Client extends Thread implements ActionListener,
 
 		// jlist_gameMain.setBackground(Color.blue);
 		jlist_gameMain.addListSelectionListener(this);
-		sp3.setBounds(825, 10, test.getWidth(), test.getHeight() - 20);
+		sp3.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
 
 		tabInside.addTab("Games", sp3);
 		tabInside.addTab("Clients", sp2);
@@ -628,44 +636,48 @@ public class Client extends Thread implements ActionListener,
 
 		// //////////////////////////////////////////////////////
 
-		button_sendMessage_in = new JButton("Send Msg");
-		button_sendMessage_in.setBounds(709, 460, 93, 30);
-		// button_sendMessage_in.setBounds(709, 360, 93, 30);
+		button_sendMessage_in = new JButton("Send Message");
+		button_sendMessage_in.setBounds(709, 460, 140, 30);
 		button_sendMessage_in.addActionListener(this);
 		frame_main.add(button_sendMessage_in);
+		
+		button_sendPrivateMessage_in= new JButton("Send Private Msg");
+		button_sendPrivateMessage_in.setBounds(709, 500, 140, 30);
+		button_sendPrivateMessage_in.addActionListener(this);
+		frame_main.add(button_sendPrivateMessage_in);
 
 		button_listPlayers = new JButton("List of Players");
-		button_listPlayers.setBounds(820, 380, 160, 25);
+		button_listPlayers.setBounds(1020, 380, 160, 25);
 		// button_listPlayers.setBounds(820, 280, 160, 25);
 		button_listPlayers.addActionListener(this);
 		frame_main.add(button_listPlayers);
 
 		button_listGames = new JButton("Join Selected Game");
-		button_listGames.setBounds(820, 400, 160, 25);
+		button_listGames.setBounds(1020, 400, 160, 25);
 		// button_listGames.setBounds(820, 300, 160, 25);
 		button_listGames.addActionListener(this);
 		frame_main.add(button_listGames);
 
 		button_history = new JButton("History");
-		button_history.setBounds(820, 420, 160, 25);
+		button_history.setBounds(1020, 420, 160, 25);
 		// button_history.setBounds(820, 320, 160, 25);
 		button_history.addActionListener(this);
 		frame_main.add(button_history);
 
 		button_logoff = new JButton("Log Off");
-		button_logoff.setBounds(820, 460, 160, 25);
+		button_logoff.setBounds(1020, 460, 160, 25);
 		// button_logoff.setBounds(820, 340, 160, 25);
 		button_logoff.addActionListener(this);
 		frame_main.add(button_logoff);
 
 		button_createGame = new JButton("Create Game");
-		button_createGame.setBounds(820, 440, 160, 25);
+		button_createGame.setBounds(1020, 440, 160, 25);
 		// button_createGame.setBounds(820, 360, 160, 25);
 		button_createGame.addActionListener(this);
 		frame_main.add(button_createGame);
 
 		tabs.setLocation(3, 5);
-		tabs.setSize(807, 320);
+		tabs.setSize(1007, 320);
 		frame_main.add(tabs);
 		frame_main.setLocationRelativeTo(null);
 		frame_main.setVisible(true);
@@ -711,13 +723,17 @@ public class Client extends Thread implements ActionListener,
 		text_fieldTrumpSuite.setText("Trump Suite: ");
 		text_fieldTrumpSuite.setSize(150, 20);
 		text_fieldTrumpSuite.setLocation(500, 8);
-
+		button_exitGame.setText("Exit Game");
+		button_exitGame.setBounds(10, 10, 120, 20);
+		//button_exitGame.setBounds(265, 330, 150, 30);
+		button_exitGame.addActionListener(this);
+		panel_bigframe[gameNumber].add(button_exitGame);
 		turnToPlay = new JLabel();
 		usernameForMainFrame.setSize(180, 20);
 		usernameForMainFrame.setLocation(50, 40);
 		usernameForMainFrame.setText(username);
 		turnToPlay.setSize(160, 25);
-		turnToPlay.setLocation(100, 5);
+		turnToPlay.setLocation(200, 5);
 		turnToPlay.setText("TURN TO PLAY!!");
 		turnToPlay.setVisible(false);
 		panel_bigframe[gameNumber].add(usernameForMainFrame);
@@ -740,14 +756,32 @@ public class Client extends Thread implements ActionListener,
 		}
 		//add player names to jlist 
 		jlist_contactsMain.setListData(pNames);
+		//add headings
+		//scoreScores,label_usernameScores
+		scoreScores=new JLabel("Current score");
+		label_usernameScores=new JLabel("Username");
+		scoreScores.setBounds(873, 0, 100, 20);
+		label_usernameScores.setBounds(798, 0, 100, 20);
+		label_bids.setBounds(970, 0, 50, 20);
+		panel_bigframe[gameNumber].add(label_usernameScores);
+		panel_bigframe[gameNumber].add(scoreScores);
+		panel_bigframe[gameNumber].add(label_bids);
+
 		// Add Player Names
 		// totalrounds
 		int k = 0;
 		for (k = 0; k < pNames.length; k++) {
+			tempLastTrickScore[k]=0;
 			bids.put(pNames[k], 0);
 			plabel_players[k] = new JLabel(pNames[k]);
-			plabel_players[k].setBounds(700, (k * 20), 80, 15);
+			plabel_playersScores[k]=new JLabel("0");
+			plabel_playersBids[k]=new JLabel("0");
+			plabel_players[k].setBounds(798, 30+(k * 20), 80, 15);
+			plabel_playersBids[k].setBounds(978, 30+(k * 20), 80, 15);
+			plabel_playersScores[k].setBounds(873, 30+(k * 20), 80, 15);
+			panel_bigframe[gameNumber].add(plabel_playersBids[k]);
 			panel_bigframe[gameNumber].add(plabel_players[k]);
+			panel_bigframe[gameNumber].add(plabel_playersScores[k]);
 			scores.put(pNames[k], "0:0:0:0");
 		}
 		if (k == 7) {
@@ -760,7 +794,21 @@ public class Client extends Thread implements ActionListener,
 		panel_bigframe[gameNumber].repaint();
 		playerCountemp = pNames.length;
 	}
-
+	
+	public void updateScoresInGame(String[] currentScores){
+		//tempLastTrickScore
+		//update players score after each trick
+		//current score = tempLastTrickScore-info[x]
+		for(int i=0;i<playerCountemp;i++){
+			//String[] info = new String[4];
+					
+			int cScore=Integer.parseInt(currentScores[3*i+1])-tempLastTrickScore[i];
+			plabel_playersScores[i].setText(cScore+"");
+			
+			
+		}
+	}
+	
 	public void updateGame(String gName, String[] pCards, int[] pScores) {
 		// Find gameNumber
 		int gameNumber = 0;
@@ -1102,6 +1150,10 @@ public class Client extends Thread implements ActionListener,
 									System.out.println("GL;");
 									objectOutput.writeObject("GL;");
 									objectOutput.flush();
+									System.out.println("CC;");
+									objectOutput.writeObject("CC;");
+									objectOutput.flush();
+
 
 								} catch (SocketException e) {
 									e.printStackTrace();
@@ -1116,8 +1168,30 @@ public class Client extends Thread implements ActionListener,
 						}).start();
 
 					} else if (command.equals("GV")) {// truncated games list
-
-						System.out.println(line);
+						boolean pass = true;
+						for (int i = 0; i < arguments.length; i++) {
+							if (!arguments[i].equals(tempLastGU[i])) {
+								System.out.println("false");
+								System.out.println(arguments[i]);
+								System.out.println(tempLastGU[i]);
+								pass = false;
+							}
+						}
+						if (!pass) {// List Was Changed!
+							System.out.println("Changing");
+							System.out.println("Main frame Active? "+bol_mainFrameActive);
+							for (int i = 0; i < arguments.length; i++) {
+								tempLastGU[i]=(arguments[i]);
+							}
+							if (!bol_mainFrameActive) {
+								// update jlist_contactsOutsideMain
+								jlist_gmesListOutMain.removeAll();
+								jlist_gmesListOutMain.setListData(arguments);
+							} else {
+								jlist_gameMain.removeAll();
+								jlist_gameMain.setListData(arguments);								
+							}
+						}						
 					} else if (command.equals("GX")) {// Game joined
 
 						gameNotStarted = true;
@@ -1171,14 +1245,23 @@ public class Client extends Thread implements ActionListener,
 														// game
 						newGameUpadatePlayers(tempGameName, arguments);
 
-					} else if (command.equals("QK")) {// Acknowledge quit
-														// request,
-						// send to client who has
-						// quit
+					} else if (command.equals("QK")) {// Acknowledge quit request
+						//Client has successfully quit
+						endGame(tempGameName);
 
-					} else if (command.equals("QP")) {// To inform other clients
-						// that someone has quit
-						// game
+					}  else if (command.equals("CM")) {// Chat to all recieved
+						//arguments[0]=sending player name
+						//arguments[1]=message
+						if(!arguments[0].equals(username)){
+							if(bol_mainFrameActive){
+								textArea_display_in.append("<"+arguments[0]+">"+arguments[1]+"\n");
+							}else{
+								textArea_display_out.append("<"+arguments[0]+">"+arguments[1]+"\n");
+							}
+						}
+
+					}  else if (command.equals("QP")) {// Someone has quit. Exit game!
+						endGame(tempGameName);
 
 					} else if (command.equals("HI")) {// receive next hand from
 						// server
@@ -1250,6 +1333,10 @@ public class Client extends Thread implements ActionListener,
 						if (firstPlayerToPlay.equals(arguments[2])) {
 							// Bids finished and turn to play a card!
 							System.out.println("All Bids Finished!!!");
+							for(int i=0;i<playerCountemp;i++){
+								int info = bids.get(plabel_players[i].getText());
+								plabel_playersBids[i].setText(info+"");
+							}
 							bidding = false;
 							turnToPlay.setVisible(false);
 							turnToPlayCard = false;
@@ -1322,30 +1409,31 @@ public class Client extends Thread implements ActionListener,
 							// waiting for other player to play card
 						} else {
 							// Display cards other players have played
-							// System.out.println("************playedCardsPlacekeeper= "+playedCardsPlacekeeper);
-							// System.out.println("************playerCountemp= "+playerCountemp);
 							if (playedCardsPlacekeeper == playerCountemp) {
+								//end of trick!
+								System.out.println("End of trick");
+								
+								
 								// add check for arguments.length==2
 								if (arguments.length == 3) {
+									onlyEndOfTrick=true;
 									if (arguments[2].equals(username)) {
 										turnToPlayCard = true;
 									} else {
 										turnToPlayCard = false;
 									}
+									//Get Score for trick
+									System.out.println("HS" + tempGameName
+											+ ";");
+									objectOutput.writeObject("HS"
+											+ tempGameName + ";");
+									objectOutput.flush();
 								}
-
-								// remove previous
-								// System.out.println("-----------------------------------------");
-								// System.out.println("Removing Cards! ");
-								// System.out.print("playedCardsPlacekeeper= "+playedCardsPlacekeeper);
-								// System.out.println("playerCountemp= "+playerCountemp);
+								// remove previous played cards
 								for (int y = 0; y < playerCountemp; y++) {
 									System.out.print(y + " ");
 									button_playedCards[y].setVisible(false);
 								}
-								// System.out.println();
-								// System.out.println("-----------------------------------------");
-
 								// set placekeeper to zero
 								playedCardsPlacekeeper = 0;
 							}
@@ -1374,12 +1462,24 @@ public class Client extends Thread implements ActionListener,
 									.add(button_playedCards[playedCardsPlacekeeper]);
 							playedCardsPlacekeeper++;
 							// remember to set playedCardsPlacekeeper to zero
+							if (playedCardsPlacekeeper == playerCountemp) {
+								if (arguments.length == 3) {
+									onlyEndOfTrick=true;
+									//Get Score for trick
+									System.out.println("HS" + tempGameName
+											+ ";");
+									objectOutput.writeObject("HS"
+											+ tempGameName + ";");
+									objectOutput.flush();
+								}
+							}
 
 						}
 
 						// turnToPlayCard
 						if (arguments.length == 2) {
-							// End of trick
+							// End of hand
+							onlyEndOfTrick=false;
 							if (lastRound) {
 								// Game is finished!
 								System.out.println("Game is Finished!!!");
@@ -1470,6 +1570,7 @@ public class Client extends Thread implements ActionListener,
 
 					} else if (command.equals("HO")) {// Player names and scores
 						System.out.println("Players and scores: ");
+						//update scores but dont move
 						for (int i = 0; i < arguments.length; i = i + 3) {
 							// arguments[i]-current player
 							// arguments[i+1]-tricks won in round
@@ -1478,10 +1579,14 @@ public class Client extends Thread implements ActionListener,
 							// String tempMoving=scores.get(arguments[i]);
 							String[] tempMoving = new String[4];
 							tempMoving = scores.get(arguments[i]).split(":");
-							tempMoving[0] = tempMoving[1];
-							tempMoving[2] = tempMoving[3];
-							tempMoving[1] = arguments[i + 2];
-							tempMoving[3] = arguments[i + 1];
+							if(!onlyEndOfTrick){
+								//move start
+								tempMoving[0] = tempMoving[1];
+								tempMoving[2] = tempMoving[3];
+								tempMoving[1] = arguments[i + 2];
+								tempMoving[3] = arguments[i + 1];
+								//move end
+							}
 							StringBuilder s = new StringBuilder();
 							s.append(tempMoving[0]);
 							s.append(":");
@@ -1500,17 +1605,22 @@ public class Client extends Thread implements ActionListener,
 							System.out.println("------------------------");
 
 						}
-						if (!lastRound) {
-							if (roundWinnerFrame) {
-								roundWinner();
-							}
+						if(onlyEndOfTrick){
+							updateScoresInGame(arguments);
+						}else{
+							if (!lastRound) {
+								if (roundWinnerFrame) {
+									roundWinner();
+								}
 
-						} else {
-							// End of game.
-							if (roundWinnerFrame) {
-								roundWinner();
+							} else {
+								// End of game.
+								if (roundWinnerFrame) {
+									roundWinner();
+								}
 							}
 						}
+						
 
 					} else if (command.equals("LM")) {
 						closeConnections();
@@ -1860,7 +1970,7 @@ public class Client extends Thread implements ActionListener,
 		int tempRoundWinnerScore=0;
 		int winners=0;
 
-		frame_roundWinner.setSize(400, 170);
+		frame_roundWinner.setSize(400, 250);
 		frame_roundWinner.setLocation(frame_main.getX(), frame_main.getY());
 		frame_roundWinner.setEnabled(true);
 
@@ -1947,6 +2057,9 @@ public class Client extends Thread implements ActionListener,
 			text_roundWinner[i][4].setSize(100, 30);
 			text_roundWinner[i][4].setLocation(300, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][4]);
+			plabel_playersScores[i-1].setText("0");			
+			tempLastTrickScore[i-1]=Integer.parseInt(info[3]);
+			System.out.println("tempScore at i="+i+" is "+tempLastTrickScore[i-1]);
 			
 			if((Integer.parseInt(info[1]) - Integer.parseInt(info[0]))>tempRoundWinnerScore){
 				//new highest score;
@@ -1970,7 +2083,7 @@ public class Client extends Thread implements ActionListener,
 		
 
 		button_closeWinner.setSize(140, 40);
-		button_closeWinner.setLocation(130, 120);
+		button_closeWinner.setLocation(130, 200);
 		button_closeWinner.setText("Close");
 		button_closeWinner.addActionListener(this);
 		
@@ -2006,6 +2119,8 @@ public class Client extends Thread implements ActionListener,
 		// Protocol
 		// client -> server: CAgame_name:message;
 		// server -> client: CG;
+		
+		
 		else if (evt.getSource() == button_sendMessage_in) {
 			String text = text_message_in.getText();
 			if ((text.length() > 0) && (tabs.getComponentCount() != 0)) {
@@ -2017,6 +2132,7 @@ public class Client extends Thread implements ActionListener,
 				sb.append(text);
 				sb.append(";");
 				try {
+					System.out.println(sb.toString());
 					objectOutput.writeObject(sb.toString());
 					objectOutput.flush();
 				} catch (IOException e) {
@@ -2082,7 +2198,7 @@ public class Client extends Thread implements ActionListener,
 			frame_choice.dispose();
 			choice = false;
 
-			clientGui();// For now
+			clientGui();
 			createGame();
 
 		} // button_closeWinner,panel_roundWinner
@@ -2101,7 +2217,22 @@ public class Client extends Thread implements ActionListener,
 		// server -> client: GCplayer_name1:player_name2:...;
 		else if (evt.getSource() == button_listPlayers) {
 			textArea_display_in.append("List Of Players Button Pressed\n");
-		} else if (evt.getSource() == button_kickPlayer) {
+		}
+		else if (evt.getSource() == button_exitGame) {
+			textArea_display_in.append("QTgame_name\n");
+			
+			try {
+				System.out.println("QT"+tempGameName+";");
+				objectOutput.writeObject("QT"+tempGameName+";");
+				//Now terminate game
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		else if (evt.getSource() == button_kickPlayer) {
 			System.out.println("Kick player");
 
 			try {
@@ -2133,31 +2264,7 @@ public class Client extends Thread implements ActionListener,
 		// client -> server: CAgame_name:message;
 		// server -> client: CG;
 		else if (evt.getSource() == button_sendMessage_out) {
-			// Refreshing Games for now
-			try {
-				if (!bol_mainFrameActive) {
-					System.out.println("GL;");
-					objectOutput.writeObject("GL;");
-					objectOutput.flush();
-				}
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			/*
-			 * if (text_message_out.getText().length() > 0) { String text =
-			 * text_message_out.getText(); textArea_display_out.append("<- " +
-			 * text + " ->\n"); StringBuilder sb = new StringBuilder();
-			 * sb.append("CA"); //Read protocol, this must be here. . .
-			 * sb.append(tabs.getSelectedComponent().getName()); sb.append(":");
-			 * sb.append(text); sb.append(";"); try {
-			 * objectOutput.writeObject(sb.toString()); } catch (IOException e)
-			 * { e.printStackTrace(); } text_message_out.setText("");
-			 * 
-			 * 
-			 * } else { text_message_out.setText(""); }
-			 */
+			// Send private message
 		}
 		// Protocol
 		// client -> server: GL;

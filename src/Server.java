@@ -1308,7 +1308,7 @@ public class Server implements Runnable {
 				o.writeObject("CN;");
 				o.flush();
 			} else {
-				o.writeObject((String) link.pop());
+				o.writeObject("CM"+(String) link.pop());
 				o.flush();
 			}
 		} catch (Exception e) {
