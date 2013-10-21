@@ -284,11 +284,32 @@ public class Client extends Thread implements ActionListener,
 		frame_Welcome.setSize(400, 300);
 		frame_Welcome.setLocation(400, 100);
 		frame_Welcome.setEnabled(true);
+		frame_Welcome.setTitle("//Ask Login");
 
-		panel_welcome = new JPanel();
+		panel_welcome = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (new ImageIcon(
+						Client.class.getResource("/images/frame.jpg")) != null) {
+					int width = getWidth();
+					int height = getHeight();
+					if (width > height)
+						width = height;
+					else
+						height = width;
+					g.drawImage(
+							new ImageIcon(Client.class
+									.getResource("/images/frame.jpg"))
+									.getImage(), 70, -80, width+160 , height,null);
+				}
+			}
+		};
+		
 		panel_welcome.setSize(frame_Welcome.getWidth(),
-				frame_Welcome.getHeight());
+		frame_Welcome.getHeight());
+		panel_welcome.setBackground(Color.black);
 		panel_welcome.setLayout(null);
+		
 
 		JLabel heading = new JLabel("") {
 			public void paintComponent(Graphics g) {
@@ -313,56 +334,70 @@ public class Client extends Thread implements ActionListener,
 		heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
 		heading.setBackground(Color.white);
 
-		JLabel created = new JLabel();
-		created.setText("Welcomes you!");
-		created.setFont(new Font("Serif", Font.BOLD, 18));
-		created.setBounds(130, 60, 280, 100);
-
 		JLabel loginName = new JLabel();
-		loginName.setText("Name: ");
-		loginName.setFont(new Font("Serif", Font.BOLD, 18));
-		loginName.setBounds(60, 130, 75, 25);
+		loginName.setText("Name");
+		loginName.setForeground(Color.red);
+		loginName.setFont(new Font("cmmi10", Font.BOLD, 16));
+		loginName.setBounds(165, 130, 75, 25);
 
 		JLabel port = new JLabel();
-		port.setText("Port #");
-		port.setFont(new Font("Serif", Font.BOLD, 18));
-		port.setBounds(60, 162, 100, 25);
+		port.setText("Port");
+		port.setForeground(Color.red);
+		port.setFont(new Font("cmmi10", Font.BOLD, 16));
+		port.setBounds(165, 162, 100, 25);
 
 		JLabel IP = new JLabel();
-		IP.setText("Address:");
-		IP.setFont(new Font("Serif", Font.BOLD, 18));
-		IP.setBounds(42, 190, 100, 25);
+		IP.setText("Address");
+		IP.setForeground(Color.red);
+		IP.setFont(new Font("cmmi10", Font.BOLD, 16));
+		IP.setBounds(170, 215, 100, 25);
 
 		text_loginTextfieldName = new JTextField();
 		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
 
 		if (x == 1) {
-			text_loginTextfieldName.setText("Username in use..");
+			text_loginTextfieldName.setText("taken...");
 			text_loginTextfieldName.setForeground(Color.RED);
 		} else if (x == 2) {
-			text_loginTextfieldName.setText("Username to Short");
+			text_loginTextfieldName.setText("to Short..");
 			text_loginTextfieldName.setForeground(Color.RED);
 		}
 
-		text_loginTextfieldName.setBounds(130, 133, 200, 25);
+		text_loginTextfieldName.setBounds(10, 133, 150, 25);
 		text_loginTextfieldPort = new JTextField();
 		text_loginTextfieldPort.setText("3000");
 		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldPort.setBounds(130, 163, 200, 25);
+		text_loginTextfieldPort.setBounds(10, 163, 150, 25);
 
 		text_loginTextfieldIp = new JTextField();
 		text_loginTextfieldIp.setText("localhost");
 		text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldIp.setBounds(130, 195, 200, 25);
+		text_loginTextfieldIp.setBounds(245, 215, 150, 25);
 
-		button_login = new JButton();
-		button_login.setText("Login");
+		 button_login = new JButton() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (new ImageIcon(
+						Client.class.getResource("/images/enter.png")) != null) {
+					int width = getWidth();
+					int height = getHeight();
+					if (width > height)
+						width = height;
+					else
+						height = width;
+					g.drawImage(
+							new ImageIcon(Client.class
+									.getResource("/images/enter.png"))
+									.getImage(), -2, 0, width + 130 , height+5,null);
+				}
+			}
+		};
 		button_login.setFont(new Font("Serif", Font.PLAIN, 20));
-		button_login.setBounds(130, 225, 200, 40);
+		button_login.setBounds(245, 245, 150, 30);
+		button_login.setBackground(Color.black);
 		button_login.addActionListener(this);
-
+		
 		panel_welcome.add(heading);
-		panel_welcome.add(created);
 		panel_welcome.add(loginName);
 		panel_welcome.add(port);
 		panel_welcome.add(IP);
@@ -384,127 +419,6 @@ public class Client extends Thread implements ActionListener,
 				System.exit(0);
 			}
 		});
-	}
-
-	public void afterLoginScreen() {
-		try {
-			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-
-		frame_choice = new JFrame();
-		frame_choice.setLayout(null);
-		frame_choice.setSize(590, 400);
-
-		// Main Panel
-		panel_main = new JPanel();
-		panel_main.setLayout(null);
-		panel_main.setSize(frame_choice.getWidth(), frame_choice.getHeight());
-
-		// Button: Create New Game
-		button_newGame_out = new JButton("Create New Game");
-		button_newGame_out.setBounds(15, 15, 170, 30);
-		button_newGame_out.addActionListener(this);
-		panel_main.add(button_newGame_out);
-
-		// Button: Join Existing Game
-		button_joinGame_out = new JButton("Join Existing Game");
-		button_joinGame_out.setBounds(15, 50, 170, 30);
-		button_joinGame_out.addActionListener(this);
-		panel_main.add(button_joinGame_out);
-
-		// Button: Join Existing Game
-		button_sendMessage_out = new JButton("Send Private Message");
-		button_sendMessage_out.setBounds(265, 300, 150, 30);
-		button_sendMessage_out.addActionListener(this);
-		panel_main.add(button_sendMessage_out);
-
-		// Button: Join Existing Game
-		button_clearText_out = new JButton("Clear Text");
-		button_clearText_out.setBounds(265, 330, 150, 30);
-		button_clearText_out.addActionListener(this);
-		panel_main.add(button_clearText_out);
-
-		// TextArea: Join Existing Game
-		textArea_display_out = new JTextArea();
-		textArea_display_out.setEditable(false);
-		textArea_display_out.setBounds(15, 90, 400, 180);
-		panel_main.add(textArea_display_out);
-
-		tabOutside = new JTabbedPane();
-		tabOutside.setSize(150, 500);
-
-		// String arr2[] = { "asd", "asd", "aa", "dd", "arr2" };
-		JScrollPane sp2 = new JScrollPane(
-				jlist_contactsOutsideMain = new JList());
-		// jlist_contactsOutsideMain.setListData(arr2);
-		jlist_contactsOutsideMain.setVisibleRowCount(4);
-		jlist_contactsOutsideMain.addListSelectionListener(this);
-		jlist_contactsOutsideMain.addMouseListener(this);
-		sp2.setBounds(0, 0, 150, 350);
-		tabOutside.addTab("Clients", sp2);
-
-		// String arr3[] = { "asd", "asd", "aa", "ddxxxx", "arr3" };
-		JScrollPane sp3 = new JScrollPane(jlist_gmesListOutMain = new JList());
-		// jlist_gmesListOutMain.setListData(arr3);
-		jlist_gmesListOutMain.setVisibleRowCount(4);
-		jlist_gmesListOutMain.addListSelectionListener(this);
-		sp3.setBounds(0, 0, 150, 350);
-		tabOutside.addTab("Games", sp3);
-
-		JPanel test = new JPanel();
-		test.setLayout(null);
-		test.setBounds(420, 40, 150, 870);
-
-		test.add(tabOutside);
-
-		panel_main.add(test);
-		getClients();
-
-		// TextField: Join Existing Game
-		text_message_out = new JTextField();
-		text_message_out.setBounds(15, 270, 400, 30);
-		panel_main.add(text_message_out);
-
-		frame_choice.add(panel_main);
-		frame_choice.setVisible(true);
-		choice = true;
-
-		frame_choice.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame_choice.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// TODO: create window event
-				// frame_Welcome.dispose();
-				// System.exit(0);
-				quit();
-			}
-		});
-
-		try {
-			if (!bol_mainFrameActive) {
-				objectOutput.writeObject("GL;");
-				objectOutput.flush();
-				objectOutput.writeObject("CC;");
-				objectOutput.flush();
-			}
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 	}
 
 	// Protocol
