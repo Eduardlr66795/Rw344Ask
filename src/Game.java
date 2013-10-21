@@ -96,6 +96,7 @@ public class Game extends Thread {
 
     // deals all cards to users
     public void deal(){
+    	System.out.println("Game dealt");
     	this.lastCardPlayed = "";
     	this.handsPlayed = 0;
         //iterate through all users and add card into hands
