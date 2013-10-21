@@ -13,7 +13,8 @@ public class serverForClientTest extends Thread{
 	public boolean running = true; 
 	public LinkedList<Socket> clientsockets = new LinkedList<Socket>();
 	public LinkedList<ObjectInputStream> clientinputs = new LinkedList<ObjectInputStream>();
-	public LinkedList<ObjectOutputStream> clientoutputs = new LinkedList<ObjectOutputStream>();;
+	public LinkedList<ObjectOutputStream> clientoutputs = new LinkedList<ObjectOutputStream>();
+	Socket server = null;
 	
 	public serverForClientTest() throws IOException{
 		socket = new ServerSocket(3000);
@@ -21,7 +22,7 @@ public class serverForClientTest extends Thread{
 	
 	public void run(){
 		while(running){
-			Socket server = null;
+			
 			try {
 				server = socket.accept();
 			} catch (IOException e) {
@@ -38,6 +39,16 @@ public class serverForClientTest extends Thread{
 			}
 			
 		}
+	}
+	public void end() throws IOException{
+		int tir = clientsockets.size();
+        for(int i = tir-1; i > 0; i--){
+        	clientsockets.get(i).close();
+        }
+        clientsockets.removeAll(clientsockets);
+        clientinputs.removeAll(clientinputs);
+        clientoutputs.removeAll(clientoutputs);
+        socket.close();
 	}
 
 }

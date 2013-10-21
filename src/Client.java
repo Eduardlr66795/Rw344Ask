@@ -851,53 +851,81 @@ public class Client extends Thread implements ActionListener,
 
 	public void connectToServer() {
 		try {
-			/*
-			 * TODO Change the servername to IP Address to test over network
-			 */
-
 			String servername = text_loginTextfieldIp.getText();
 			string_userName = text_loginTextfieldName.getText();
 			int port = Integer.parseInt(text_loginTextfieldPort.getText());
-
+			System.out.println("cz");
+			
 			client = new Socket(servername, port);
 			connected = true;
-
-			objectInput = new ObjectInputStream(client.getInputStream());
 			objectOutput = new ObjectOutputStream(client.getOutputStream());
+			System.out.println("cn");
+			objectInput = new ObjectInputStream(client.getInputStream());
+			System.out.println("co");
+
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public boolean getServerReady(){
+		try{
+			
+			System.out.println("connctd3");
 			String serverMsg = (String) objectInput.readObject();
-			if (serverMsg.compareTo("RD;") == 0) {
-				System.out.println("RD;");
-				StringBuilder sb = new StringBuilder();
-				sb.append("LI");
-				sb.append(string_userName);
-				username = string_userName.toString();
-				sb.append(":password;");
-
-				objectOutput.writeObject(sb.toString());
-				objectOutput.flush();
-				String msg = (String) objectInput.readObject();
-				if (msg.compareTo("LK;") == 0) {
-					// clientGui();
-					System.out.println("LK sent");
-					afterLoginScreen();
-					frame_Welcome.dispose();
-
-					// TODO
-					// getClients();
-					start();
-				} else {
-					// new Client();//TODO
-					System.out
-							.println("ERROR IN CLIENT connectToServer method");
-				}
+			System.out.println(serverMsg);
+			if (serverMsg.equals("RD;")) {
+				System.out.println("inloop");
+				return true;
 			} else {
+				System.out.println("inloop2");
 				JOptionPane.showMessageDialog(null, "Server is not ready");
 				// quit(); //TODO
+				return false;
 			}
 		} catch (Exception ex) {
 			// ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Server Error..", "Error!",
 					JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+	}
+	
+	public void Login(){
+		StringBuilder sb = new StringBuilder();
+		sb.append("LI");
+		sb.append(string_userName);
+		username = string_userName.toString();
+		sb.append(":password;");
+		String msg = "";
+		try {
+			objectOutput.writeObject(sb.toString());
+			objectOutput.flush();
+			msg = (String) objectInput.readObject();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if (msg.compareTo("LK;") == 0) {
+			// clientGui();
+			System.out.println("LK sent");
+			afterLoginScreen();
+			frame_Welcome.dispose();
+
+			// TODO
+			// getClients();
+			
+			start();
+			
+		} else {
+			// new Client();//TODO
+			System.out
+					.println("ERROR IN CLIENT connectToServer method");
 		}
 	}
 
@@ -1956,7 +1984,13 @@ public class Client extends Thread implements ActionListener,
 
 	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public void quitTheClient(){
-		System.exit(0);
+		connected = false;
+		/*frame_roundWinner.dispose();
+		frame_CreateGame.dispose();
+		frame_enterBid.dispose();
+		frame_main.dispose();
+		frame_choice.dispose();
+		frame_Welcome.dispose();*/
 	}
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == button_login) {
@@ -1965,6 +1999,7 @@ public class Client extends Thread implements ActionListener,
 				welcomeScreen(2);
 			} else {
 				connectToServer();
+				if(getServerReady())Login();
 			}
 
 		}

@@ -31,19 +31,27 @@ public class ClientTest {
 	@After
 	public void tearDown() throws Exception {
 		server.running = false;
+		server.end();
 		client.quitTheClient();
 	}
 	
 	@Test
 	 public void testConnection() throws InterruptedException, IOException{
 		client.text_loginTextfieldName.setText("client");
-		System.out.println("Done waiting");
-		((Client) clientThread).connectToServer();
-		System.out.println("Done connect");
+		client.connectToServer();
 		server.clientoutputs.get(0).writeObject("RD;");
-		System.out.println("Wrote to client");
 		server.clientoutputs.get(0).flush();
-		assertTrue("",true);
+		assertTrue("Could not connect to client",client.getServerReady());
+	}
+	
+	@Test
+	 public void testNotConnection() throws InterruptedException, IOException{
+		client.text_loginTextfieldName.setText("client");
+		client.connectToServer();
+		server.clientoutputs.get(0).writeObject("");
+		server.clientoutputs.get(0).flush();
+		assertTrue("Could not connect to client",!client.getServerReady());
+		
 	}
 	
 	
