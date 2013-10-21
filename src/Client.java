@@ -64,7 +64,7 @@ public class Client extends Thread implements ActionListener,
 	public int cardClickedI;
 	public int totalrounds = 0;
 	public int[] tempLastTrickScore={0,0,0,0,0,0,0};
-
+	JScrollPane sp4 = new JScrollPane(jlist_contactsMain = new JList());
 	public String nextPlayerToBid = "";
 	public String firstPlayerToPlay;
 	public String trumpSuite;
@@ -256,135 +256,175 @@ public class Client extends Thread implements ActionListener,
 		frame_waitingToStartGame.setVisible(true);
 	}
 
+
 	@SuppressWarnings("serial")
-	void welcomeScreen(int x) {
-		try {
-			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
-		}
-		// for constantly updating active games
-		tempLastGU = new String[30];
-		for (int i = 0; i < tempLastGU.length; i++) {
-			tempLastGU[i] = "";
-		}
+    void welcomeScreen(int x) {
+            try {
+                    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                            if ("Nimbus".equals(info.getName())) {
+                                    UIManager.setLookAndFeel(info.getClassName());
+                                    break;
+                            }
+                    }
+            } catch (ClassNotFoundException e1) {
+                    e1.printStackTrace();
+            } catch (InstantiationException e) {
+                    e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+            } catch (UnsupportedLookAndFeelException e) {
+                    e.printStackTrace();
+            }
+            // for constantly updating active games
+            tempLastGU = new String[30];
+            for (int i = 0; i < tempLastGU.length; i++) {
+                    tempLastGU[i] = "";
+            }
 
-		frame_Welcome = new JFrame();
-		frame_Welcome.setSize(400, 300);
-		frame_Welcome.setLocation(400, 100);
-		frame_Welcome.setEnabled(true);
+            frame_Welcome = new JFrame();
+            frame_Welcome.setSize(400, 300);
+            frame_Welcome.setLocation(400, 100);
+            frame_Welcome.setEnabled(true);
+            frame_Welcome.setTitle("//Ask Login");
 
-		panel_welcome = new JPanel();
-		panel_welcome.setSize(frame_Welcome.getWidth(),
-				frame_Welcome.getHeight());
-		panel_welcome.setLayout(null);
+            panel_welcome = new JPanel() {
+                    public void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            if (new ImageIcon(
+                                            Client.class.getResource("/images/frame.jpg")) != null) {
+                                    int width = getWidth();
+                                    int height = getHeight();
+                                    if (width > height)
+                                            width = height;
+                                    else
+                                            height = width;
+                                    g.drawImage(
+                                                    new ImageIcon(Client.class
+                                                                    .getResource("/images/frame.jpg"))
+                                                                    .getImage(), 70, -80, width+160 , height,null);
+                            }
+                    }
+            };
+            
+            panel_welcome.setSize(frame_Welcome.getWidth(),
+            frame_Welcome.getHeight());
+            panel_welcome.setBackground(Color.black);
+            panel_welcome.setLayout(null);
+            
 
-		JLabel heading = new JLabel("") {
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				if (new ImageIcon(
-						Client.class.getResource("/images/ask-logo.png")) != null) {
-					int width = getWidth();
-					int height = getHeight();
-					if (width > height)
-						width = height;
-					else
-						height = width;
-					g.drawImage(
-							new ImageIcon(Client.class
-									.getResource("/images/ask-logo.png"))
-									.getImage(), 0, 5, width + 20, height + 10,
-							null);
-				}
-			}
-		};
-		heading.setFont(new Font("Serif", Font.BOLD, 45));
-		heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
-		heading.setBackground(Color.white);
+            JLabel heading = new JLabel("") {
+                    public void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            if (new ImageIcon(
+                                            Client.class.getResource("/images/ask-logo.png")) != null) {
+                                    int width = getWidth();
+                                    int height = getHeight();
+                                    if (width > height)
+                                            width = height;
+                                    else
+                                            height = width;
+                                    g.drawImage(
+                                                    new ImageIcon(Client.class
+                                                                    .getResource("/images/ask-logo.png"))
+                                                                    .getImage(), 0, 5, width + 20, height + 10,
+                                                    null);
+                            }
+                    }
+            };
+            heading.setFont(new Font("Serif", Font.BOLD, 45));
+            heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
+            heading.setBackground(Color.white);
 
-		JLabel created = new JLabel();
-		created.setText("Welcomes you!");
-		created.setFont(new Font("Serif", Font.BOLD, 18));
-		created.setBounds(130, 60, 280, 100);
+            JLabel loginName = new JLabel();
+            loginName.setText("Name");
+            loginName.setForeground(Color.red);
+            loginName.setFont(new Font("cmmi10", Font.BOLD, 16));
+            loginName.setBounds(165, 130, 75, 25);
 
-		JLabel loginName = new JLabel();
-		loginName.setText("Name: ");
-		loginName.setFont(new Font("Serif", Font.BOLD, 18));
-		loginName.setBounds(60, 130, 75, 25);
+            JLabel port = new JLabel();
+            port.setText("Port");
+            port.setForeground(Color.red);
+            port.setFont(new Font("cmmi10", Font.BOLD, 16));
+            port.setBounds(165, 162, 100, 25);
 
-		JLabel port = new JLabel();
-		port.setText("Port #");
-		port.setFont(new Font("Serif", Font.BOLD, 18));
-		port.setBounds(60, 162, 100, 25);
+            JLabel IP = new JLabel();
+            IP.setText("Address");
+            IP.setForeground(Color.red);
+            IP.setFont(new Font("cmmi10", Font.BOLD, 16));
+            IP.setBounds(170, 215, 100, 25);
 
-		JLabel IP = new JLabel();
-		IP.setText("Address:");
-		IP.setFont(new Font("Serif", Font.BOLD, 18));
-		IP.setBounds(42, 190, 100, 25);
+            text_loginTextfieldName = new JTextField();
+            text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
 
-		text_loginTextfieldName = new JTextField();
-		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
+            if (x == 1) {
+                    text_loginTextfieldName.setText("taken..");
+                    text_loginTextfieldName.setForeground(Color.RED);
+            } else if (x == 2) {
+                    text_loginTextfieldName.setText("too Short..");
+                    text_loginTextfieldName.setForeground(Color.RED);
+            }else if(x==3){
+            	text_loginTextfieldName.setText("invalid..");
+                text_loginTextfieldName.setForeground(Color.RED);
+            	
+            }
 
-		if (x == 1) {
-			text_loginTextfieldName.setText("Username in use..");
-			text_loginTextfieldName.setForeground(Color.RED);
-		} else if (x == 2) {
-			text_loginTextfieldName.setText("Username to Short");
-			text_loginTextfieldName.setForeground(Color.RED);
-		}
+            text_loginTextfieldName.setBounds(10, 133, 150, 25);
+            text_loginTextfieldPort = new JTextField();
+            text_loginTextfieldPort.setText("3000");
+            text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
+            text_loginTextfieldPort.setBounds(10, 163, 150, 25);
 
-		text_loginTextfieldName.setBounds(130, 133, 200, 25);
-		text_loginTextfieldPort = new JTextField();
-		text_loginTextfieldPort.setText("3000");
-		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldPort.setBounds(130, 163, 200, 25);
+            text_loginTextfieldIp = new JTextField();
+            text_loginTextfieldIp.setText("localhost");
+            text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
+            text_loginTextfieldIp.setBounds(245, 215, 150, 25);
 
-		text_loginTextfieldIp = new JTextField();
-		text_loginTextfieldIp.setText("localhost");
-		text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldIp.setBounds(130, 195, 200, 25);
+             button_login = new JButton() {
+                    public void paintComponent(Graphics g) {
+                            super.paintComponent(g);
+                            if (new ImageIcon(
+                                            Client.class.getResource("/images/enter.png")) != null) {
+                                    int width = getWidth();
+                                    int height = getHeight();
+                                    if (width > height)
+                                            width = height;
+                                    else
+                                            height = width;
+                                    g.drawImage(
+                                                    new ImageIcon(Client.class
+                                                                    .getResource("/images/enter.png"))
+                                                                    .getImage(), -2, 0, width + 130 , height+5,null);
+                            }
+                    }
+            };
+            button_login.setFont(new Font("Serif", Font.PLAIN, 20));
+            button_login.setBounds(245, 245, 150, 30);
+            button_login.setBackground(Color.black);
+            button_login.addActionListener(this);
+            
+            panel_welcome.add(heading);
+            panel_welcome.add(loginName);
+            panel_welcome.add(port);
+            panel_welcome.add(IP);
+            panel_welcome.add(text_loginTextfieldName);
+            panel_welcome.add(text_loginTextfieldIp);
+            panel_welcome.add(text_loginTextfieldPort);
+            panel_welcome.add(button_login);
 
-		button_login = new JButton();
-		button_login.setText("Login");
-		button_login.setFont(new Font("Serif", Font.PLAIN, 20));
-		button_login.setBounds(130, 225, 200, 40);
-		button_login.addActionListener(this);
+            frame_Welcome.add(panel_welcome);
+            frame_Welcome.setResizable(false);
+            frame_Welcome.setVisible(true);
 
-		panel_welcome.add(heading);
-		panel_welcome.add(created);
-		panel_welcome.add(loginName);
-		panel_welcome.add(port);
-		panel_welcome.add(IP);
-		panel_welcome.add(text_loginTextfieldName);
-		panel_welcome.add(text_loginTextfieldIp);
-		panel_welcome.add(text_loginTextfieldPort);
-		panel_welcome.add(button_login);
-
-		frame_Welcome.add(panel_welcome);
-		frame_Welcome.setResizable(false);
-		frame_Welcome.setVisible(true);
-
-		frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		frame_Welcome.addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// TODO: create window event
-				frame_Welcome.dispose();
-				System.exit(0);
-			}
-		});
-	}
+            frame_Welcome.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            frame_Welcome.addWindowListener(new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                            // TODO: create window event
+                            frame_Welcome.dispose();
+                            System.exit(0);
+                    }
+            });
+    }
 
 	public void afterLoginScreen() {
 		try {
@@ -426,7 +466,7 @@ public class Client extends Thread implements ActionListener,
 		panel_main.add(button_joinGame_out);
 
 		// Button: Join Existing Game
-		button_sendMessage_out = new JButton("Send Private Message");
+		button_sendMessage_out = new JButton("Send Private Msg");
 		button_sendMessage_out.setBounds(265, 300, 150, 30);
 		button_sendMessage_out.addActionListener(this);
 		panel_main.add(button_sendMessage_out);
@@ -604,16 +644,16 @@ public class Client extends Thread implements ActionListener,
 		tabInside.setSize(test.getWidth(), test.getHeight());
 
 		// String arr2[] = {"asd","asd","aa","dd"};
-		JScrollPane sp2 = new JScrollPane(jlist_contactsMain = new JList());
-		sp2.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		sp2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		sp4.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		sp4.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		// jlist_contactsMain.setListData(arr2);
 		jlist_contactsMain.setVisibleRowCount(4);
 		// jlist_contactsMain.setBackground(Color.blue);
 		jlist_contactsMain.addListSelectionListener(this);
 		jlist_contactsMain.addMouseListener(this);
-		sp2.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
-
+		sp4.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
+		//sp2.re
 		String arr3[] = { "asd", "asd", "aa", "ddxxxx" };
 		JScrollPane sp3 = new JScrollPane(jlist_gameMain = new JList());
 		sp3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -626,7 +666,7 @@ public class Client extends Thread implements ActionListener,
 		sp3.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
 
 		tabInside.addTab("Games", sp3);
-		tabInside.addTab("Clients", sp2);
+		tabInside.addTab("Clients", sp4);
 		test.add(tabInside);
 
 		frame_main.add(test);
@@ -962,7 +1002,7 @@ public class Client extends Thread implements ActionListener,
 		}
 	}
 	
-	public void Login(){
+	public boolean Login(){
 		StringBuilder sb = new StringBuilder();
 		sb.append("LI");
 		sb.append(string_userName);
@@ -983,19 +1023,19 @@ public class Client extends Thread implements ActionListener,
 		
 		if (msg.compareTo("LK;") == 0) {
 			// clientGui();
-			System.out.println("LK sent");
-			afterLoginScreen();
+			return true;
+			
+		}else if(msg.compareTo("ER100;") == 0) {
+			//username in use
 			frame_Welcome.dispose();
-
-			// TODO
-			// getClients();
-			
-			start();
-			
-		} else {
+			welcomeScreen(1);
+			return false;
+		}
+		else {
 			// new Client();//TODO
 			System.out
 					.println("ERROR IN CLIENT connectToServer method");
+			return false;
 		}
 	}
 
@@ -1022,7 +1062,6 @@ public class Client extends Thread implements ActionListener,
 		String c2 = Character.toString(b);
 		return (c1.equals(c2));
 	}
-
 	public void run() {
 		while (connected) {
 			try {
@@ -1032,7 +1071,6 @@ public class Client extends Thread implements ActionListener,
 				if (line.contains(msg)) {
 					if (choice) {
 						boolean value = true;
-
 						for (int x = 0; x < msg.length(); x++) {
 							if (charCompare(line.charAt(x), msg.charAt(x))) {
 								continue;
@@ -1255,8 +1293,11 @@ public class Client extends Thread implements ActionListener,
 
 					} else if (command.equals("QK")) {// Acknowledge quit request
 						//Client has successfully quit
+						String[] emp={""};
+						jlist_contactsMain.setListData(emp);
+						frame_main.repaint();
 						endGame(tempGameName);
-						jlist_contactsMain.removeAll();
+						
 
 					}  else if (command.equals("CM")) {// Chat to all recieved
 						//arguments[0]=sending player name
@@ -1268,15 +1309,12 @@ public class Client extends Thread implements ActionListener,
 								textArea_display_out.append("<"+arguments[0]+">"+arguments[1]+"\n");
 							}
 						}
-
 					}  else if (command.equals("QP")) {// Someone has quit. Exit game!
+						String[] emp={""};
+						jlist_contactsMain.setListData(emp);
+						frame_main.repaint();
 						endGame(tempGameName);
-						jlist_contactsMain.removeAll();
-						jlist_contactsMain.repaint();
-
-					} else if (command.equals("HI")) {// receive next hand from
-						// server
-						// Receive Hand
+					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
 						if (Integer.parseInt(arguments[0]) == totalrounds) {
@@ -1286,7 +1324,6 @@ public class Client extends Thread implements ActionListener,
 							lastRound = false;
 						}
 						threadHN = false;
-
 						String[] cards = new String[arguments.length - 3];
 						for (int i = 0; i < arguments.length - 3; i++) {
 							cards[i] = arguments[i + 1];
@@ -1318,18 +1355,8 @@ public class Client extends Thread implements ActionListener,
 						roundWinnerFrame = true;
 						askForBid(tempGameName);
 
-					} else if (command.equals("HC")) {// Who is next to bid, and
-														// who
-						// has bid, along with their
-						// bid
-						// create thread to keep sending HBgame_name; request
-						// ---------------------------------------------------------------------------
-						// TODO Keep track of other players bids, will be needed
-						// for
-						// calculating score
+					} else if (command.equals("HC")) {
 						bids.put(arguments[0], Integer.parseInt(arguments[1]));
-						// ---------------------------------------------------------------------------
-						// check if server accepted out bid
 						if (arguments[0].equals(username)) {
 							// bid was accepted
 							// is frame active?
@@ -1337,8 +1364,6 @@ public class Client extends Thread implements ActionListener,
 								frame_enterBid.dispose();
 								biddingActive = false;
 							}
-
-							// dispose screen and what not
 						}
 						// check whose turn to bid
 						if (firstPlayerToPlay.equals(arguments[2])) {
@@ -1351,10 +1376,7 @@ public class Client extends Thread implements ActionListener,
 							bidding = false;
 							turnToPlay.setVisible(false);
 							turnToPlayCard = false;
-							gameInProgress = true;// check somewhere when no
-													// more
-							// games are in progress
-							// send HPgame_name to server
+							gameInProgress = true;
 							new Thread(new Runnable() {
 
 								public void run() {
@@ -1362,12 +1384,6 @@ public class Client extends Thread implements ActionListener,
 										try {
 											Thread.sleep(500);
 											if (gameInProgress) {
-												// cycle through all games in
-												// progress
-												// dont actually need to cycle
-												// through all games.. client
-												// only
-												// playes one game at a time
 												System.out.println("HP"
 														+ tempGameName + ";");
 												objectOutput.writeObject("HP"
@@ -1375,7 +1391,6 @@ public class Client extends Thread implements ActionListener,
 												objectOutput.flush();
 											}
 										} catch (Exception e) {
-											// TODO Auto-generated catch block
 											e.printStackTrace();
 										}
 									}
@@ -2149,12 +2164,24 @@ public class Client extends Thread implements ActionListener,
 	}
 	public void actionPerformed(ActionEvent evt) {
 		if (evt.getSource() == button_login) {
+			String testEmpty=text_loginTextfieldName.getText().replace(" ", "");
 			if (text_loginTextfieldName.getText().equals("")) {
 				frame_Welcome.dispose();
 				welcomeScreen(2);
-			} else {
+			}else if(testEmpty.equals("")){
+				frame_Welcome.dispose();
+				welcomeScreen(3);
+			}
+			else {
 				connectToServer();
-				if(getServerReady())Login();
+				if(getServerReady()){
+					if(Login()){
+						System.out.println("LK sent");
+						afterLoginScreen();
+						frame_Welcome.dispose();
+						start();
+				}
+				}
 			}
 
 		}
@@ -2338,8 +2365,9 @@ public class Client extends Thread implements ActionListener,
 			// Send private message
 			String text = text_message_out.getText();
 			if ((text.length() > 0)) {
-				textArea_display_out.append("<");
+				
 				if(text.charAt(0)=='@'){
+					textArea_display_out.append("<");
 					//Private Message
 					System.out.println(text);
 					String[] arguments = text.replace(":", "@")
