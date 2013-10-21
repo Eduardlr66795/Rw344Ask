@@ -52,7 +52,7 @@ public class ServerTest {
             ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
             ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
             clientsIn.add(objectInput2);
-            clientsOut.add(objectOutput2);            
+            clientsOut.add(objectOutput2);
         }
     }
 
@@ -72,9 +72,7 @@ public class ServerTest {
     
     @Test
     public void testOneConnection() throws Exception{
-    	System.out.println("PASSSSSSSS");
             String serverMsg = (String) objectInput.readObject();
-            System.out.println("PASSSSSSSS2");
             assertTrue("Fail, ", serverMsg.equals("RD;"));
         
     }
@@ -85,14 +83,8 @@ public class ServerTest {
         
         for(int i = 0; i < 5; i++){
 
-            Socket client2 = new Socket("localhost", 3000);
-            clients.add(client2);
-            ObjectInputStream objectInput2 = new ObjectInputStream(client2.getInputStream());
-            ObjectOutputStream objectOutput2 = new ObjectOutputStream(client2.getOutputStream());
-            clientsIn.add(objectInput2);
-            clientsOut.add(objectOutput2);
-
-            String serverMsg = (String) objectInput2.readObject();
+            
+            String serverMsg = (String) clientsIn.get(i).readObject();
             if(serverMsg.equals("RD;")){
                 passed ++;
             }
@@ -102,7 +94,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testLOBeforeLogin() throws IOException, ClassNotFoundException{
+    public void testLOBeforeLogin() throws IOException, ClassNotFoundException, InterruptedException{
 		beforeLISetupSteps();
             objectOutput.writeObject("LO;");
             objectOutput.flush();
@@ -110,7 +102,7 @@ public class ServerTest {
             assertTrue("recieved \'" + error + "\' instead of \'ER102;\'",error.equals("ER102;"));
     }
     
-    private void beforeLISetupSteps() throws IOException, ClassNotFoundException {
+    private void beforeLISetupSteps() throws IOException, ClassNotFoundException, InterruptedException {
 
     	String serverMsg = (String) objectInput.readObject();
     	for(int i = 0; i < clients.size(); i++){
@@ -119,7 +111,7 @@ public class ServerTest {
 	}
 
 	@Test
-    public void testMCBeforeLogin() throws IOException, ClassNotFoundException{
+    public void testMCBeforeLogin() throws IOException, ClassNotFoundException, InterruptedException{
 			beforeLISetupSteps();
             objectOutput.writeObject("MC;");
             objectOutput.flush();
@@ -128,7 +120,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testLogonOfUniqueClient() throws IOException, ClassNotFoundException{
+    public void testLogonOfUniqueClient() throws IOException, ClassNotFoundException, InterruptedException{
     	beforeLISetupSteps();
             objectOutput.writeObject("LIusername:password;");
             objectOutput.flush();
@@ -137,11 +129,12 @@ public class ServerTest {
     }
     
     @Test
-    public void testLogonOfNonUniqueClientName() throws IOException, ClassNotFoundException{
+    public void testLogonOfNonUniqueClientName() throws IOException, ClassNotFoundException, InterruptedException{
     	beforeLISetupSteps();
     	System.out.println("Setup done");
     		clientsOut.get(2).writeObject("LIusername:password;");
     		clientsOut.get(2).flush();
+    		Thread.sleep(100);
             clientsOut.get(1).writeObject("LIusername:password;");
             clientsOut.get(1).flush();
             String response = (String) clientsIn.get(1).readObject();
@@ -149,7 +142,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testManyUniqueLogins() throws IOException, ClassNotFoundException{
+    public void testManyUniqueLogins() throws IOException, ClassNotFoundException, InterruptedException{
     	beforeLISetupSteps();
         passed = 0;
                 for(int i = 0; i < clients.size();i++){
@@ -163,7 +156,7 @@ public class ServerTest {
         assertTrue(passed + "/" + clients.size() + "Passed the test.",passed == clients.size());
     }
     
-    public void testAfterLoginPhaseSetup() throws IOException, ClassNotFoundException{
+    public void testAfterLoginPhaseSetup() throws IOException, ClassNotFoundException, InterruptedException{
     	beforeLISetupSteps();
         objectOutput.writeObject("LIGamerminus1:password;");
         objectOutput.flush();
@@ -199,7 +192,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testSingleLogoff() throws IOException, ClassNotFoundException{
+    public void testSingleLogoff() throws IOException, ClassNotFoundException, InterruptedException{
     	testAfterLoginPhaseSetup();
     	objectOutput.writeObject("LO;");
     	String serverMsg = (String) objectInput.readObject();
@@ -207,7 +200,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testManyLogoff() throws IOException, ClassNotFoundException{
+    public void testManyLogoff() throws IOException, ClassNotFoundException, InterruptedException{
     	testAfterLoginPhaseSetup();
     	
     	for(int i = 0; i < clients.size(); i++){
@@ -223,7 +216,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testValidGame() throws IOException, ClassNotFoundException{
+    public void testValidGame() throws IOException, ClassNotFoundException, InterruptedException{
     	testAfterLoginPhaseSetup();
     	clientsOut.get(1).writeObject("GSgame1;");
     	clientsOut.get(1).flush();
@@ -233,7 +226,7 @@ public class ServerTest {
     }
     
     @Test
-    public void testInvalidGame() throws IOException, ClassNotFoundException{
+    public void testInvalidGame() throws IOException, ClassNotFoundException, InterruptedException{
     	testAfterLoginPhaseSetup();
          clientsOut.get(1).writeObject("GSgame1;");
          clientsOut.get(1).flush();
@@ -248,7 +241,7 @@ public class ServerTest {
     
     
     @Test
-    public void testManyValidGames() throws IOException, ClassNotFoundException{
+    public void testManyValidGames() throws IOException, ClassNotFoundException, InterruptedException{
     	testAfterLoginPhaseSetup();
     	passed = 0;
         for(int i = 0; i < clientsOut.size(); i++){
