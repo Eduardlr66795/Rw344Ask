@@ -494,11 +494,14 @@ public class Client extends Thread implements ActionListener,
 			if (!bol_mainFrameActive) {
 				objectOutput.writeObject("GL;");
 				objectOutput.flush();
+				objectOutput.writeObject("CC;");
+				objectOutput.flush();
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}		
+		}
+		
 	}
 
 	// Protocol
@@ -718,7 +721,7 @@ public class Client extends Thread implements ActionListener,
 		usernameForMainFrame.setLocation(50, 40);
 		usernameForMainFrame.setText(username);
 		turnToPlay.setSize(160, 25);
-		turnToPlay.setLocation(100, 5);
+		turnToPlay.setLocation(200, 5);
 		turnToPlay.setText("TURN TO PLAY!!");
 		turnToPlay.setVisible(false);
 		panel_bigframe[gameNumber].add(usernameForMainFrame);
@@ -756,6 +759,7 @@ public class Client extends Thread implements ActionListener,
 		// totalrounds
 		int k = 0;
 		for (k = 0; k < pNames.length; k++) {
+			tempLastTrickScore[k]=0;
 			bids.put(pNames[k], 0);
 			plabel_players[k] = new JLabel(pNames[k]);
 			plabel_playersScores[k]=new JLabel("0");
@@ -1134,6 +1138,10 @@ public class Client extends Thread implements ActionListener,
 									System.out.println("GL;");
 									objectOutput.writeObject("GL;");
 									objectOutput.flush();
+									System.out.println("CC;");
+									objectOutput.writeObject("CC;");
+									objectOutput.flush();
+
 
 								} catch (SocketException e) {
 									e.printStackTrace();
@@ -1148,8 +1156,30 @@ public class Client extends Thread implements ActionListener,
 						}).start();
 
 					} else if (command.equals("GV")) {// truncated games list
-
-						System.out.println(line);
+						boolean pass = true;
+						for (int i = 0; i < arguments.length; i++) {
+							if (!arguments[i].equals(tempLastGU[i])) {
+								System.out.println("false");
+								System.out.println(arguments[i]);
+								System.out.println(tempLastGU[i]);
+								pass = false;
+							}
+						}
+						if (!pass) {// List Was Changed!
+							System.out.println("Changing");
+							System.out.println("Main frame Active? "+bol_mainFrameActive);
+							for (int i = 0; i < arguments.length; i++) {
+								tempLastGU[i]=(arguments[i]);
+							}
+							if (!bol_mainFrameActive) {
+								// update jlist_contactsOutsideMain
+								jlist_gmesListOutMain.removeAll();
+								jlist_gmesListOutMain.setListData(arguments);
+							} else {
+								jlist_gameMain.removeAll();
+								jlist_gameMain.setListData(arguments);								
+							}
+						}						
 					} else if (command.equals("GX")) {// Game joined
 
 						gameNotStarted = true;
@@ -1203,14 +1233,23 @@ public class Client extends Thread implements ActionListener,
 														// game
 						newGameUpadatePlayers(tempGameName, arguments);
 
-					} else if (command.equals("QK")) {// Acknowledge quit
-														// request,
-						// send to client who has
-						// quit
+					} else if (command.equals("QK")) {// Acknowledge quit request
+						//Client has successfully quit
+						endGame(tempGameName);
 
-					} else if (command.equals("QP")) {// To inform other clients
-						// that someone has quit
-						// game
+					}  else if (command.equals("CM")) {// Chat to all recieved
+						//arguments[0]=sending player name
+						//arguments[1]=message
+						if(!arguments[0].equals(username)){
+							if(bol_mainFrameActive){
+								textArea_display_in.append("<"+arguments[0]+">"+arguments[1]+"/n");
+							}else{
+								textArea_display_out.append("<"+arguments[0]+">"+arguments[1]+"/n");
+							}
+						}
+
+					}  else if (command.equals("QP")) {// Someone has quit. Exit game!
+						endGame(tempGameName);
 
 					} else if (command.equals("HI")) {// receive next hand from
 						// server
@@ -2068,6 +2107,8 @@ public class Client extends Thread implements ActionListener,
 		// Protocol
 		// client -> server: CAgame_name:message;
 		// server -> client: CG;
+		
+		
 		else if (evt.getSource() == button_sendMessage_in) {
 			String text = text_message_in.getText();
 			if ((text.length() > 0) && (tabs.getComponentCount() != 0)) {
@@ -2079,6 +2120,7 @@ public class Client extends Thread implements ActionListener,
 				sb.append(text);
 				sb.append(";");
 				try {
+					System.out.println(sb.toString());
 					objectOutput.writeObject(sb.toString());
 					objectOutput.flush();
 				} catch (IOException e) {
