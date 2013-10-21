@@ -147,11 +147,11 @@ public class TestInputGameCreation{
         		+ " Player1:" + player1 + " Player0:" + player02
         		+ " Player2:" + player2 + " Player0:" + player03
         		+ " Player3:" + player3 + " Player0:" + player04
-        		+ " Player0:" + player05 + "; \nExpected: " + outputs,
+        		+ " Player0:" + player05 + " \nExpected: " + outputs,
         		player01.equals("GK;")&&player02.equals("GPPlayer1;")&&
         		player1.equals("GX;")&&player2.equals("GX;")&&
         		player3.equals("GX;")&&player03.equals("GPPlayer2;")&&
-        		player04.equals("GPPlayer3;")&&player05.equals("ER131;"));
+        		player04.equals("GPPlayer3;")&&player05.equals("GM;"));
     }
     
     @Test
@@ -234,6 +234,41 @@ public class TestInputGameCreation{
         		player5.equals("GX;")&&player6.equals("GX;")&&
         		player05.equals("GPPlayer4;")&&player06.equals("GPPlayer5;")&&
         		player07.equals("GPPlayer6;")&&player08.equals("GM;"));
+    }
+    
+    @Test
+    public void testCreateGame5() throws Exception{
+    	
+        String inputs = "Player0:GSGame; Player1:GJGame; Player0:GNGame; Player0:GNGame; Player0:GFGame";
+        String outputs = "Player0:GK; Player1:GX; Player0:GPPlayer1; Player0:GZ; Player0:ER131;";
+        
+        clientsOut.get(0).writeObject("GSGame;");
+        clientsOut.get(0).flush();
+        String player01 = (String)clientsIn.get(0).readObject();
+        
+        clientsOut.get(1).writeObject("GJGame;");
+        clientsOut.get(1).flush();
+        String player1 = (String)clientsIn.get(1).readObject();
+        
+        clientsOut.get(0).writeObject("GNGame;");
+        clientsOut.get(0).flush();
+        String player02 = (String)clientsIn.get(0).readObject();
+        
+        clientsOut.get(0).writeObject("GNGame;");
+        clientsOut.get(0).flush();
+        String player03 = (String)clientsIn.get(0).readObject();
+        
+        clientsOut.get(0).writeObject("GFGame;");
+        clientsOut.get(0).flush();
+        String player04 = (String)clientsIn.get(0).readObject();
+        
+        assertTrue("Inputs: " + inputs + "; \nFound: Player0:" + player01 
+        		+ " Player1:" + player1 + " Player0:" + player02
+        		+ " Player0:" + player03 + " Player0:" + player04
+        		+ " \nExpected: " + outputs,
+        		player01.equals("GK;")&&player02.equals("GPPlayer1;")&&
+        		player1.equals("GX;")&&player03.equals("GZ;")&&
+        		player04.equals("ER131;"));
     }
     
 }
