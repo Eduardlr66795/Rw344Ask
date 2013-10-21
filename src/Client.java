@@ -1242,9 +1242,9 @@ public class Client extends Thread implements ActionListener,
 						//arguments[1]=message
 						if(!arguments[0].equals(username)){
 							if(bol_mainFrameActive){
-								textArea_display_in.append("<"+arguments[0]+">"+arguments[1]+"/n");
+								textArea_display_in.append("<"+arguments[0]+">"+arguments[1]+"\n");
 							}else{
-								textArea_display_out.append("<"+arguments[0]+">"+arguments[1]+"/n");
+								textArea_display_out.append("<"+arguments[0]+">"+arguments[1]+"\n");
 							}
 						}
 
