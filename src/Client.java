@@ -685,11 +685,7 @@ public class Client extends Thread implements ActionListener,
 		
 		panel_backRed.add(test);
 		//frame_main.add(test);
-<<<<<<< HEAD
-=======
 
-		// //////////////////////////////////////////////////////
->>>>>>> 57ef86442825426d4582b93ea7e2b57de419a135
 
 		button_sendMessage_in = new JButton("Send Message");
 		button_sendMessage_in.setBounds(709, 460, 140, 30);
@@ -1174,8 +1170,10 @@ public class Client extends Thread implements ActionListener,
 						}						
 					} else if (command.equals("GZ")) {
 
-					} else if (command.equals("GM")) {// Game full and had
-														// started
+					} else if (command.equals("GM")) {// Game full and had started
+						//Dispose game about to start frame
+						// Dispose
+						frame_waitingToStartGame.dispose();
 						gameNotStarted = false;
 						System.out.println("Game has started");
 						newGameGui(tempGameName);
@@ -2504,8 +2502,7 @@ public class Client extends Thread implements ActionListener,
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			// Dispose
-			frame_waitingToStartGame.dispose();
+			
 		}
 		// Protocol
 		// client -> server: LO;
