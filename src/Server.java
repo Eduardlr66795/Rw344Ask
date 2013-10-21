@@ -419,22 +419,44 @@ public class Server implements Runnable {
 	public void logoff(Socket socket) {
 		ObjectOutputStream o = null;
 		o = (ObjectOutputStream) outputStreams.get(socket);
+		String username = getUsername(socket);
+		
+		for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
+			String nxt = (String) e.nextElement();
+			Game game = gamesList.get(nxt);
+			
+			if (game.playerList.containsKey(username)) {
+				for (Enumeration e2 = game.getPlayerList().keys(); e.hasMoreElements();) {
+					String playerName = (String) e2.nextElement();
+					for (Entry<ObjectOutputStream, String> c : clientList
+                            .entrySet()) {
+
+	                    if (c.getValue().equals(playerName)) {
+	                        ObjectOutputStream tmp = c.getKey();
+	                        try {
+								tmp.writeObject("QP" + username + ";");
+								tmp.flush();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+	                        
+	                    }
+					}
+				}
+			}
+		}
 		if (clientList.containsKey(o)) {
 			try {
 				o.writeObject("LM;");
 				o.flush();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			removeUsername(socket);
-			removeConnection(socket);
 		} else {
 			try {
 				o.writeObject("ER102;");
 				o.flush();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -461,6 +483,7 @@ public class Server implements Runnable {
 
 				o.writeObject("GK;");
 				o.flush();
+				newGame.state = "joining";
 				textAreaGame.append("New client: " + gameName);
 				textAreaGame.append("\n");
 
@@ -563,7 +586,9 @@ public class Server implements Runnable {
 				game.deal();
 				// Get a random player to start
 				int rnd = (int) (Math.random() * (game.playerCount - 1));
+				game.state = "bidding";
 				game.nextPlayerToBid = getPlayerNameFromNumber(gameName, rnd);
+				game.nextPlayerToPlay = game.nextPlayerToBid;
 				o.writeObject("GM;");
 				o.flush();
 				return;
@@ -800,9 +825,12 @@ public class Server implements Runnable {
 						ObjectOutputStream o2 = i.getKey();
 						o2.writeObject("QP" + getUsername(socket) + ";");
 						o2.flush();
+						
 					}
 				}
 			}
+			
+			gamesList.remove(gameName);
 
 		} catch (Exception e) {
 			System.out.println("Exception in quitGame " + e);
@@ -920,6 +948,9 @@ public class Server implements Runnable {
 
 				game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
 						nextplayernumber);
+				if (game.nextPlayerToBid.equals(game.nextPlayerToPlay)) {
+					game.state = "playing";
+				}
 				game.lastBid = getUsername(socket) + ":" + bid;
 
 				o.writeObject("HC" + getUsername(socket) + ":" + bid + ":"
@@ -1139,6 +1170,7 @@ public class Server implements Runnable {
 				game.nextPlayerToPlay = "";
 
 				game.restingState = true;
+				game.state = "resting";
 
 			}
 
@@ -1186,6 +1218,7 @@ public class Server implements Runnable {
 					int rnd = (int) (Math.random() * (game.playerCount - 1));
 					game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
 							rnd);
+					game.nextPlayerToPlay = game.nextPlayerToBid;
 					game.lastBid = "none:none";
 					game.restingState = false;
 					return;
@@ -1294,6 +1327,66 @@ public class Server implements Runnable {
 			System.out.println("Exception in chatToPlayers " + e);
 		}
 	}
+	
+	public void modeConfusion(Socket socket) {
+		String username = getUsername(socket);
+		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+		try {
+			boolean isInGame = false;
+			
+			for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
+				String nxt = (String) e.nextElement();
+				Game game = gamesList.get(nxt);
+				
+				if (game.playerList.containsKey(username)) {
+					isInGame = true;
+					String state = game.state;
+					
+					if (state.equals("joining")) {
+						o.writeObject("MLGW" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+						o.flush();
+						return;
+					} else if (state.equals("bidding")) {
+						if (game.nextPlayerToBid.equals(username)) {
+							o.writeObject("MLHN" + game.gameName + ":HB" + game.gameName + ":HD" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName  + ":LO:CP:CC;");
+							o.flush();
+							return;
+						} else {
+							o.writeObject("MLHN" + game.gameName + ":HB" + game.gameName +":CA" + game.gameName  + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						}
+					} else if (state.equals("playing")) {
+						if (game.nextPlayerToPlay.equals(username)) {
+							o.writeObject("MLHN" + game.gameName + ":HP" + game.gameName + ":HR" + game.gameName + ":HS" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						} else {
+							o.writeObject("MLHN" + game.gameName + ":HP" + game.gameName + ":HS" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						}
+						
+					} else if (state.equals("resting")) {
+						int playerNumber = game.getPlayerList().get(username);
+						
+						if (game.playAnotherRound[playerNumber]) {
+							o.writeObject("MLHN" + game.gameName + ":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						} else {
+							o.writeObject("MLHA" + game.gameName + ":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.flush();
+							return;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("Exception in modeConfusion " + e);
+		}
+		
+	}
 
 	/**
 	 * 
@@ -1330,46 +1423,4 @@ public class Server implements Runnable {
 			System.out.println("Exception in badMessageFomat " + e);
 		}
 	}
-
-    public void unExpectedCommand(Socket socket) {
-        ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
-        try {
-			o.writeObject("ER901;");
-			o.flush();
-		} catch (Exception e) {
-			System.out.println("Exception in unExpectedCommand " + e);
-		}
-    }
-    
-    
-    public void removeGamesHostedBy(Socket socket) {
-        Collection<String> games = gamesList.keySet();
-        Iterator<String> itr = games.iterator();
-        String temp = null;
-        while(itr.hasNext()){
-        	synchronized(itr){
-        		temp = itr.next();
-        	}
-            Game removing = gamesList.get(temp);
-            if(clientList.get(outputStreams.get(socket)).equals(removing.GetCreatorName())){
-                //kick all players in game temp.
-
-                for (Enumeration g = removing.getPlayerList().keys(); g.hasMoreElements();){
-                    String playerName = (String) g.nextElement();
-                    synchronized(clientList){
-                            for (Entry<ObjectOutputStream, String> c : clientList
-                                            .entrySet()) {
-
-                                    if (c.getValue().equals(playerName)) {
-                                        kickPlayerFromGame(removing.gameName, playerName, socket);
-                                    }
-                            }
-                    }
-                }
-             synchronized (gamesList) {
-                 gamesList.remove(temp);
-             }
-            }
-        }
-    }
 }
