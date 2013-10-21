@@ -284,32 +284,11 @@ public class Client extends Thread implements ActionListener,
 		frame_Welcome.setSize(400, 300);
 		frame_Welcome.setLocation(400, 100);
 		frame_Welcome.setEnabled(true);
-		frame_Welcome.setTitle("//Ask Login");
 
-		panel_welcome = new JPanel() {
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				if (new ImageIcon(
-						Client.class.getResource("/images/frame.jpg")) != null) {
-					int width = getWidth();
-					int height = getHeight();
-					if (width > height)
-						width = height;
-					else
-						height = width;
-					g.drawImage(
-							new ImageIcon(Client.class
-									.getResource("/images/frame.jpg"))
-									.getImage(), 70, -80, width+160 , height,null);
-				}
-			}
-		};
-		
+		panel_welcome = new JPanel();
 		panel_welcome.setSize(frame_Welcome.getWidth(),
-		frame_Welcome.getHeight());
-		panel_welcome.setBackground(Color.black);
+				frame_Welcome.getHeight());
 		panel_welcome.setLayout(null);
-		
 
 		JLabel heading = new JLabel("") {
 			public void paintComponent(Graphics g) {
@@ -334,70 +313,56 @@ public class Client extends Thread implements ActionListener,
 		heading.setBounds(100, 0, panel_welcome.getWidth(), 100);
 		heading.setBackground(Color.white);
 
+		JLabel created = new JLabel();
+		created.setText("Welcomes you!");
+		created.setFont(new Font("Serif", Font.BOLD, 18));
+		created.setBounds(130, 60, 280, 100);
+
 		JLabel loginName = new JLabel();
-		loginName.setText("Name");
-		loginName.setForeground(Color.red);
-		loginName.setFont(new Font("cmmi10", Font.BOLD, 16));
-		loginName.setBounds(165, 130, 75, 25);
+		loginName.setText("Name: ");
+		loginName.setFont(new Font("Serif", Font.BOLD, 18));
+		loginName.setBounds(60, 130, 75, 25);
 
 		JLabel port = new JLabel();
-		port.setText("Port");
-		port.setForeground(Color.red);
-		port.setFont(new Font("cmmi10", Font.BOLD, 16));
-		port.setBounds(165, 162, 100, 25);
+		port.setText("Port #");
+		port.setFont(new Font("Serif", Font.BOLD, 18));
+		port.setBounds(60, 162, 100, 25);
 
 		JLabel IP = new JLabel();
-		IP.setText("Address");
-		IP.setForeground(Color.red);
-		IP.setFont(new Font("cmmi10", Font.BOLD, 16));
-		IP.setBounds(170, 215, 100, 25);
+		IP.setText("Address:");
+		IP.setFont(new Font("Serif", Font.BOLD, 18));
+		IP.setBounds(42, 190, 100, 25);
 
 		text_loginTextfieldName = new JTextField();
 		text_loginTextfieldName.setFont(new Font("Serif", Font.BOLD, 16));
 
 		if (x == 1) {
-			text_loginTextfieldName.setText("taken...");
+			text_loginTextfieldName.setText("Username in use..");
 			text_loginTextfieldName.setForeground(Color.RED);
 		} else if (x == 2) {
-			text_loginTextfieldName.setText("to Short..");
+			text_loginTextfieldName.setText("Username to Short");
 			text_loginTextfieldName.setForeground(Color.RED);
 		}
 
-		text_loginTextfieldName.setBounds(10, 133, 150, 25);
+		text_loginTextfieldName.setBounds(130, 133, 200, 25);
 		text_loginTextfieldPort = new JTextField();
 		text_loginTextfieldPort.setText("3000");
 		text_loginTextfieldPort.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldPort.setBounds(10, 163, 150, 25);
+		text_loginTextfieldPort.setBounds(130, 163, 200, 25);
 
 		text_loginTextfieldIp = new JTextField();
 		text_loginTextfieldIp.setText("localhost");
 		text_loginTextfieldIp.setFont(new Font("Serif", Font.BOLD, 16));
-		text_loginTextfieldIp.setBounds(245, 215, 150, 25);
+		text_loginTextfieldIp.setBounds(130, 195, 200, 25);
 
-		 button_login = new JButton() {
-			public void paintComponent(Graphics g) {
-				super.paintComponent(g);
-				if (new ImageIcon(
-						Client.class.getResource("/images/enter.png")) != null) {
-					int width = getWidth();
-					int height = getHeight();
-					if (width > height)
-						width = height;
-					else
-						height = width;
-					g.drawImage(
-							new ImageIcon(Client.class
-									.getResource("/images/enter.png"))
-									.getImage(), -2, 0, width + 130 , height+5,null);
-				}
-			}
-		};
+		button_login = new JButton();
+		button_login.setText("Login");
 		button_login.setFont(new Font("Serif", Font.PLAIN, 20));
-		button_login.setBounds(245, 245, 150, 30);
-		button_login.setBackground(Color.black);
+		button_login.setBounds(130, 225, 200, 40);
 		button_login.addActionListener(this);
-		
+
 		panel_welcome.add(heading);
+		panel_welcome.add(created);
 		panel_welcome.add(loginName);
 		panel_welcome.add(port);
 		panel_welcome.add(IP);
@@ -419,6 +384,127 @@ public class Client extends Thread implements ActionListener,
 				System.exit(0);
 			}
 		});
+	}
+
+	public void afterLoginScreen() {
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (ClassNotFoundException e1) {
+			e1.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
+		frame_choice = new JFrame();
+		frame_choice.setLayout(null);
+		frame_choice.setSize(590, 400);
+
+		// Main Panel
+		panel_main = new JPanel();
+		panel_main.setLayout(null);
+		panel_main.setSize(frame_choice.getWidth(), frame_choice.getHeight());
+
+		// Button: Create New Game
+		button_newGame_out = new JButton("Create New Game");
+		button_newGame_out.setBounds(15, 15, 170, 30);
+		button_newGame_out.addActionListener(this);
+		panel_main.add(button_newGame_out);
+
+		// Button: Join Existing Game
+		button_joinGame_out = new JButton("Join Existing Game");
+		button_joinGame_out.setBounds(15, 50, 170, 30);
+		button_joinGame_out.addActionListener(this);
+		panel_main.add(button_joinGame_out);
+
+		// Button: Join Existing Game
+		button_sendMessage_out = new JButton("Send Private Message");
+		button_sendMessage_out.setBounds(265, 300, 150, 30);
+		button_sendMessage_out.addActionListener(this);
+		panel_main.add(button_sendMessage_out);
+
+		// Button: Join Existing Game
+		button_clearText_out = new JButton("Clear Text");
+		button_clearText_out.setBounds(265, 330, 150, 30);
+		button_clearText_out.addActionListener(this);
+		panel_main.add(button_clearText_out);
+
+		// TextArea: Join Existing Game
+		textArea_display_out = new JTextArea();
+		textArea_display_out.setEditable(false);
+		textArea_display_out.setBounds(15, 90, 400, 180);
+		panel_main.add(textArea_display_out);
+
+		tabOutside = new JTabbedPane();
+		tabOutside.setSize(150, 270);
+
+		// String arr2[] = { "asd", "asd", "aa", "dd", "arr2" };
+		JScrollPane sp2 = new JScrollPane(
+				jlist_contactsOutsideMain = new JList());
+		// jlist_contactsOutsideMain.setListData(arr2);
+		jlist_contactsOutsideMain.setVisibleRowCount(4);
+		jlist_contactsOutsideMain.addListSelectionListener(this);
+		jlist_contactsOutsideMain.addMouseListener(this);
+		sp2.setBounds(0, 0, 150, 270);
+		tabOutside.addTab("Clients", sp2);
+
+		// String arr3[] = { "asd", "asd", "aa", "ddxxxx", "arr3" };
+		JScrollPane sp3 = new JScrollPane(jlist_gmesListOutMain = new JList());
+		// jlist_gmesListOutMain.setListData(arr3);
+		jlist_gmesListOutMain.setVisibleRowCount(4);
+		jlist_gmesListOutMain.addListSelectionListener(this);
+		sp3.setBounds(0, 0, 150, 270);
+		tabOutside.addTab("Games", sp3);
+
+		JPanel test = new JPanel();
+		test.setLayout(null);
+		test.setBounds(420, 40, 150, 870);
+
+		test.add(tabOutside);
+
+		panel_main.add(test);
+		getClients();
+
+		// TextField: Join Existing Game
+		text_message_out = new JTextField();
+		text_message_out.setBounds(15, 270, 400, 30);
+		panel_main.add(text_message_out);
+
+		frame_choice.add(panel_main);
+		frame_choice.setVisible(true);
+		choice = true;
+
+		frame_choice.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		frame_choice.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				// TODO: create window event
+				// frame_Welcome.dispose();
+				// System.exit(0);
+				quit();
+			}
+		});
+
+		try {
+			if (!bol_mainFrameActive) {
+				objectOutput.writeObject("GL;");
+				objectOutput.flush();
+				objectOutput.writeObject("CC;");
+				objectOutput.flush();
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	// Protocol
@@ -501,13 +587,8 @@ public class Client extends Thread implements ActionListener,
 		text_message_in.setLocation(3, 460);
 		frame_main.add(text_message_in);
 		
-		text_messagePrivate_in = new JTextField();
-		text_messagePrivate_in.setSize(700, 30);
-		text_messagePrivate_in.setLocation(3, 500);
-		frame_main.add(text_messagePrivate_in);
 
-		JScrollPane spMain = new JScrollPane(
-				textArea_display_in = new JTextArea());
+		JScrollPane spMain = new JScrollPane(textArea_display_in = new JTextArea());
 		spMain.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		spMain.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
 		spMain.setBounds(3, 330, 800, 130);
@@ -557,10 +638,7 @@ public class Client extends Thread implements ActionListener,
 		button_sendMessage_in.addActionListener(this);
 		frame_main.add(button_sendMessage_in);
 		
-		button_sendPrivateMessage_in= new JButton("Send Private Msg");
-		button_sendPrivateMessage_in.setBounds(709, 500, 140, 30);
-		button_sendPrivateMessage_in.addActionListener(this);
-		frame_main.add(button_sendPrivateMessage_in);
+
 
 		button_listPlayers = new JButton("List of Players");
 		button_listPlayers.setBounds(1020, 380, 160, 25);
@@ -600,6 +678,34 @@ public class Client extends Thread implements ActionListener,
 
 		bol_mainFrameActive = true;
 		tempLastGU[0]="";
+		// Just for
+        // testing--------------------------------------------------------------------
+        /*
+        String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
+                        "ks", "as" };
+        String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c", "kh" };
+        String[] test3 = { "qs", "th" };
+        String[] names1 = { "Paul", "Luke", "Michael", "Kristo", "James",
+                        "Gerrit", "Jukkie" };
+        String[] names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie",
+                        "Luke" };
+        String[] names3 = { "Michael", "James", "Kristo" };
+        newGameGui("Friendly");
+        newGameGui("Fun");
+        newGameGui("Hello");
+        newGameGui("G3");
+        updateGame("Friendly", test3, null);
+        updateGame("Fun", test1, null);
+        updateGame("G3", test2, null);
+        endGame("G3");
+        newGameGui("Test2");
+        newGameGui("Test3");
+        updateGame("Test2", test1, null);
+        updateGame("Test3", test2, null);
+        // endGame("Test3");
+        // endGame("Friendly");
+        */
+        // ------------------------------------------------------------------------------------
 	}
 
 	public void newGameGui(String gName) {
@@ -1098,7 +1204,6 @@ public class Client extends Thread implements ActionListener,
 							}
 						}						
 					} else if (command.equals("GX")) {// Game joined
-
 						gameNotStarted = true;
 						new Thread(new Runnable() {
 
@@ -1121,7 +1226,6 @@ public class Client extends Thread implements ActionListener,
 
 							}
 						}).start();
-
 					} else if (command.equals("GB")) {// Game begins
 						System.out.println("Game Begins");
 						gameNotStarted = false;
@@ -1137,12 +1241,11 @@ public class Client extends Thread implements ActionListener,
 							tempGameName = tempGameName;
 							// Ask player for bid
 							tempGameName = tempGameName;
-
 						} catch (Exception e) {
 							System.out.println(e);
 						}
 					} else if (command.equals("GZ")) {// Game not ready yet, can
-														// be
+						// be
 						// received after a QW
 						// command
 
@@ -1153,6 +1256,7 @@ public class Client extends Thread implements ActionListener,
 					} else if (command.equals("QK")) {// Acknowledge quit request
 						//Client has successfully quit
 						endGame(tempGameName);
+						jlist_contactsMain.removeAll();
 
 					}  else if (command.equals("CM")) {// Chat to all recieved
 						//arguments[0]=sending player name
@@ -1167,6 +1271,8 @@ public class Client extends Thread implements ActionListener,
 
 					}  else if (command.equals("QP")) {// Someone has quit. Exit game!
 						endGame(tempGameName);
+						jlist_contactsMain.removeAll();
+						jlist_contactsMain.repaint();
 
 					} else if (command.equals("HI")) {// receive next hand from
 						// server
@@ -1531,6 +1637,34 @@ public class Client extends Thread implements ActionListener,
 						closeConnections();
 						System.out.println("Logoff Successful!");
 
+					} else if (command.equals("ML")) {
+						System.out.println("ML!");
+						for(int i=0;i<arguments.length;i++){
+							if(arguments[i].equals("HN")){
+								arguments[i]="Request new hand from server";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}else if(arguments[i].equals("")){
+								arguments[i]="";
+							}
+						}//End for
+						
+						confusionFrame(arguments);
+
 					} else if (command.equals("ER") && arguments[0].equals(142)) {
 						// Illegal
 						if (arguments[0].equals("100")) {// Login unsuccessful,
@@ -1692,6 +1826,9 @@ public class Client extends Thread implements ActionListener,
 			}
 		}
 	}
+	public void confusionFrame(String[] arguments){
+		//Display confusion frame
+	}
 
 	public void askForBid(String gameName) {
 		System.out.println("AskForBid");
@@ -1771,7 +1908,7 @@ public class Client extends Thread implements ActionListener,
 
 		text_FieldEnterBid = new JTextField();
 		text_FieldEnterBid.setSize(80, 30);
-		text_FieldEnterBid.setLocation(90, 10);
+		text_FieldEnterBid.setLocation(180, 10);
 		// add field for game name
 		// TODO
 
@@ -2030,7 +2167,8 @@ public class Client extends Thread implements ActionListener,
 			
 			String text = text_message_in.getText();
 			if ((text.length() > 0) && (tabs.getComponentCount() != 0)) {
-				textArea_display_in.append("<- " + text + " ->\n");
+				//textArea_display_in.append("<" + text + ">\n");
+				textArea_display_in.append("<");
 				if(text.charAt(0)=='@'){
 					//Private Message
 					System.out.println(text);
@@ -2041,7 +2179,10 @@ public class Client extends Thread implements ActionListener,
 					for(int i=1;i<arguments.length-1;i++){
 						sb.append(arguments[i]);
 						sb.append(":");
+						textArea_display_in.append("@"+arguments[i]);
 					}
+					textArea_display_in.append(">");
+					textArea_display_in.append(arguments[arguments.length-1]+"\n");
 					sb.append(arguments[arguments.length-1]+";");
 					try {
 						System.out.println(sb.toString());
@@ -2197,7 +2338,7 @@ public class Client extends Thread implements ActionListener,
 			// Send private message
 			String text = text_message_out.getText();
 			if ((text.length() > 0)) {
-				textArea_display_out.append("<- " + text + " ->\n");
+				textArea_display_out.append("<");
 				if(text.charAt(0)=='@'){
 					//Private Message
 					System.out.println(text);
@@ -2208,8 +2349,11 @@ public class Client extends Thread implements ActionListener,
 					for(int i=1;i<arguments.length-1;i++){
 						sb.append(arguments[i]);
 						sb.append(":");
+						textArea_display_out.append("@"+arguments[i]);
 					}
 					sb.append(arguments[arguments.length-1]+";");
+					textArea_display_out.append(">");
+					textArea_display_out.append(arguments[arguments.length-1]+"\n");
 					try {
 						System.out.println(sb.toString());
 						objectOutput.writeObject(sb.toString());
