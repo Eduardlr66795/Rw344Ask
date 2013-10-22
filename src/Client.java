@@ -802,25 +802,10 @@ public class Client extends Thread implements ActionListener,
 		bol_mainFrameActive = true;
 
 		tempLastGU[0] = "";
-		// Just for
-		// testing--------------------------------------------------------------------
 
-		// String[] test1 = { "9s", "th", "2c", "4s", "6c", "7c", "9h", "qd",
-		// "ks", "as" }; String[] test2 = { "7s", "3h", "qc", "8s", "2c", "3c",
-		// "kh" }; String[] test3 = { "qs", "th" }; String[] names1 = { "Paul",
-		// "Luke", "Michael", "Kristo", "James", "Gerrit", "Jukkie" }; String[]
-		// names2 = { "Michael", "James", "Kristo", "Gerrit", "Jukkie", "Luke"
-		// }; String[] names3 = { "Michael", "James", "Kristo" };
-		// newGameGui("Friendly"); newGameGui("Fun"); newGameGui("Hello");
-		// newGameGui("G3"); updateGame("Friendly", test3, null);
-		// updateGame("Fun", test1, null); updateGame("G3", test2, null);
-		// endGame("G3"); newGameGui("Test2"); newGameGui("Test3");
-		// updateGame("Test2", test1, null); updateGame("Test3", test2, null);
-		// endGame("Test3"); // endGame("Friendly");
-
-		// ------------------------------------------------------------------------------------
 	}
 
+	@SuppressWarnings("serial")
 	public void newGameGui(String gName) {
 
 		int gameNumber = 0;
@@ -852,24 +837,11 @@ public class Client extends Thread implements ActionListener,
 			}
 		};
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
 		panel_bigframe[gameNumber].setSize(825, 350);
 		panel_bigframe[gameNumber].setLayout(null);
-		panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setName(gName);
 
 		button_cards[gameNumber] = new JButton[10];
-		// plabel_layers = new JLabel[7];
 
 		// Add game name label
 		label_gameName = new JLabel(gName);
@@ -905,7 +877,7 @@ public class Client extends Thread implements ActionListener,
 		turnToPlay.setText("TURN TO PLAY!!");
 		turnToPlay.setVisible(false);
 		panel_bigframe[gameNumber].add(usernameForMainFrame);
-		panel_bigframe[gameNumber].add(turnToPlay);
+		panel_bigframe[gameNumber].add(turnToPlay);		// plabel_layers = new JLabel[7];
 		panel_bigframe[gameNumber].add(text_fieldTrumpSuite);
 		// Add new game panel
 		panel_bigframe[gameNumber].setName(gName);
@@ -977,22 +949,11 @@ public class Client extends Thread implements ActionListener,
 		int lengt = (table_scores.getRowCount()) * table_scores.getRowHeight()
 				+ 21;
 		spScores.setSize(spScores.getWidth(), lengt);
-		// spScores.setSize(spScores.getWidth(), table_scores.getHeight());
 	}
 
 	public void updateScoresInGame(String[] currentScores) {
-		// tempLastTrickScore
-		// update players score after each trick
-		// current score = tempLastTrickScore-info[x]
-		// String[][] tempForTable=new String[playerCountemp][3];
 		for (int i = 0; i < playerCountemp; i++) {
-			// String[] info = new String[4];
 			int cScore = Integer.parseInt(currentScores[3 * i + 1]);
-			// plabel_playersScores[i].setText(cScore + "");
-			// tempForTable[i][0]=names[i];
-			// tempForTable[i][1]=cScore+"";
-			// tempForTable[i][2]=bids.get(names[i])+"";
-
 			tableModel.setValueAt(cScore + "", i, 1);
 		}
 
@@ -1042,22 +1003,18 @@ public class Client extends Thread implements ActionListener,
 		}
 	}
 
-	/**
- * 
- */
+	
+	
 	public void connectToServer() {
 		try {
 			String servername = text_loginTextfieldIp.getText();
 			string_userName = text_loginTextfieldName.getText();
 			int port = Integer.parseInt(text_loginTextfieldPort.getText());
-//			System.out.println("cz");
 
 			client = new Socket(servername, port);
 			connected = true;
 			objectOutput = new ObjectOutputStream(client.getOutputStream());
-//			System.out.println("cn");
 			objectInput = new ObjectInputStream(client.getInputStream());
-//			System.out.println("co");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1067,20 +1024,15 @@ public class Client extends Thread implements ActionListener,
 	public boolean getServerReady() {
 		try {
 
-//			System.out.println("connctd3");
 			String serverMsg = (String) objectInput.readObject();
 			System.out.println(serverMsg);
 			if (serverMsg.equals("RD;")) {
-//				System.out.println("inloop");
 				return true;
 			} else {
-//				System.out.println("inloop2");
 				JOptionPane.showMessageDialog(null, "Server is not ready");
-				// quit(); //TODO
 				return false;
 			}
 		} catch (Exception ex) {
-			// ex.printStackTrace();
 			JOptionPane.showMessageDialog(null, "Server Error..", "Error!",
 					JOptionPane.ERROR_MESSAGE);
 			return false;
@@ -1099,25 +1051,17 @@ public class Client extends Thread implements ActionListener,
 			objectOutput.flush();
 			msg = (String) objectInput.readObject();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		if (msg.compareTo("LK;") == 0) {
-			// clientGui();
 			return true;
-
 		} else if (msg.compareTo("ER100;") == 0) {
-			// username in use
 			frame_Welcome.dispose();
 			welcomeScreen(1);
 			return false;
 		} else {
-			// new Client();//TODO
-//			System.out.println("ERROR IN CLIENT connectToServer method");
 			return false;
 		}
 	}
@@ -1131,10 +1075,8 @@ public class Client extends Thread implements ActionListener,
 				objectOutput.writeObject(text);
 				objectOutput.flush();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		} else {
 			text_message_in.setText("");
 		}
@@ -1150,7 +1092,6 @@ public class Client extends Thread implements ActionListener,
 		while (connected) {
 			try {
 				String line = (String) objectInput.readObject();
-//				System.out.println("mess rcvd: " + line.toString());
 				String msg = "!~:;~!";
 				if (line.contains(msg)) {
 					if (choice) {
@@ -1176,35 +1117,27 @@ public class Client extends Thread implements ActionListener,
 						}
 					}
 				}
-
 				else {
 					String command = line.substring(0, 2);
 					String[] arguments = line.substring(2).replace(";", "")
 							.split(":");
 					if (command.compareTo("GK") == 0) {
-//						System.out.println("Game succelfully started!");
 						frame_CreateGame.dispose();
 						startingGame(tempGameName);
 						try {
 							objectOutput.writeObject("GN" + tempGameName + ";");
 							objectOutput.flush();
-							// add thread with wait and keep asking GN
 							gameNotStarted = true;
 							new Thread(new Runnable() {
 								public void run() {
-									// need to turn off gameNotStated before the
-									// game starts.
 									while (gameNotStarted) {
 										try {
 											try {
 												Thread.sleep(500);
 											} catch (InterruptedException e) {
-												// TODO Auto-generated catch
-												// block
 												e.printStackTrace();
 											}
 											if (gameNotStarted) {
-//												System.out.println("GN"+ tempGameName + ";");
 												objectOutput.writeObject("GN"
 														+ tempGameName + ";");
 												objectOutput.flush();
@@ -1224,26 +1157,18 @@ public class Client extends Thread implements ActionListener,
 					} else if (command.equals("GP")) {
 						if (arguments.length == 1) {
 							defaultList_players.addElement(arguments[0]);
-//							System.out.println("Player Has joined "
-//									+ arguments[0]);
 						} else {
-//							System.out.println("Error");
 						}
 					} else if (command.equals("GZ")) {
 
-					} else if (command.equals("GM")) {// Game full and had
-														// started
-						// Dispose game about to start frame
-						// Dispose
+					} else if (command.equals("GM")) {
 						frame_waitingToStartGame.dispose();
 						gameNotStarted = false;
 						System.out.println("Game has started");
 						newGameGui(tempGameName);
-						try {
-//							System.out.println("GA" + tempGameName + ";");
+						try {;
 							objectOutput.writeObject("GA" + tempGameName + ";");
 							objectOutput.flush();
-//							System.out.println("HN" + tempGameName + ";");
 							objectOutput.writeObject("HN" + tempGameName + ";");
 							objectOutput.flush();
 						} catch (Exception e) {
@@ -1353,7 +1278,7 @@ public class Client extends Thread implements ActionListener,
 								while (gameNotStarted) {
 									try {
 										Thread.sleep(500);
-										if (gameNotStarted) {
+										if (gameNotStarted) {//							System.out.println("HN" + tempGameName + ";");
 //											System.out.println("GW"
 //													+ tempGameName + ";");
 											objectOutput.writeObject("GW"
@@ -1529,8 +1454,6 @@ public class Client extends Thread implements ActionListener,
 										try {
 											Thread.sleep(500);
 											if (gameInProgress) {
-//												System.out.println("HP"
-//														+ tempGameName + ";");
 												objectOutput.writeObject("HP"
 														+ tempGameName + ";");
 												objectOutput.flush();
@@ -1539,7 +1462,6 @@ public class Client extends Thread implements ActionListener,
 											e.printStackTrace();
 										}
 									}
-
 								}
 							}).start();
 
