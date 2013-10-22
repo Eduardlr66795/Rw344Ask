@@ -82,7 +82,6 @@ public class Client extends Thread implements ActionListener,
 	public JLabel label_waitingToJoin=new JLabel();
 	// Global Variables--------------------------------
 	// Frames
-	public JLabel pleaseWork;
 	public JFrame frame_main;
 	public JFrame frame_choice;
 	public JFrame frame_CreateGame;
@@ -117,7 +116,6 @@ public class Client extends Thread implements ActionListener,
 	// Lists
 	public JList jlist_contactsMain;
 	public JList jlist_gameMain;
-	// public JList jlist_gamesOutsideMain;
 	public JList jlist_contactsOutsideMain;
 	public JList jlist_gmesListOutMain;
 
@@ -131,6 +129,7 @@ public class Client extends Thread implements ActionListener,
 	public JTabbedPane tabs;
 	public JPanel panel_backRed;
 	public JPanel panel_side;
+	public JLabel pleaseWork;
 
 	// TextArea
 	public JTextArea textArea_display_in;
@@ -165,8 +164,6 @@ public class Client extends Thread implements ActionListener,
 	public String names[] = null;
 	public String tempGameName;
 	public String tempKickPlayer;
-	// public String tempGameName;
-	// public String tempGameName;
 	JLabel winnerOfRound = new JLabel();
 	public JFrame frame_roundWinner;
 	public JPanel panel_roundWinner;
@@ -600,6 +597,7 @@ public class Client extends Thread implements ActionListener,
          * 
          */
 
+	@SuppressWarnings("serial")
 	public void clientGui() {
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -1078,11 +1076,11 @@ public class Client extends Thread implements ActionListener,
 		// }
 		// threadMessage.destroy()
 	}
-
-	public void closeConnections() {
-
-	}
-
+	
+	
+/**
+ * 
+ */
 	public void connectToServer() {
 		try {
 			String servername = text_loginTextfieldIp.getText();
@@ -1841,30 +1839,7 @@ public class Client extends Thread implements ActionListener,
 						}
 
 					} else if (command.equals("LM")) {
-						closeConnections();
-						System.out.println("Logoff Successful!");
-						//close things
-						String[] emp = { "" };
-						jlist_contactsMain.setListData(emp);
-						frame_main.repaint();
-						endGame(tempGameName);
-						tableModel.setRowCount(0);
-						gameInProgress=false;
-						biddingActive = false;
-						playedCardsPlacekeeper=0;
-						label_waitingToJoin.setVisible(true);
-						pleaseWork.setVisible(false);
-						//check what frames are open, close them
-						//bidding androundwinner
-						if(frame_roundWinner.isActive()){
-							frame_roundWinner.dispose();
-						}
-						if(frame_enterBid.isActive()){
-							frame_enterBid.dispose();
-						}
-						tempGameName="";
-						//close mainframe
-						frame_main.dispose();
+						logoutConfirmed();
 
 					} else if (command.equals("ML")) {
 						System.out.println("ML!");
@@ -2359,14 +2334,80 @@ public class Client extends Thread implements ActionListener,
 
 	}
 
-	// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	public void quitTheClient() {
-		connected = false;
-		/*
-		 * frame_roundWinner.dispose(); frame_CreateGame.dispose();
-		 * frame_enterBid.dispose(); frame_main.dispose();
-		 * frame_choice.dispose(); frame_Welcome.dispose();
-		 */
+
+	/**
+	 * 
+	 */
+	public void logoutRequest()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append("LO;");
+		try {
+			objectOutput.writeObject(sb.toString());
+			objectOutput.flush();
+		} catch (IOException e) {
+			System.out.println("Logoff fail");
+			e.printStackTrace();
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public void logoutConfirmed() {
+		
+		try {
+			connected = false;
+			
+			String[] emp = { "" };
+			jlist_contactsMain.setListData(emp);
+			
+			jlist_contactsMain.removeAll();
+			
+			frame_main.repaint();
+			endGame(tempGameName);
+			tableModel.setRowCount(0);
+			gameInProgress=false;
+			biddingActive = false;
+			playedCardsPlacekeeper=0;
+			label_waitingToJoin.setVisible(true);
+			pleaseWork.setVisible(false);
+			//check what frames are open, close them
+			//bidding androundwinner
+			if(frame_roundWinner.isActive()){
+				frame_roundWinner.dispose();
+			}
+			if(frame_enterBid.isActive()){
+				frame_enterBid.dispose();
+			}
+			tempGameName="";
+			//close mainframe
+			frame_main.dispose();
+			closeConnections();
+			
+			
+			
+			
+			
+		}
+		 catch(Exception e) {
+				closeConnections();
+		 }
+		
+
+		
+
+		
+		
+	
+	}
+	
+	
+	
+	public void closeConnections() {
+//		if
+		
 	}
 
 	public void actionPerformed(ActionEvent evt) {
@@ -2720,18 +2761,9 @@ public class Client extends Thread implements ActionListener,
 		// close the connection:
 		// server -> client: LM;
 		else if (evt.getSource() == button_logoff) {
-			textArea_display_in.append("button_logoff Pressed\n");
-
-			// Send logoff
-			StringBuilder sb = new StringBuilder();
-			sb.append("LO;");
-			try {
-				objectOutput.writeObject(sb.toString());
-				objectOutput.flush();
-			} catch (IOException e) {
-				System.out.println("Logoff fail");
-				e.printStackTrace();
-			}
+//			textArea_display_in.append("button_logoff Pressed\n");
+		logoutRequest();
+		
 		} else {
 			if (turnToPlayCard&&gameInProgress) {
 				// A card has been played
@@ -2790,7 +2822,6 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated s[2 stub
 		// Attempt to join Game
 		// Join game GJgame_name;
 
@@ -2881,23 +2912,11 @@ public class Client extends Thread implements ActionListener,
 		}
 	}
 
-	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseEntered(MouseEvent arg0) {}
 
-	}
+	public void mouseExited(MouseEvent arg0) {}
 
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mousePressed(MouseEvent arg0) {}
 
-	}
-
-	public void mousePressed(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-
-	}
+	public void mouseReleased(MouseEvent arg0) {}
 }
