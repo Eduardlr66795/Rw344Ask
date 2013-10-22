@@ -1381,7 +1381,7 @@ public class Client extends Thread implements ActionListener,
 						tableModel.setRowCount(0);
 						gameInProgress = false;
 						biddingActive = false;
-						bidding=false;
+						bidding = false;
 						playedCardsPlacekeeper = 0;
 						label_waitingToJoin.setVisible(false);
 						pleaseWork.setVisible(false);
@@ -1417,7 +1417,7 @@ public class Client extends Thread implements ActionListener,
 						endGame(tempGameName);
 						tableModel.setRowCount(0);
 						gameInProgress = false;
-						bidding=false;
+						bidding = false;
 						biddingActive = false;
 						playedCardsPlacekeeper = 0;
 						label_waitingToJoin.setVisible(true);
@@ -1643,7 +1643,7 @@ public class Client extends Thread implements ActionListener,
 						// turnToPlayCard
 						if (arguments.length == 2) {
 							// End of hand
-							
+
 							onlyEndOfTrick = false;
 							if (lastRound) {
 								// Game is finished!
@@ -1670,8 +1670,10 @@ public class Client extends Thread implements ActionListener,
 									objectOutput.writeObject("HS"
 											+ tempGameName + ";");
 									objectOutput.flush();
-									System.out.println("HA" + tempGameName + ";");
-									objectOutput.writeObject("HA" + tempGameName + ";");
+									System.out.println("HA" + tempGameName
+											+ ";");
+									objectOutput.writeObject("HA"
+											+ tempGameName + ";");
 									objectOutput.flush();
 									// thread
 									threadHN = true;
@@ -2293,7 +2295,7 @@ public class Client extends Thread implements ActionListener,
 
 		try {
 			connected = false;
-			bidding=false;
+			bidding = false;
 
 			String[] emp = { "" };
 			jlist_contactsMain.setListData(emp);
@@ -2327,8 +2329,18 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void closeConnections() {
-		
+		try {
+			connected = false;
+			objectInput.close();
+			objectInput.close();
 
+			if (client.isConnected()) {
+				client.close();
+			}
+			interrupt();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void actionPerformed(ActionEvent evt) {
