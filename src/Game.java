@@ -52,6 +52,8 @@ public class Game extends Thread {
     
     // State of game
     public String state;
+
+    public int playerReady;
     
     //Hardcoded to 7 (max players) we can change this but hardcoding it to 7 wont really
     //lead to any inefficiency

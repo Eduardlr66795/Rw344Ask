@@ -101,6 +101,7 @@ public class Client extends Thread implements ActionListener,
 	JLabel[][] text_roundWinner;
 	public boolean bol_prefix = false;
 	public JTextField text_FieldPrefixOut;
+	public JTextField text_FieldPrefixIn;
 
 	// Lists
 	public JList jlist_contactsMain;
@@ -161,6 +162,8 @@ public class Client extends Thread implements ActionListener,
 	public JButton button_closeWinner;
 
 	public JButton button_prefixOut;
+	public JButton button_prefixIn;
+	
 	// Other
 	private Socket client;
 	private ObjectInputStream objectInput;
@@ -695,7 +698,6 @@ public class Client extends Thread implements ActionListener,
 				}
 			}
 		};
-
 		panel_side.setLayout(null);
 		panel_side.setBounds(830, 0, 470, frame_main.getHeight());
 		panel_side.setBackground(Color.black);
@@ -726,6 +728,13 @@ public class Client extends Thread implements ActionListener,
 
 		panel_side.repaint();
 		frame_main.repaint();
+		button_prefixIn = new JButton("Search prefix");
+		button_prefixIn.setBounds(5, 360, 160, 25);
+		button_prefixIn.addActionListener(this);
+		text_FieldPrefixIn = new JTextField();
+		text_FieldPrefixIn.setBounds(165, 360, 45, 25);
+		panel_side.add(button_prefixIn);
+		panel_side.add(text_FieldPrefixIn);
 
 		button_sendMessage_in = new JButton("Send Message");
 		button_sendMessage_in.setBounds(709, 460, 100, 30);
@@ -1261,31 +1270,39 @@ public class Client extends Thread implements ActionListener,
 							}
 							// Thread to keep asking for active games every 2
 							// seconds
-							new Thread(new Runnable() {
-								public void run() {
-									// need to turn off gameNotStated before
-									// thed
-									// game starts.
-									try {
-										Thread.sleep(2000);
-
-										System.out.println("GL;");
-										objectOutput.writeObject("GL;");
-										objectOutput.flush();
-										System.out.println("Chatting");
-										System.out.println("CC;");
-										objectOutput.writeObject("CC;");
-										objectOutput.flush();
-									} catch (SocketException e) {
-										e.printStackTrace();
-									} catch (IOException e) {
-										e.printStackTrace();
-									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+							
+							if(bol_prefix){
+								System.out.println("IF");
+								System.out.println("Start Sleep");
+								Thread.sleep(7000);
+								System.out.println("End Sleep");
+								bol_prefix=false;
+							}else{
+								new Thread(new Runnable() {
+									public void run() {
+										// need to turn off gameNotStated before
+										// thed
+										// game starts.
+										try {
+											Thread.sleep(2000);
+											System.out.println("GL;");
+											objectOutput.writeObject("GL;");
+											objectOutput.flush();
+											System.out.println("Chatting");
+											System.out.println("CC;");
+											objectOutput.writeObject("CC;");
+											objectOutput.flush();
+										} catch (SocketException e) {
+											e.printStackTrace();
+										} catch (IOException e) {
+											e.printStackTrace();
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
 									}
-								}
-							}).start();
+								}).start();
+							}							
 						}
 
 					} else if (command.equals("GV")) {// truncated games list
@@ -1437,7 +1454,7 @@ public class Client extends Thread implements ActionListener,
 						askForBid(tempGameName);
 
 					} else if (command.equals("HC")) {
-						if (arguments.length != 3) {
+						if (arguments.length <2 ) {
 							continue;
 						}
 						bids.put(arguments[0], Integer.parseInt(arguments[1]));
@@ -1452,7 +1469,9 @@ public class Client extends Thread implements ActionListener,
 						// check whose turn to bid
 						if (firstPlayerToPlay.equals(arguments[2])) {
 							// Bids finished and turn to play a card!
+							System.out.println();
 							System.out.println("All Bids Finished!!!");
+							
 							for (int i = 0; i < playerCountemp; i++) {
 								int info = bids
 										.get(plabel_players[i].getText());
@@ -2387,6 +2406,20 @@ public class Client extends Thread implements ActionListener,
 							+ ";");
 					objectOutput.writeObject("GG"
 							+ text_FieldPrefixOut.getText() + ";");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}else if (evt.getSource() == button_prefixIn) {
+			// text_FieldPrefixOut
+			if (text_FieldPrefixIn.getText().length() != 0) {
+				// Send prefix command
+				try {
+					bol_prefix = true;
+					System.out.println("GG" + text_FieldPrefixIn.getText()
+							+ ";");
+					objectOutput.writeObject("GG"
+							+ text_FieldPrefixIn.getText() + ";");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

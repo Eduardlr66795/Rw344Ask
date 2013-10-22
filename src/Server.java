@@ -1032,11 +1032,8 @@ public class Server implements Runnable {
 				String playername = getUsername(socket);
 				String cards = "";
 				for (int i = 0; i < 10; i++) {
-					if (!game.playerCards[game.playerList.get(playername)][i]
-							.equals("")) {
-						cards += game.playerCards[game.getPlayerList().get(
-								playername)][i]
-								+ ":";
+					if (!game.playerCards[game.playerList.get(playername)][i].equals("")) {
+						cards += game.playerCards[game.getPlayerList().get(playername)][i] + ":";
 					}
 				}
 				String message = "HI" + roundnumber + ":" + cards
@@ -1156,9 +1153,7 @@ public class Server implements Runnable {
 
 				game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
 						nextplayernumber);
-				if (game.nextPlayerToBid.equals(game.nextPlayerToPlay)) {
-					game.state = "playing";
-				}
+				
 				game.lastBid = getUsername(socket) + ":" + bid;
 
 				o.writeObject("HC" + getUsername(socket) + ":" + bid + ":"
@@ -1179,7 +1174,6 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
-					System.out.println("stunt9");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -1206,9 +1200,13 @@ public class Server implements Runnable {
 			
 			// If game is not in 'playing' state
 			if (!game.state.equals("playing")) {
-				o.writeObject("ER901;");
-				o.flush();
-				return;
+				if ((game.nextPlayerToBid.equals(game.nextPlayerToPlay) && (!game.lastBid.equals("none:none")))) {
+					return;
+				} else {
+					o.writeObject("ER901;");
+					o.flush();
+					return;
+				}
 			}
 
 			String message = "HL";
@@ -1262,9 +1260,13 @@ public class Server implements Runnable {
 			
 			// If game is not in 'playing' state
 			if (!game.state.equals("playing")) {
-				o.writeObject("ER901;");
-				o.flush();
-				return;
+				if (game.nextPlayerToPlay.equals(playerName) && (game.nextPlayerToBid.equals(playerName) &&  (!game.lastBid.equals("none:none")))) {
+					
+				} else {
+					o.writeObject("ER901;");
+					o.flush();
+					return;
+				}
 			}
 
 			// Check if player has this card and find position of card
@@ -1279,6 +1281,13 @@ public class Server implements Runnable {
 
 			if (!hasCard) {
 				o.writeObject("ER141;");
+				o.flush();
+				return;
+			}
+			
+			//Not next player to play
+			if (!game.nextPlayerToPlay.equals(playerName)) {
+				o.writeObject("ER901;");
 				o.flush();
 				return;
 			}
@@ -1299,6 +1308,8 @@ public class Server implements Runnable {
 			}
 
 			game.playerCards[playerNumber][cardposition] = "";
+			
+			game.state = "playing";
 
 			int nextplayernumber = (playerNumber + 1) % game.playerCount;
 
