@@ -1983,7 +1983,6 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.flush();
 						}
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -2321,7 +2320,6 @@ public class Client extends Thread implements ActionListener,
 				frame_enterBid.dispose();
 			}
 			tempGameName = "";
-			// close mainframe
 			frame_main.dispose();
 			closeConnections();
 
@@ -2332,7 +2330,7 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void closeConnections() {
-		// if
+		
 
 	}
 
