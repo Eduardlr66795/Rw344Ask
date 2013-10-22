@@ -1,5 +1,5 @@
-GSgamename;,CAgame_name:message;,GNgamename;,GFgamename;,GOgamename:playername;,GL;,GGprefix;,GJgamename;,GWgamename;,GAgamename;,QTgamename;,HNgame_name;,HBgamename;,HDgame_name:bid;,HPgame_name;,HRgame_name:card;,HAgame_name;,HSgame_name;,CPplayer_name1:player_name2:player_namen:message;,CAgame_name:message;,CC;
-LIUsername:password;,CAgame_name:message;,GNgamename;,GFgamename;,GOgamename:playername;,GWgamename;,GAgamename;,QTgamename;,HNgamename;,HBgamename;,HDgamename:bid;,HPgamename;,HRgamename:card;,HAgame_name;,HSgame_name;
-HNgamename;,HBgamename;,HDgamename:bid;,HPgamename;,HRgamename:card;,HAgame_name;,HSgame_name;
+GSgamename;,GL;,GGprefix;,GJgamename;,QTgamename;,CPplayer_name1:player_name2:player_namen:message;,CC;
+LIusername:password;
+HNgamename;,HBgamename;,HDgamename:bid;,HPgamename;,HRgamename:card;,HAgamename;,HSgamename;
  ; ,F;"";,GPgame_name;,notamessage,Gjmessage;,CAgame;,GOgamename;,HRgame;,HDgame;,HR;,CAgame;,CPgame;,;,CA;HR;,CA,HR,  
 LIusername:password;
