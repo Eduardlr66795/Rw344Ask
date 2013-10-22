@@ -20,6 +20,7 @@ public class HandleClient extends Thread {
 
 			while (true) {
 				String message = (String) input.readObject();
+				System.out.println("HandleClient message rcvd: " + message);
 				
 				if (message.length() < 3) {
 					server.badMessageFormat(socket);

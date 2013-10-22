@@ -63,6 +63,7 @@ public class Client extends Thread implements ActionListener,
 	public JLabel text_fieldTrumpSuite;
 	public int playedCardsPlacekeeper = 0;
 	public int playerCountemp = 0;
+	public JLabel[] label_playedCards;
 	public int cardClickedJ;
 	public JScrollPane spScores;
 	public int cardClickedI;
@@ -78,6 +79,7 @@ public class Client extends Thread implements ActionListener,
 	String colNames[] = {"Username", "Tricks For Hand","Bid"}; 
 	DefaultTableModel tableModel = new DefaultTableModel(); 
 	public JTable table_scores=new JTable(tableModel);
+	public JLabel label_waitingToJoin=new JLabel();
 	// Global Variables--------------------------------
 	// Frames
 	public JFrame frame_main;
@@ -525,7 +527,13 @@ public class Client extends Thread implements ActionListener,
 		jlist_gmesListOutMain.addListSelectionListener(this);
 		sp3.setBounds(0, 0, 150, 270);
 		tabOutside.addTab("Games", sp3);
-
+		//initialise
+		button_playedCards = new JButton[7];
+		label_playedCards=new JLabel[7];
+		for(int i=0;i<7;i++){
+			label_playedCards[i]=new JLabel();
+			button_playedCards[i]=new JButton();
+		}
 		JPanel test = new JPanel();
 		test.setLayout(null);
 		test.setBounds(420, 40, 150, 870);
@@ -619,7 +627,11 @@ public class Client extends Thread implements ActionListener,
 				text_roundWinner[i][j] = new JLabel();
 			}
 		}
-		button_playedCards = new JButton[7];
+		label_waitingToJoin.setLocation(0, 0);
+		label_waitingToJoin.setSize(200, 80);
+		label_waitingToJoin.setForeground(Color.red);
+		label_waitingToJoin.setFont(new Font("Serif", Font.BOLD, 32));
+		
 		button_cards = new JButton[15][10];
 		frame_roundWinner = new JFrame();
 		panel_bigframe = new JPanel[40];
@@ -818,6 +830,8 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void newGameGui(String gName) {
+		label_waitingToJoin.setVisible(true);
+		label_waitingToJoin.setText("Waiting to join game: "+gName);
 		int gameNumber = 0;
 		for (int i = 0; i < 15; i++) {
 			if (string_games[i].equals("empty")) {
@@ -833,6 +847,8 @@ public class Client extends Thread implements ActionListener,
 		panel_bigframe[gameNumber].setLayout(null);
 		panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setName(gName);
+		panel_side.add(label_waitingToJoin);
+
 		button_cards[gameNumber] = new JButton[10];
 		// plabel_layers = new JLabel[7];
 
@@ -875,9 +891,11 @@ public class Client extends Thread implements ActionListener,
 		// Add new game panel
 		panel_bigframe[gameNumber].setName(gName);
 		tabs.addTab(gName, panel_bigframe[gameNumber]);
+
 	}
 
 	public void newGameUpadatePlayers(String GameName, String[] pNames) {
+		label_waitingToJoin.setVisible(false);
 		
 	
 		 
@@ -1407,6 +1425,8 @@ public class Client extends Thread implements ActionListener,
 						tableModel.setRowCount(0);
 						gameInProgress=false;
 						biddingActive = false;
+						playedCardsPlacekeeper=0;
+						label_waitingToJoin.setVisible(false);
 
 					} else if (command.equals("CM")) {// Chat to all recieved
 						// arguments[0]=sending player name
@@ -1432,6 +1452,8 @@ public class Client extends Thread implements ActionListener,
 						tableModel.setRowCount(0);
 						gameInProgress=false;
 						biddingActive = false;
+						playedCardsPlacekeeper=0;
+						label_waitingToJoin.setVisible(false);
 					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
@@ -1473,7 +1495,7 @@ public class Client extends Thread implements ActionListener,
 						askForBid(tempGameName);
 
 					} else if (command.equals("HC")) {
-						if (arguments.length <2 ) {
+						if (arguments.length <3 ) {
 							continue;
 						}
 						bids.put(arguments[0], Integer.parseInt(arguments[1]));
@@ -1490,6 +1512,7 @@ public class Client extends Thread implements ActionListener,
 							// Bids finished and turn to play a card!
 							System.out.println();
 							System.out.println("All Bids Finished!!!");
+							
 							
 							for (int i = 0; i < playerCountemp; i++) {
 								int info = bids
@@ -1584,6 +1607,7 @@ public class Client extends Thread implements ActionListener,
 								for (int y = 0; y < playerCountemp; y++) {
 									System.out.print(y + " ");
 									button_playedCards[y].setVisible(false);
+									label_playedCards[y].setVisible(false);
 								}
 								// set placekeeper to zero
 								playedCardsPlacekeeper = 0;
@@ -1599,18 +1623,19 @@ public class Client extends Thread implements ActionListener,
 							tempLastPlayer = line;
 							Icon icon = new ImageIcon("src/cards/"
 									+ arguments[1] + ".gif");
-							button_playedCards[playedCardsPlacekeeper] = new JButton(
-									icon);
-							button_playedCards[playedCardsPlacekeeper]
-									.setBounds((80 * playedCardsPlacekeeper),
-											175, 75, 100);
-							button_playedCards[playedCardsPlacekeeper]
-									.setEnabled(false);
-							button_playedCards[playedCardsPlacekeeper]
-									.setVisible(true);
+							
+							button_playedCards[playedCardsPlacekeeper].setIcon(icon);
+							button_playedCards[playedCardsPlacekeeper].setBounds((80 * playedCardsPlacekeeper),190, 75, 100);
+							button_playedCards[playedCardsPlacekeeper].setEnabled(false);
+							button_playedCards[playedCardsPlacekeeper].setVisible(true);
+							
+							label_playedCards[playedCardsPlacekeeper].setText(arguments[0]);
+							label_playedCards[playedCardsPlacekeeper].setBounds((80*playedCardsPlacekeeper)+8,167,75,25);
+							label_playedCards[playedCardsPlacekeeper].setVisible(true);
+							panel_bigframe[gameNumber].add((label_playedCards[playedCardsPlacekeeper]));
+							
+							panel_bigframe[gameNumber].add(button_playedCards[playedCardsPlacekeeper]);
 							panel_bigframe[gameNumber].repaint();
-							panel_bigframe[gameNumber]
-									.add(button_playedCards[playedCardsPlacekeeper]);
 							playedCardsPlacekeeper++;
 							// remember to set playedCardsPlacekeeper to zero
 							if (playedCardsPlacekeeper == playerCountemp) {
@@ -2635,7 +2660,7 @@ public class Client extends Thread implements ActionListener,
 				e.printStackTrace();
 			}
 		} else {
-			if (turnToPlayCard) {
+			if (turnToPlayCard&&gameInProgress) {
 				// A card has been played
 				for (int i = 0; i < 15; i++) {
 					for (int j = 0; j < 10; j++) {

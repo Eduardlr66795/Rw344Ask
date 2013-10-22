@@ -1309,6 +1309,9 @@ public class Server implements Runnable {
 			game.playerCards[playerNumber][cardposition] = "";
 			
 			game.state = "playing";
+			for (int i = 0; i < game.playerCount; i++) {
+				game.handsWon[i] = 0;
+			}
 
 			int nextplayernumber = (playerNumber + 1) % game.playerCount;
 
@@ -1419,6 +1422,7 @@ public class Server implements Runnable {
 					} else {
 						game.playerScores[i] += handswon;
 					}
+					
 
 				}
 				game.round++;
