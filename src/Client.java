@@ -757,6 +757,7 @@ public class Client extends Thread implements ActionListener,
 		button_sendMessage_in.setBounds(709, 460, 100, 30);
 		button_sendMessage_in.addActionListener(this);
 		panel_backRed.add(button_sendMessage_in);
+		
 
 		button_listGames = new JButton("Join Selected Game");
 		button_listGames.setBounds(5, 400, 160, 25);
@@ -906,7 +907,7 @@ public class Client extends Thread implements ActionListener,
 		//panel_bigframe[gameNumber].add(label_usernameScores);
 		panel_bigframe[gameNumber].add(scoreScores);
 		panel_bigframe[gameNumber].add(label_bids);
-
+		
 		// Add Player Names
 		// totalrounds
 		int k = 0;
@@ -936,6 +937,9 @@ public class Client extends Thread implements ActionListener,
 		}
 		panel_bigframe[gameNumber].repaint();
 		playerCountemp = pNames.length;
+		
+		int lengt=(table_scores.getRowCount())*table_scores.getRowHeight()+21;
+		spScores.setSize(spScores.getWidth(), lengt);
 		//spScores.setSize(spScores.getWidth(), table_scores.getHeight());
 	}
 
