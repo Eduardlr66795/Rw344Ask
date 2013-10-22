@@ -162,7 +162,7 @@ public class TestInputGameCreation{
         		"Player5:GJ; Player6:GJ; Player0:GNGame; Player0:GNGame; Player0:GNGame; Player0:GFGame;";
         String outputs = "Player0:GK; Player1:GX; Player0:GPPlayer1; Player2:GX; Player0:GPPlayer2; " +
         		"Player3:GX; Player0:GPPlayer3; Player4:GX; Player5:GX; Player6:GX; Player0:GPPlayer4; " +
-        		"Player0:GPPlayer5; Player0:GPPlayer6; Player0:ER131;";
+        		"Player0:GPPlayer5; Player0:GPPlayer6; Player0:GM;";
         
         clientsOut.get(0).writeObject("GSGame;");
         clientsOut.get(0).flush();
