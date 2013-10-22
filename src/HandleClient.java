@@ -20,7 +20,6 @@ public class HandleClient extends Thread {
 
 			while (true) {
 				String message = (String) input.readObject();
-				System.out.println("HandleClient message rcvd: " + message);
 				
 				if (message.length() < 3) {
 					server.badMessageFormat(socket);
@@ -209,8 +208,6 @@ public class HandleClient extends Thread {
 		finally {
 			if (!disconnected) {
 				server.logoff(socket);
-				server.removeUsername(socket);
-				server.removeConnection(socket);
 			}
 		}
 	}
