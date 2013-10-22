@@ -2331,6 +2331,19 @@ public class Client extends Thread implements ActionListener,
 
 	public void closeConnections() {
 		
+		
+		
+		try {
+			objectInput.close();
+			objectInput.close();
+			
+			if(client.isConnected()) {
+				client.close();
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 	}
 
