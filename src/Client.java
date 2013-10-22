@@ -2293,6 +2293,7 @@ public class Client extends Thread implements ActionListener,
 
 		try {
 			connected = false;
+			bidding=false;
 
 			String[] emp = { "" };
 			jlist_contactsMain.setListData(emp);
