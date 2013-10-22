@@ -1598,7 +1598,6 @@ public class Server implements Runnable {
 					o.writeObject("ER900;");
 					o.flush();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -1609,13 +1608,10 @@ public class Server implements Runnable {
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-
 			for (int i = 0; i < arguments.length - 1; i++) {
-
 				String playerName = arguments[i];
 				for (Entry<ObjectOutputStream, String> entry : clientList
 						.entrySet()) {
@@ -1630,7 +1626,8 @@ public class Server implements Runnable {
 			o.writeObject("CK;");
 			o.flush();
 		} catch (Exception e) {
-			System.out.println("Exception in chatToPlayers " + e);
+			e.printStackTrace();
+//			System.out.println("Exception in chatToPlayers " + e);
 		}
 	}
 
@@ -1645,7 +1642,6 @@ public class Server implements Runnable {
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -1672,7 +1668,8 @@ public class Server implements Runnable {
 				link.addLast(getUsername(socket) + ":" + message);
 			}
 		} catch (Exception e) {
-			System.out.println("Exception in chatToPlayers " + e);
+			e.printStackTrace();
+//			System.out.println("Exception in chatToPlayers " + e);
 		}
 	}
 
@@ -1774,6 +1771,7 @@ public class Server implements Runnable {
 				o.flush();
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Exception in modeConfusion " + e);
 		}
 
@@ -1791,11 +1789,10 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
-					System.out.println("stunt11");
+//					System.out.println("stunt11");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -1810,6 +1807,7 @@ public class Server implements Runnable {
 				o.flush();
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Exception in collectMessages " + e);
 		}
 	}
@@ -1824,6 +1822,7 @@ public class Server implements Runnable {
 			o.writeObject("ER900;");
 			o.flush();
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.out.println("Exception in badMessageFomat " + e);
 		}
 	}
