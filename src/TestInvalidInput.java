@@ -131,6 +131,7 @@ public class TestInvalidInput{
     @Test
     public void testInvalidInputsBeforeLogin() throws Exception{
         System.out.print("Anything except LO, MC or LI before login Start \n");
+        
         objectOutput.writeObject(input);
         objectOutput.flush();
 
@@ -141,7 +142,7 @@ public class TestInvalidInput{
     
     @Test
     public void testInvalidInputsBeforeGame() throws Exception{
-    	objectOutput.writeObject("LIusername:Password;");
+    	objectOutput.writeObject("LIusername:password;");
     	objectOutput.flush();
     	String rd = (String)objectInput.readObject();
     	
@@ -157,15 +158,16 @@ public class TestInvalidInput{
     	objectOutput.writeObject("LIusername:Password;");
     	objectOutput.flush();
     	String rd = (String)objectInput.readObject();
-    	
+
     	objectOutput.writeObject("GSgamename;");
     	objectOutput.flush();
     	rd = (String)objectInput.readObject();
-    	
+
         objectOutput.writeObject(input3);
         objectOutput.flush();
         
         String error = (String) objectInput.readObject();
+    	System.out.println("error " + error);
         assertTrue("recieved \'" + error + "\' instead of \'ER901;\' @ "+ input3, error.equals("ER901;"));
     }
     
