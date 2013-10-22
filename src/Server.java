@@ -1198,8 +1198,8 @@ public class Server implements Runnable {
 				return;
 			}
 			
-			// If game is not in 'playing' state
-			if (!game.state.equals("playing")) {
+			// If game is not in 'playing' state or 'resting' state
+			if ((!game.state.equals("playing") && (!game.state.equals("resting")))) {
 				if ((game.nextPlayerToBid.equals(game.nextPlayerToPlay) && (!game.lastBid.equals("none:none")))) {
 					return;
 				} else {

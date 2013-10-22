@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -25,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
@@ -33,6 +35,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 public class Client extends Thread implements ActionListener,
 		ListSelectionListener, MouseListener {
@@ -61,6 +64,7 @@ public class Client extends Thread implements ActionListener,
 	public int playedCardsPlacekeeper = 0;
 	public int playerCountemp = 0;
 	public int cardClickedJ;
+	public JScrollPane spScores;
 	public int cardClickedI;
 	public int totalrounds = 0;
 	public int[] tempLastTrickScore = { 0, 0, 0, 0, 0, 0, 0 };
@@ -70,6 +74,10 @@ public class Client extends Thread implements ActionListener,
 	public String trumpSuite;
 	public String tempLastPlayer = "";
 	public String[] tempLastGU;
+	String[][] data={{" "," "," "},{" "," "," "},{" "," "," "}};  
+	String colNames[] = {"Username", "Tricks For Hand","Bid"}; 
+	DefaultTableModel tableModel = new DefaultTableModel(); 
+	public JTable table_scores=new JTable(tableModel);
 	// Global Variables--------------------------------
 	// Frames
 	public JFrame frame_main;
@@ -733,6 +741,15 @@ public class Client extends Thread implements ActionListener,
 		button_prefixIn.addActionListener(this);
 		text_FieldPrefixIn = new JTextField();
 		text_FieldPrefixIn.setBounds(165, 360, 45, 25);
+		//table for scores;
+		tableModel.setColumnIdentifiers(colNames);
+		table_scores.setSize(400, 100);
+		table_scores.setLocation(0,0);
+		spScores=new JScrollPane(table_scores);
+		spScores.setSize(400, 100);
+		spScores.setLocation(0,0);
+		panel_side.add(spScores);
+		
 		panel_side.add(button_prefixIn);
 		panel_side.add(text_FieldPrefixIn);
 
@@ -793,7 +810,7 @@ public class Client extends Thread implements ActionListener,
 
 		tabs.setLocation(3, 5);
 		tabs.setBackground(Color.blue);
-		tabs.setSize(990, 320);
+		tabs.setSize(827, 320);
 		panel_backRed.add(tabs);
 
 		// frame_main.add(tabs);
@@ -883,9 +900,17 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void newGameUpadatePlayers(String GameName, String[] pNames) {
-		// Find gameNumber
+		
+	
+		 
+		//remove all rows from table
+		for(int i=0;i<tableModel.getRowCount();i++){
+			tableModel.removeRow(i);
+		}
+		tableModel.getRowCount();
+		
 		int gameNumber = 0;
-
+		// Find gameNumber
 		for (int i = 0; i < 15; i++) {
 			if (string_games[i].equals(GameName)) {
 				gameNumber = i;
@@ -921,6 +946,8 @@ public class Client extends Thread implements ActionListener,
 			panel_bigframe[gameNumber].add(plabel_players[k]);
 			panel_bigframe[gameNumber].add(plabel_playersScores[k]);
 			scores.put(pNames[k], "0:0:0:0");
+			//update table
+			tableModel.addRow(new Object[]{pNames[k], "0","0"});
 		}
 		if (k == 7) {
 			totalrounds = 7;
@@ -931,20 +958,25 @@ public class Client extends Thread implements ActionListener,
 		}
 		panel_bigframe[gameNumber].repaint();
 		playerCountemp = pNames.length;
+		//spScores.setSize(spScores.getWidth(), table_scores.getHeight());
 	}
 
 	public void updateScoresInGame(String[] currentScores) {
 		// tempLastTrickScore
 		// update players score after each trick
 		// current score = tempLastTrickScore-info[x]
+		//String[][] tempForTable=new String[playerCountemp][3];
 		for (int i = 0; i < playerCountemp; i++) {
 			// String[] info = new String[4];
-
-			int cScore = Integer.parseInt(currentScores[3 * i + 1])
-					- tempLastTrickScore[i];
-			plabel_playersScores[i].setText(cScore + "");
-
+			int cScore = Integer.parseInt(currentScores[3 * i + 1]) - tempLastTrickScore[i];
+//			plabel_playersScores[i].setText(cScore + "");
+//			tempForTable[i][0]=names[i];
+//			tempForTable[i][1]=cScore+"";
+//			tempForTable[i][2]=bids.get(names[i])+"";
+			
+			tableModel.setValueAt(cScore+"", i, 1);
 		}
+		
 	}
 
 	public void updateGame(String gName, String[] pCards, int[] pScores) {
@@ -1476,6 +1508,7 @@ public class Client extends Thread implements ActionListener,
 								int info = bids
 										.get(plabel_players[i].getText());
 								plabel_playersBids[i].setText(info + "");
+								tableModel.setValueAt(info+"", i, 2);
 							}
 							bidding = false;
 							turnToPlay.setVisible(false);
@@ -2204,6 +2237,7 @@ public class Client extends Thread implements ActionListener,
 			text_roundWinner[i][4].setSize(100, 30);
 			text_roundWinner[i][4].setLocation(300, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][4]);
+			tableModel.setValueAt("0", i-1, 1);
 			plabel_playersScores[i - 1].setText("0");
 			tempLastTrickScore[i - 1] = Integer.parseInt(info[3]);
 			System.out.println("tempScore at i=" + i + " is "
