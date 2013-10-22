@@ -56,6 +56,7 @@ public class Client extends Thread implements ActionListener,
 	public JTextField text_FieldEnterBid;
 	public JLabel label_enterBid;
 	public JButton button_enterBid;
+	public JLabel pleaseWork = new JLabel("Waiting to Start. . .");
 	public JFrame frame_enterBid;
 	public JLabel usernameForMainFrame;
 	public JLabel turnToPlay;
@@ -128,7 +129,7 @@ public class Client extends Thread implements ActionListener,
 	public JTabbedPane tabs;
 	public JPanel panel_backRed;
 	public JPanel panel_side;
-	public JLabel pleaseWork;
+
 
 	// TextArea
 	public JTextArea textArea_display_in;
@@ -201,7 +202,7 @@ public class Client extends Thread implements ActionListener,
 	public Client() {
 		bol_mainFrameActive = false;
 		welcomeScreen(0);
-		// clientGui();
+//		 clientGui();
 	}
 
 	public void startingGame(String GameName) {
@@ -663,7 +664,6 @@ public class Client extends Thread implements ActionListener,
 
 		panel_backRed.setSize(frame_main.getWidth(), frame_main.getHeight());
 		panel_backRed.setLayout(null);
-		panel_backRed.setBackground(Color.red);
 		frame_main.add(label_waitingToJoin);
 		panel_backRed.add(label_waitingToJoin);
 
@@ -756,7 +756,7 @@ public class Client extends Thread implements ActionListener,
 		panel_side.add(button_prefixIn);
 		panel_side.add(text_FieldPrefixIn);
 
-		pleaseWork = new JLabel("Waiting to Start. . .");
+		
 		pleaseWork.setBounds(200, 100, 400, 30);
 		pleaseWork.setFont(new Font("Serif", Font.BOLD, 26));
 		pleaseWork.setForeground(Color.RED);
@@ -832,8 +832,37 @@ public class Client extends Thread implements ActionListener,
 			}
 		}
 		// Initialise
-		panel_bigframe[gameNumber] = new JPanel();
-		// panel_bigframe[gameNumber].setBackground(Color.red);
+		panel_bigframe[gameNumber] = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (new ImageIcon(
+						Client.class.getResource("/images/AskBig.jpg")) != null) {
+					int width = getWidth();
+					int height = getHeight();
+					if (width > height)
+						width = height;
+					else
+						height = width;
+					g.drawImage(
+							new ImageIcon(Client.class
+									.getResource("/images/AskBig.jpg"))
+									.getImage(), 0, 0, width, height + 120,
+							null);
+				}
+			}
+		};
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		panel_bigframe[gameNumber].setSize(825, 350);
 		panel_bigframe[gameNumber].setLayout(null);
 		panel_bigframe[gameNumber].setBackground(Color.red);
