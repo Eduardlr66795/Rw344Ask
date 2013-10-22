@@ -958,8 +958,7 @@ public class Client extends Thread implements ActionListener,
 		// String[][] tempForTable=new String[playerCountemp][3];
 		for (int i = 0; i < playerCountemp; i++) {
 			// String[] info = new String[4];
-			int cScore = Integer.parseInt(currentScores[3 * i + 1])
-					- tempLastTrickScore[i];
+			int cScore = Integer.parseInt(currentScores[3 * i + 1]);
 			// plabel_playersScores[i].setText(cScore + "");
 			// tempForTable[i][0]=names[i];
 			// tempForTable[i][1]=cScore+"";
@@ -984,8 +983,7 @@ public class Client extends Thread implements ActionListener,
 			button_cards[gameNumber][k].setEnabled(true);
 			Icon icon = new ImageIcon("src/cards/" + pCards[k] + ".gif");
 			button_cards[gameNumber][k].setIcon(icon);
-			button_cards[gameNumber][k].setName(pCards[k] + ""
-					+ panel_bigframe[gameNumber].getName());
+			button_cards[gameNumber][k].setName(pCards[k] + ""+ panel_bigframe[gameNumber].getName());
 			button_cards[gameNumber][k].setBounds((80 * k), 70, 75, 100);
 			panel_bigframe[gameNumber].add(button_cards[gameNumber][k]);
 		}
@@ -1729,17 +1727,19 @@ public class Client extends Thread implements ActionListener,
 						for (int i = 0; i < arguments.length; i = i + 3) {
 							// arguments[i]-current player
 							// arguments[i+1]-tricks won in round
-							// arguments[i+2]-score for the round
+							// arguments[i+2]-total score
 							// int tempScore=scores.get(arguments[i]);
 							// String tempMoving=scores.get(arguments[i]);
 							String[] tempMoving = new String[4];
+
 							tempMoving = scores.get(arguments[i]).split(":");
+							System.out.println("Temp Moving:"+tempMoving[0]+","+tempMoving[1]+","+tempMoving[2]+","+tempMoving[3]);
 							if (!onlyEndOfTrick) {
 								// move start
+								tempMoving[1] = (Integer.parseInt(arguments[i + 2])+Integer.parseInt(tempMoving[1]))+"";
+								tempMoving[2] = arguments[i + 1];
 								tempMoving[0] = tempMoving[1];
-								tempMoving[2] = tempMoving[3];
-								tempMoving[1] = arguments[i + 2];
-								tempMoving[3] = arguments[i + 1];
+								tempMoving[3] = (Integer.parseInt(tempMoving[3])+Integer.parseInt(tempMoving[2]))+"";								
 								// move end
 							}
 							StringBuilder s = new StringBuilder();
@@ -2206,32 +2206,25 @@ public class Client extends Thread implements ActionListener,
 			text_roundWinner[i][1].setLocation(80, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][1]);
 
-			text_roundWinner[i][2].setText((Integer.parseInt(info[3]) - Integer
-					.parseInt(info[2])) + "");
-			System.out.println("1: "
-					+ (Integer.parseInt(info[3]) - Integer.parseInt(info[2]))
-					+ "");
+			text_roundWinner[i][2].setText((Integer.parseInt(info[2]) ) + "");
+	
 			text_roundWinner[i][2].setSize(100, 30);
 			text_roundWinner[i][2].setLocation(140, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][2]);
 
-			System.out.println("2: "
-					+ (Integer.parseInt(info[1]) - Integer.parseInt(info[0]))
-					+ "");
-			text_roundWinner[i][3].setText((Integer.parseInt(info[1]) - Integer
-					.parseInt(info[0])) + "");
+
+			text_roundWinner[i][3].setText((Integer.parseInt(info[0]) ) + "");
 			text_roundWinner[i][3].setSize(100, 30);
 			text_roundWinner[i][3].setLocation(210, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][3]);
 
-			text_roundWinner[i][4].setText(Integer.parseInt(info[1]) + "");
-			System.out.println("3: " + Integer.parseInt(info[1]) + "");
+			text_roundWinner[i][4].setText(Integer.parseInt(info[3]) + "");
 			text_roundWinner[i][4].setSize(100, 30);
 			text_roundWinner[i][4].setLocation(300, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][4]);
 			tableModel.setValueAt("0", i - 1, 1);
 			plabel_playersScores[i - 1].setText("0");
-			tempLastTrickScore[i - 1] = Integer.parseInt(info[2]);
+			tempLastTrickScore[i - 1] = Integer.parseInt(info[3]);
 			System.out.println("tempScore at i=" + i + " is "
 					+ tempLastTrickScore[i - 1]);
 
