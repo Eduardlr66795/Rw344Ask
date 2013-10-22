@@ -611,6 +611,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt1");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -738,6 +739,7 @@ public class Server implements Runnable {
 		// If not logged in
 		if (!clientList.containsKey(o)) {
 			try {
+				System.out.println("stunt2");
 				o.writeObject("ER901;");
 				o.flush();
 			} catch (IOException e) {
@@ -781,6 +783,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt3");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -818,6 +821,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt4");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -866,6 +870,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt5");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -926,6 +931,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt6");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -987,6 +993,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt7");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -1010,8 +1017,9 @@ public class Server implements Runnable {
 				return;
 			}
 
-			// If game is not in 'playing' state
-			if (!game.state.equals("playing")) {
+			// If game is not in 'bidding' state
+			if (!game.state.equals("bidding")) {
+				System.out.println("stunt7");
 				o.writeObject("ER901;");
 				o.flush();
 				return;
@@ -1033,6 +1041,7 @@ public class Server implements Runnable {
 				}
 				String message = "HI" + roundnumber + ":" + cards
 						+ game.trumpSuit + ":" + game.nextPlayerToBid + ";";
+				System.out.println(message);
 				o.writeObject(message);
 				o.flush();
 			}
@@ -1048,6 +1057,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt8");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -1169,6 +1179,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt9");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -1493,6 +1504,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt10");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
@@ -1756,6 +1768,7 @@ public class Server implements Runnable {
 			// If not logged in
 			if (!clientList.containsKey(o)) {
 				try {
+					System.out.println("stunt11");
 					o.writeObject("ER901;");
 					o.flush();
 				} catch (IOException e) {
