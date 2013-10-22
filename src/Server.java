@@ -1017,9 +1017,8 @@ public class Server implements Runnable {
 				return;
 			}
 
-			// If game is not in 'bidding' state
-			if (!game.state.equals("bidding")) {
-				System.out.println("stunt7");
+			// If game is not in 'bidding' or 'resting' state
+			if (!game.state.equals("bidding") && (!game.state.equals("resting"))) {
 				o.writeObject("ER901;");
 				o.flush();
 				return;
@@ -1487,11 +1486,13 @@ public class Server implements Runnable {
 					break;
 				}
 				if ((i == game.playerCount - 1) && (game.restingState)) {
+					System.out.println("Another hand is played and dealt");
 					game.deal();
 					// Get a random player to start
 					int rnd = (int) (Math.random() * (game.playerCount - 1));
 					game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
 							rnd);
+					game.state = "bidding";
 					game.nextPlayerToPlay = game.nextPlayerToBid;
 					game.lastBid = "none:none";
 					game.restingState = false;

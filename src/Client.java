@@ -753,7 +753,7 @@ public class Client extends Thread implements ActionListener,
 		panel_side.add(button_prefixIn);
 		panel_side.add(text_FieldPrefixIn);
 
-		button_sendMessage_in = new JButton("Send Message");
+		button_sendMessage_in = new JButton("Send Msg");
 		button_sendMessage_in.setBounds(709, 460, 100, 30);
 		button_sendMessage_in.addActionListener(this);
 		panel_backRed.add(button_sendMessage_in);
@@ -778,39 +778,16 @@ public class Client extends Thread implements ActionListener,
 		button_listPlayers.addActionListener(this);
 		panel_side.add(button_listPlayers);
 
-		// frame_main.add(button_listPlayers);
 
-		button_listGames = new JButton("Join Selected Game");
-		button_listGames.setBounds(5, 400, 160, 25);
-		// button_listGames.setBounds(820, 300, 160, 25);
-		button_listGames.addActionListener(this);
-		panel_side.add(button_listGames);
-		// frame_main.add(button_listGames);
 
-		button_history = new JButton("History");
-		button_history.setBounds(5, 420, 160, 25);
-		// button_history.setBounds(820, 320, 160, 25);
-		button_history.addActionListener(this);
-		panel_side.add(button_history);
-		// frame_main.add(button_history);
 
-		button_logoff = new JButton("Log Off");
-		button_logoff.setBounds(5, 460, 160, 25);
-		// button_logoff.setBounds(820, 340, 160, 25);
-		button_logoff.addActionListener(this);
-		panel_side.add(button_logoff);
-		// frame_main.add(button_logoff);
 
-		button_createGame = new JButton("Create Game");
-		button_createGame.setBounds(5, 440, 160, 25);
-		// button_createGame.setBounds(820, 360, 160, 25);
-		button_createGame.addActionListener(this);
-		panel_side.add(button_createGame);
-		// frame_main.add(button_createGame);
+
+
 
 		tabs.setLocation(3, 5);
 		tabs.setBackground(Color.blue);
-		tabs.setSize(827, 320);
+		tabs.setSize(805, 320);
 		panel_backRed.add(tabs);
 
 		// frame_main.add(tabs);
@@ -926,7 +903,7 @@ public class Client extends Thread implements ActionListener,
 		scoreScores.setBounds(873, 0, 100, 20);
 		label_usernameScores.setBounds(798, 0, 100, 20);
 		label_bids.setBounds(970, 0, 50, 20);
-		panel_bigframe[gameNumber].add(label_usernameScores);
+		//panel_bigframe[gameNumber].add(label_usernameScores);
 		panel_bigframe[gameNumber].add(scoreScores);
 		panel_bigframe[gameNumber].add(label_bids);
 
@@ -942,9 +919,10 @@ public class Client extends Thread implements ActionListener,
 			plabel_players[k].setBounds(798, 30 + (k * 20), 80, 15);
 			plabel_playersBids[k].setBounds(978, 30 + (k * 20), 80, 15);
 			plabel_playersScores[k].setBounds(873, 30 + (k * 20), 80, 15);
-			panel_bigframe[gameNumber].add(plabel_playersBids[k]);
+			plabel_players[k].setVisible(false);
+			//panel_bigframe[gameNumber].add(plabel_playersBids[k]);
 			panel_bigframe[gameNumber].add(plabel_players[k]);
-			panel_bigframe[gameNumber].add(plabel_playersScores[k]);
+			//panel_bigframe[gameNumber].add(plabel_playersScores[k]);
 			scores.put(pNames[k], "0:0:0:0");
 			//update table
 			tableModel.addRow(new Object[]{pNames[k], "0","0"});
@@ -1422,6 +1400,9 @@ public class Client extends Thread implements ActionListener,
 						jlist_contactsMain.setListData(emp);
 						frame_main.repaint();
 						endGame(tempGameName);
+						tableModel.setRowCount(0);
+						gameInProgress=false;
+						biddingActive = false;
 
 					} else if (command.equals("CM")) {// Chat to all recieved
 						// arguments[0]=sending player name
@@ -1444,12 +1425,14 @@ public class Client extends Thread implements ActionListener,
 						jlist_contactsMain.setListData(emp);
 						frame_main.repaint();
 						endGame(tempGameName);
+						tableModel.setRowCount(0);
+						gameInProgress=false;
+						biddingActive = false;
 					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
 						if (Integer.parseInt(arguments[0]) == totalrounds) {
 							lastRound = true;
-
 						} else {
 							lastRound = false;
 						}
@@ -2066,6 +2049,7 @@ public class Client extends Thread implements ActionListener,
 		panel_enterBid.add(label_enterBid);
 		panel_enterBid.add(button_enterBid);
 		frame_enterBid.add(panel_enterBid);
+		System.out.println(("bidding thing open"));
 		frame_enterBid.setVisible(true);
 	}
 
