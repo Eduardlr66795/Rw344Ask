@@ -82,6 +82,7 @@ public class Client extends Thread implements ActionListener,
 	public JLabel label_waitingToJoin=new JLabel();
 	// Global Variables--------------------------------
 	// Frames
+	public JLabel pleaseWork;
 	public JFrame frame_main;
 	public JFrame frame_choice;
 	public JFrame frame_CreateGame;
@@ -627,7 +628,7 @@ public class Client extends Thread implements ActionListener,
 				text_roundWinner[i][j] = new JLabel();
 			}
 		}
-		label_waitingToJoin.setLocation(0, 0);
+		label_waitingToJoin.setLocation(200, 600);
 		label_waitingToJoin.setSize(200, 80);
 		label_waitingToJoin.setForeground(Color.red);
 		label_waitingToJoin.setFont(new Font("Serif", Font.BOLD, 32));
@@ -677,6 +678,8 @@ public class Client extends Thread implements ActionListener,
 		panel_backRed.setSize(frame_main.getWidth(), frame_main.getHeight());
 		panel_backRed.setLayout(null);
 		panel_backRed.setBackground(Color.red);
+		frame_main.add(label_waitingToJoin);
+		panel_backRed.add(label_waitingToJoin);
 
 		frame_main.add(panel_backRed);
 		text_fieldTrumpSuite = new JLabel();
@@ -721,6 +724,8 @@ public class Client extends Thread implements ActionListener,
 		panel_side.setLayout(null);
 		panel_side.setBounds(830, 0, 470, frame_main.getHeight());
 		panel_side.setBackground(Color.black);
+		label_waitingToJoin.setText("Waiting to join game!");
+		label_waitingToJoin.setVisible(true);
 		panel_backRed.add(panel_side);
 
 		JScrollPane sp4 = new JScrollPane(jlist_contactsMain = new JList());
@@ -765,6 +770,14 @@ public class Client extends Thread implements ActionListener,
 		panel_side.add(button_prefixIn);
 		panel_side.add(text_FieldPrefixIn);
 
+		pleaseWork=new JLabel("Waiting to Start. . .");
+		pleaseWork.setBounds(200, 100, 400, 30);
+		pleaseWork.setFont(new Font("Serif", Font.BOLD, 26));
+		pleaseWork.setForeground(Color.RED);
+		pleaseWork.setVisible(false);
+		
+		panel_backRed.add(pleaseWork);
+		
 		button_sendMessage_in = new JButton("Send Msg");
 		button_sendMessage_in.setBounds(709, 460, 100, 30);
 		button_sendMessage_in.addActionListener(this);
@@ -777,12 +790,12 @@ public class Client extends Thread implements ActionListener,
 		panel_side.add(button_listGames);
 
 		button_logoff = new JButton("Log Off");
-		button_logoff.setBounds(5, 460, 160, 25);
+		button_logoff.setBounds(5, 440, 160, 25);
 		button_logoff.addActionListener(this);
 		panel_side.add(button_logoff);
 
 		button_createGame = new JButton("Create Game");
-		button_createGame.setBounds(5, 440, 160, 25);
+		button_createGame.setBounds(5, 420, 160, 25);
 		button_createGame.addActionListener(this);
 		panel_side.add(button_createGame);
 
@@ -809,7 +822,9 @@ public class Client extends Thread implements ActionListener,
 		frame_main.setVisible(true);
 
 		bol_mainFrameActive = true;
-		// tempLastGU[0] = "";
+
+		
+		 tempLastGU[0] = "";
 		// Just for
 		// testing--------------------------------------------------------------------
 
@@ -830,8 +845,7 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void newGameGui(String gName) {
-		label_waitingToJoin.setVisible(true);
-		label_waitingToJoin.setText("Waiting to join game: "+gName);
+		
 		int gameNumber = 0;
 		for (int i = 0; i < 15; i++) {
 			if (string_games[i].equals("empty")) {
@@ -847,7 +861,8 @@ public class Client extends Thread implements ActionListener,
 		panel_bigframe[gameNumber].setLayout(null);
 		panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setName(gName);
-		panel_side.add(label_waitingToJoin);
+		
+		
 
 		button_cards[gameNumber] = new JButton[10];
 		// plabel_layers = new JLabel[7];
@@ -895,7 +910,8 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void newGameUpadatePlayers(String GameName, String[] pNames) {
-		label_waitingToJoin.setVisible(false);
+		label_waitingToJoin.setVisible(true);
+		pleaseWork.setVisible(false);
 		
 	
 		 
@@ -1368,6 +1384,12 @@ public class Client extends Thread implements ActionListener,
 						}
 
 					} else if (command.equals("GX")) {// Game joined
+						
+						Thread.sleep(300);
+						pleaseWork.setVisible(true);
+						
+
+						
 						gameNotStarted = true;
 						new Thread(new Runnable() {
 
@@ -1390,6 +1412,7 @@ public class Client extends Thread implements ActionListener,
 
 							}
 						}).start();
+						
 					} else if (command.equals("GB")) {// Game begins
 						System.out.println("Game Begins");
 						gameNotStarted = false;
@@ -1427,6 +1450,16 @@ public class Client extends Thread implements ActionListener,
 						biddingActive = false;
 						playedCardsPlacekeeper=0;
 						label_waitingToJoin.setVisible(false);
+						pleaseWork.setVisible(false);
+						//Check what frames are open, close them
+						if(frame_roundWinner.isActive()){
+							frame_roundWinner.dispose();
+						}
+						if(frame_enterBid.isActive()){
+							frame_enterBid.dispose();
+						}
+						tempGameName="";
+						
 
 					} else if (command.equals("CM")) {// Chat to all recieved
 						// arguments[0]=sending player name
@@ -1453,7 +1486,17 @@ public class Client extends Thread implements ActionListener,
 						gameInProgress=false;
 						biddingActive = false;
 						playedCardsPlacekeeper=0;
-						label_waitingToJoin.setVisible(false);
+						label_waitingToJoin.setVisible(true);
+						pleaseWork.setVisible(false);
+						//Check what screens are open, close them
+						if(frame_roundWinner.isActive()){
+							frame_roundWinner.dispose();
+						}
+						if(frame_enterBid.isActive()){
+							frame_enterBid.dispose();
+						}
+						tempGameName="";
+						
 					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
@@ -1800,6 +1843,28 @@ public class Client extends Thread implements ActionListener,
 					} else if (command.equals("LM")) {
 						closeConnections();
 						System.out.println("Logoff Successful!");
+						//close things
+						String[] emp = { "" };
+						jlist_contactsMain.setListData(emp);
+						frame_main.repaint();
+						endGame(tempGameName);
+						tableModel.setRowCount(0);
+						gameInProgress=false;
+						biddingActive = false;
+						playedCardsPlacekeeper=0;
+						label_waitingToJoin.setVisible(true);
+						pleaseWork.setVisible(false);
+						//check what frames are open, close them
+						//bidding androundwinner
+						if(frame_roundWinner.isActive()){
+							frame_roundWinner.dispose();
+						}
+						if(frame_enterBid.isActive()){
+							frame_enterBid.dispose();
+						}
+						tempGameName="";
+						//close mainframe
+						frame_main.dispose();
 
 					} else if (command.equals("ML")) {
 						System.out.println("ML!");
@@ -1829,7 +1894,7 @@ public class Client extends Thread implements ActionListener,
 
 						confusionFrame(arguments);
 
-					} else if (command.equals("ER") && arguments[0].equals(142)) {
+					} else if (command.equals("ER")) {
 						// Illegal
 						if (arguments[0].equals("100")) {// Login unsuccessful,
 							// username already logged
@@ -1876,6 +1941,7 @@ public class Client extends Thread implements ActionListener,
 																// player not
 																// part
 							// of game
+							pleaseWork.setVisible(false);
 							System.out
 									.println("Kicked out player not part of game");
 
@@ -1887,6 +1953,7 @@ public class Client extends Thread implements ActionListener,
 																// been kicked
 																// out
 							// of game.
+							pleaseWork.setVisible(false);
 							System.out
 									.println("Player has been kicked out of game.");
 
@@ -2395,12 +2462,13 @@ public class Client extends Thread implements ActionListener,
 							+ jlist_gmesListOutMain.getSelectedValue()
 									.toString() + ";");
 					objectOutput.flush();
+					clientGui();
 					System.out.println("GJ"
 							+ jlist_gmesListOutMain.getSelectedValue()
 									.toString() + ";");
 					frame_choice.dispose();
 					choice = false;
-					clientGui();
+					
 				}
 
 			} catch (IOException e) {
@@ -2453,6 +2521,7 @@ public class Client extends Thread implements ActionListener,
 							+ ";");
 					objectOutput.writeObject("GG"
 							+ text_FieldPrefixOut.getText() + ";");
+					objectOutput.flush();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -2467,6 +2536,7 @@ public class Client extends Thread implements ActionListener,
 							+ ";");
 					objectOutput.writeObject("GG"
 							+ text_FieldPrefixIn.getText() + ";");
+					objectOutput.flush();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -2488,6 +2558,7 @@ public class Client extends Thread implements ActionListener,
 			try {
 				System.out.println("QT" + tempGameName + ";");
 				objectOutput.writeObject("QT" + tempGameName + ";");
+				objectOutput.flush();
 				// Now terminate game
 
 			} catch (IOException e) {
@@ -2571,19 +2642,21 @@ public class Client extends Thread implements ActionListener,
 			// Join selected game
 
 			try {
-
+				
 				if (!jlist_gameMain.isSelectionEmpty()) {
-					tempGameName = jlist_gameMain.getSelectedValue().toString();
-					System.out.println(tempGameName);
-					objectOutput.writeObject("GJ"
-							+ jlist_gameMain.getSelectedValue().toString()
-							+ ";");
-					objectOutput.flush();
-					System.out.println("GJ"
-							+ jlist_gameMain.getSelectedValue().toString()
-							+ ";");
+					if((!jlist_gameMain.getSelectedValue().toString().equals(tempGameName))&&(!gameInProgress)){
+						tempGameName = jlist_gameMain.getSelectedValue().toString();
+						
+						System.out.println(tempGameName);
+						objectOutput.writeObject("GJ"
+								+ jlist_gameMain.getSelectedValue().toString()
+								+ ";");
+						objectOutput.flush();
+						System.out.println("GJ"
+								+ jlist_gameMain.getSelectedValue().toString()
+								+ ";");
+					}
 				}
-
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
