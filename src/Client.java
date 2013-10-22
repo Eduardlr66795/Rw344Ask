@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -25,6 +26,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
@@ -33,6 +35,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableModel;
 
 public class Client extends Thread implements ActionListener,
 		ListSelectionListener, MouseListener {
@@ -61,6 +64,7 @@ public class Client extends Thread implements ActionListener,
 	public int playedCardsPlacekeeper = 0;
 	public int playerCountemp = 0;
 	public int cardClickedJ;
+	public JScrollPane spScores;
 	public int cardClickedI;
 	public int totalrounds = 0;
 	public int[] tempLastTrickScore = { 0, 0, 0, 0, 0, 0, 0 };
@@ -70,15 +74,16 @@ public class Client extends Thread implements ActionListener,
 	public String trumpSuite;
 	public String tempLastPlayer = "";
 	public String[] tempLastGU;
+	String[][] data={{" "," "," "},{" "," "," "},{" "," "," "}};  
+	String colNames[] = {"Username", "Tricks For Hand","Bid"}; 
+	DefaultTableModel tableModel = new DefaultTableModel(); 
+	public JTable table_scores=new JTable(tableModel);
 	// Global Variables--------------------------------
 	// Frames
 	public JFrame frame_main;
 	public JFrame frame_choice;
 	public JFrame frame_CreateGame;
 	public JFrame frame_Welcome;
-
-	public JPanel panel_backRed;
-	public JPanel panel_side;
 
 	public Hashtable<String, String> scores = new Hashtable<String, String>();
 	public Hashtable<String, Integer> bids = new Hashtable<String, Integer>();
@@ -102,6 +107,9 @@ public class Client extends Thread implements ActionListener,
 	public JButton[] button_playedCards;
 	public JButton button_exitGame = new JButton();
 	JLabel[][] text_roundWinner;
+	public boolean bol_prefix = false;
+	public JTextField text_FieldPrefixOut;
+	public JTextField text_FieldPrefixIn;
 
 	// Lists
 	public JList jlist_contactsMain;
@@ -118,6 +126,8 @@ public class Client extends Thread implements ActionListener,
 	public JPanel panel_CreateGame;
 	public JPanel[] panel_bigframe;
 	public JTabbedPane tabs;
+	public JPanel panel_backRed;
+	public JPanel panel_side;
 
 	// TextArea
 	public JTextArea textArea_display_in;
@@ -152,11 +162,16 @@ public class Client extends Thread implements ActionListener,
 	public String names[] = null;
 	public String tempGameName;
 	public String tempKickPlayer;
+	// public String tempGameName;
+	// public String tempGameName;
 	JLabel winnerOfRound = new JLabel();
 	public JFrame frame_roundWinner;
 	public JPanel panel_roundWinner;
 	public JButton button_closeWinner;
 
+	public JButton button_prefixOut;
+	public JButton button_prefixIn;
+	
 	// Other
 	private Socket client;
 	private ObjectInputStream objectInput;
@@ -186,9 +201,8 @@ public class Client extends Thread implements ActionListener,
 
 	public Client() {
 		bol_mainFrameActive = false;
-		// welcomeScreen(0);
-		// afterLoginScreen();
-		clientGui();
+		welcomeScreen(0);
+		// clientGui();
 	}
 
 	public void startingGame(String GameName) {
@@ -452,6 +466,14 @@ public class Client extends Thread implements ActionListener,
 		panel_main.setLayout(null);
 
 		panel_main.setSize(frame_choice.getWidth(), frame_choice.getHeight());
+		// Prefix
+		button_prefixOut = new JButton("Search prefix");
+		button_prefixOut.setBounds(230, 50, 170, 30);
+		button_prefixOut.addActionListener(this);
+		text_FieldPrefixOut = new JTextField();
+		text_FieldPrefixOut.setBounds(180, 50, 45, 30);
+		panel_main.add(button_prefixOut);
+		panel_main.add(text_FieldPrefixOut);
 
 		// Button: Create New Game
 		button_newGame_out = new JButton("Create New Game");
@@ -566,8 +588,9 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	/**
-	 * 
-	 */
+         * 
+         */
+
 	public void clientGui() {
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -652,6 +675,7 @@ public class Client extends Thread implements ActionListener,
 		text_message_in.setSize(700, 30);
 		text_message_in.setLocation(3, 460);
 		panel_backRed.add(text_message_in);
+
 		// frame_main.add(text_message_in);
 
 		JScrollPane spMain = new JScrollPane(
@@ -662,28 +686,36 @@ public class Client extends Thread implements ActionListener,
 		textArea_display_in.setEditable(false);
 		panel_backRed.add(spMain);
 		panel_backRed.setLayout(null);
-		// frame_main.add(spMain);
 
-		JPanel test = new JPanel();
-		test.setLayout(null);
-		test.setBounds(0, 200, 470, 200);
-		test.setBackground(Color.red);
-
-		panel_side = new JPanel();
-		panel_side.setBounds(830, 0, 450, 500);
+		panel_side = new JPanel() {
+			public void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				if (new ImageIcon(
+						Client.class.getResource("/images/flameB1.jpg")) != null) {
+					int width = getWidth();
+					int height = getHeight();
+					if (width > height)
+						width = height;
+					else
+						height = width;
+					g.drawImage(
+							new ImageIcon(Client.class
+									.getResource("/images/flameB1.jpg"))
+									.getImage(), 0, 0, width, height + 120,
+							null);
+				}
+			}
+		};
 		panel_side.setLayout(null);
-		panel_side.setBackground(Color.orange);
-		panel_side.add(test);
+		panel_side.setBounds(830, 0, 470, frame_main.getHeight());
+		panel_side.setBackground(Color.black);
 		panel_backRed.add(panel_side);
 
-		tabInside = new JTabbedPane();
-		tabInside.setSize(test.getWidth(), test.getHeight());
-
-		// String arr2[] = {"asd","asd","aa","dd"};
-
+		JScrollPane sp4 = new JScrollPane(jlist_contactsMain = new JList());
 		sp4.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sp4.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		sp4.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
+		sp4.setBounds(10, 160, 140, 180);
+
 		jlist_contactsMain.setVisibleRowCount(4);
 		jlist_contactsMain.addListSelectionListener(this);
 		jlist_contactsMain.addMouseListener(this);
@@ -691,63 +723,76 @@ public class Client extends Thread implements ActionListener,
 		JScrollPane sp3 = new JScrollPane(jlist_gameMain = new JList());
 		sp3.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sp3.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		sp3.setBounds(1025, 10, test.getWidth(), test.getHeight() - 20);
+		sp3.setBounds(160, 160, 140, 180);
+		jlist_gameMain.addListSelectionListener(this);
 
 		jlist_gameMain.addListSelectionListener(this);
-		tabInside.addTab("Games", sp3);
-		tabInside.addTab("Clients", sp4);
-		test.add(tabInside);
+		// tabInside.addTab("Games", sp3);
+		// tabInside.addTab("Clients", sp4);
+		// test.add(tabInside);
 
-		// panel_backRed.add(test);
-		// frame_main.add(test);
+		panel_side.add(sp4);
+		panel_side.add(sp3);
 
-		// //////////////////////////////////////////////////////
+		panel_side.repaint();
+		frame_main.repaint();
+		button_prefixIn = new JButton("Search prefix");
+		button_prefixIn.setBounds(5, 360, 160, 25);
+		button_prefixIn.addActionListener(this);
+		text_FieldPrefixIn = new JTextField();
+		text_FieldPrefixIn.setBounds(165, 360, 45, 25);
+		//table for scores;
+		tableModel.setColumnIdentifiers(colNames);
+		table_scores.setSize(400, 100);
+		table_scores.setLocation(0,0);
+		spScores=new JScrollPane(table_scores);
+		spScores.setSize(400, 100);
+		spScores.setLocation(0,0);
+		panel_side.add(spScores);
+		
+		panel_side.add(button_prefixIn);
+		panel_side.add(text_FieldPrefixIn);
 
-		button_sendMessage_in = new JButton("Send Message");
+		button_sendMessage_in = new JButton("Send Msg");
 		button_sendMessage_in.setBounds(709, 460, 100, 30);
 		button_sendMessage_in.addActionListener(this);
 		panel_backRed.add(button_sendMessage_in);
+		
+
+		button_listGames = new JButton("Join Selected Game");
+		button_listGames.setBounds(5, 400, 160, 25);
+		button_listGames.addActionListener(this);
+		panel_side.add(button_listGames);
+
+		button_logoff = new JButton("Log Off");
+		button_logoff.setBounds(5, 460, 160, 25);
+		button_logoff.addActionListener(this);
+		panel_side.add(button_logoff);
+
+		button_createGame = new JButton("Create Game");
+		button_createGame.setBounds(5, 440, 160, 25);
+		button_createGame.addActionListener(this);
+		panel_side.add(button_createGame);
 
 		button_listPlayers = new JButton("List of Players");
 		button_listPlayers.setBounds(5, 380, 160, 25);
 		button_listPlayers.addActionListener(this);
 		panel_side.add(button_listPlayers);
 
-		// frame_main.add(button_listPlayers);
 
-		button_listGames = new JButton("Join Selected Game");
-		button_listGames.setBounds(5, 400, 160, 25);
-		// button_listGames.setBounds(820, 300, 160, 25);
-		button_listGames.addActionListener(this);
-		panel_side.add(button_listGames);
-		// frame_main.add(button_listGames);
 
-		button_history = new JButton("History");
-		button_history.setBounds(5, 420, 160, 25);
-		// button_history.setBounds(820, 320, 160, 25);
-		button_history.addActionListener(this);
-		panel_side.add(button_history);
-		// frame_main.add(button_history);
 
-		button_logoff = new JButton("Log Off");
-		button_logoff.setBounds(5, 460, 160, 25);
-		// button_logoff.setBounds(820, 340, 160, 25);
-		button_logoff.addActionListener(this);
-		panel_side.add(button_logoff);
-		// frame_main.add(button_logoff);
 
-		button_createGame = new JButton("Create Game");
-		button_createGame.setBounds(5, 440, 160, 25);
-		// button_createGame.setBounds(820, 360, 160, 25);
-		button_createGame.addActionListener(this);
-		panel_side.add(button_createGame);
-		// frame_main.add(button_createGame);
+
+
 
 		tabs.setLocation(3, 5);
 		tabs.setBackground(Color.blue);
-		tabs.setSize(990, 320);
+		tabs.setSize(805, 320);
 		panel_backRed.add(tabs);
+
 		// frame_main.add(tabs);
+
 		frame_main.setLocationRelativeTo(null);
 		frame_main.setVisible(true);
 
@@ -783,33 +828,10 @@ public class Client extends Thread implements ActionListener,
 		}
 		// Initialise
 		panel_bigframe[gameNumber] = new JPanel();
-		// panel_bigframe[gameNumber] = new JPanel() {
-		// public void paintComponent(Graphics g) {
-		// super.paintComponent(g);
-		// if (new ImageIcon(
-		// Client.class.getResource("/images/frame.jpg")) != null) {
-		// int width = getWidth();
-		// int height = getHeight();
-		// if (width > height)
-		// width = height;
-		// else
-		// height = width;
-		// g.drawImage(
-		// new ImageIcon(Client.class
-		// .getResource("/images/frame.jpg"))
-		// .getImage(), 0, 0, width+600, height ,null);
-		// }
-		// }
-		// };
-
+		// panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setSize(825, 350);
 		panel_bigframe[gameNumber].setLayout(null);
-		panel_bigframe[gameNumber].setBackground(Color.blue);
-
-		// //////////////////////////////////////////
-
-		// /////////////////////////////////////////
-
+		panel_bigframe[gameNumber].setBackground(Color.red);
 		panel_bigframe[gameNumber].setName(gName);
 		button_cards[gameNumber] = new JButton[10];
 		// plabel_layers = new JLabel[7];
@@ -856,9 +878,17 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void newGameUpadatePlayers(String GameName, String[] pNames) {
-		// Find gameNumber
+		
+	
+		 
+		//remove all rows from table
+		for(int i=0;i<tableModel.getRowCount();i++){
+			tableModel.removeRow(i);
+		}
+		tableModel.getRowCount();
+		
 		int gameNumber = 0;
-
+		// Find gameNumber
 		for (int i = 0; i < 15; i++) {
 			if (string_games[i].equals(GameName)) {
 				gameNumber = i;
@@ -874,10 +904,10 @@ public class Client extends Thread implements ActionListener,
 		scoreScores.setBounds(873, 0, 100, 20);
 		label_usernameScores.setBounds(798, 0, 100, 20);
 		label_bids.setBounds(970, 0, 50, 20);
-		panel_bigframe[gameNumber].add(label_usernameScores);
+		//panel_bigframe[gameNumber].add(label_usernameScores);
 		panel_bigframe[gameNumber].add(scoreScores);
 		panel_bigframe[gameNumber].add(label_bids);
-
+		
 		// Add Player Names
 		// totalrounds
 		int k = 0;
@@ -890,10 +920,13 @@ public class Client extends Thread implements ActionListener,
 			plabel_players[k].setBounds(798, 30 + (k * 20), 80, 15);
 			plabel_playersBids[k].setBounds(978, 30 + (k * 20), 80, 15);
 			plabel_playersScores[k].setBounds(873, 30 + (k * 20), 80, 15);
-			panel_bigframe[gameNumber].add(plabel_playersBids[k]);
+			plabel_players[k].setVisible(false);
+			//panel_bigframe[gameNumber].add(plabel_playersBids[k]);
 			panel_bigframe[gameNumber].add(plabel_players[k]);
-			panel_bigframe[gameNumber].add(plabel_playersScores[k]);
+			//panel_bigframe[gameNumber].add(plabel_playersScores[k]);
 			scores.put(pNames[k], "0:0:0:0");
+			//update table
+			tableModel.addRow(new Object[]{pNames[k], "0","0"});
 		}
 		if (k == 7) {
 			totalrounds = 7;
@@ -904,20 +937,28 @@ public class Client extends Thread implements ActionListener,
 		}
 		panel_bigframe[gameNumber].repaint();
 		playerCountemp = pNames.length;
+		
+		int lengt=(table_scores.getRowCount())*table_scores.getRowHeight()+21;
+		spScores.setSize(spScores.getWidth(), lengt);
+		//spScores.setSize(spScores.getWidth(), table_scores.getHeight());
 	}
 
 	public void updateScoresInGame(String[] currentScores) {
 		// tempLastTrickScore
 		// update players score after each trick
 		// current score = tempLastTrickScore-info[x]
+		//String[][] tempForTable=new String[playerCountemp][3];
 		for (int i = 0; i < playerCountemp; i++) {
 			// String[] info = new String[4];
-
-			int cScore = Integer.parseInt(currentScores[3 * i + 1])
-					- tempLastTrickScore[i];
-			plabel_playersScores[i].setText(cScore + "");
-
+			int cScore = Integer.parseInt(currentScores[3 * i + 1]) - tempLastTrickScore[i];
+//			plabel_playersScores[i].setText(cScore + "");
+//			tempForTable[i][0]=names[i];
+//			tempForTable[i][1]=cScore+"";
+//			tempForTable[i][2]=bids.get(names[i])+"";
+			
+			tableModel.setValueAt(cScore+"", i, 1);
 		}
+		
 	}
 
 	public void updateGame(String gName, String[] pCards, int[] pScores) {
@@ -1195,10 +1236,12 @@ public class Client extends Thread implements ActionListener,
 						}
 					} else if (command.equals("GZ")) {
 
-					} else if (command.equals("GM")) {
+					} else if (command.equals("GM")) {// Game full and had
+														// started
+						// Dispose game about to start frame
+						// Dispose
 						frame_waitingToStartGame.dispose();
 						gameNotStarted = false;
-
 						System.out.println("Game has started");
 						newGameGui(tempGameName);
 						try {
@@ -1220,16 +1263,10 @@ public class Client extends Thread implements ActionListener,
 							boolean pass = true;
 							for (int i = 0; i < arguments.length; i++) {
 								if (!arguments[i].equals(tempLastGU[i])) {
-									System.out.println("false");
-									System.out.println(arguments[i]);
-									System.out.println(tempLastGU[i]);
 									pass = false;
 								}
 							}
 							if (!pass) {// List Was Changed!
-								System.out.println("Changing");
-								System.out.println("Main frame Active? "
-										+ bol_mainFrameActive);
 								for (int i = 0; i < arguments.length; i++) {
 									tempLastGU[i] = (arguments[i]);
 								}
@@ -1247,29 +1284,39 @@ public class Client extends Thread implements ActionListener,
 							}
 							// Thread to keep asking for active games every 2
 							// seconds
-							new Thread(new Runnable() {
-								public void run() {
-									// need to turn off gameNotStated before
-									// thed
-									// game starts.
-									try {
-										Thread.sleep(2000);
-										System.out.println("GL;");
-										objectOutput.writeObject("GL;");
-										objectOutput.flush();
-										System.out.println("CC;");
-										objectOutput.writeObject("CC;");
-										objectOutput.flush();
-									} catch (SocketException e) {
-										e.printStackTrace();
-									} catch (IOException e) {
-										e.printStackTrace();
-									} catch (InterruptedException e) {
-										// TODO Auto-generated catch block
-										e.printStackTrace();
+							
+							if(bol_prefix){
+								System.out.println("IF");
+								System.out.println("Start Sleep");
+								Thread.sleep(7000);
+								System.out.println("End Sleep");
+								bol_prefix=false;
+							}else{
+								new Thread(new Runnable() {
+									public void run() {
+										// need to turn off gameNotStated before
+										// thed
+										// game starts.
+										try {
+											Thread.sleep(2000);
+											System.out.println("GL;");
+											objectOutput.writeObject("GL;");
+											objectOutput.flush();
+											System.out.println("Chatting");
+											System.out.println("CC;");
+											objectOutput.writeObject("CC;");
+											objectOutput.flush();
+										} catch (SocketException e) {
+											e.printStackTrace();
+										} catch (IOException e) {
+											e.printStackTrace();
+										} catch (InterruptedException e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
 									}
-								}
-							}).start();
+								}).start();
+							}							
 						}
 
 					} else if (command.equals("GV")) {// truncated games list
@@ -1357,6 +1404,9 @@ public class Client extends Thread implements ActionListener,
 						jlist_contactsMain.setListData(emp);
 						frame_main.repaint();
 						endGame(tempGameName);
+						tableModel.setRowCount(0);
+						gameInProgress=false;
+						biddingActive = false;
 
 					} else if (command.equals("CM")) {// Chat to all recieved
 						// arguments[0]=sending player name
@@ -1379,12 +1429,14 @@ public class Client extends Thread implements ActionListener,
 						jlist_contactsMain.setListData(emp);
 						frame_main.repaint();
 						endGame(tempGameName);
+						tableModel.setRowCount(0);
+						gameInProgress=false;
+						biddingActive = false;
 					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
 						if (Integer.parseInt(arguments[0]) == totalrounds) {
 							lastRound = true;
-
 						} else {
 							lastRound = false;
 						}
@@ -1421,7 +1473,7 @@ public class Client extends Thread implements ActionListener,
 						askForBid(tempGameName);
 
 					} else if (command.equals("HC")) {
-						if (arguments.length != 3) {
+						if (arguments.length <2 ) {
 							continue;
 						}
 						bids.put(arguments[0], Integer.parseInt(arguments[1]));
@@ -1436,11 +1488,14 @@ public class Client extends Thread implements ActionListener,
 						// check whose turn to bid
 						if (firstPlayerToPlay.equals(arguments[2])) {
 							// Bids finished and turn to play a card!
+							System.out.println();
 							System.out.println("All Bids Finished!!!");
+							
 							for (int i = 0; i < playerCountemp; i++) {
 								int info = bids
 										.get(plabel_players[i].getText());
 								plabel_playersBids[i].setText(info + "");
+								tableModel.setValueAt(info+"", i, 2);
 							}
 							bidding = false;
 							turnToPlay.setVisible(false);
@@ -1998,6 +2053,7 @@ public class Client extends Thread implements ActionListener,
 		panel_enterBid.add(label_enterBid);
 		panel_enterBid.add(button_enterBid);
 		frame_enterBid.add(panel_enterBid);
+		System.out.println(("bidding thing open"));
 		frame_enterBid.setVisible(true);
 	}
 
@@ -2169,6 +2225,7 @@ public class Client extends Thread implements ActionListener,
 			text_roundWinner[i][4].setSize(100, 30);
 			text_roundWinner[i][4].setLocation(300, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][4]);
+			tableModel.setValueAt("0", i-1, 1);
 			plabel_playersScores[i - 1].setText("0");
 			tempLastTrickScore[i - 1] = Integer.parseInt(info[3]);
 			System.out.println("tempScore at i=" + i + " is "
@@ -2361,6 +2418,34 @@ public class Client extends Thread implements ActionListener,
 			frame_roundWinner.dispose();
 			roundWinnerFrame = true;
 
+		} else if (evt.getSource() == button_prefixOut) {
+			// text_FieldPrefixOut
+			if (text_FieldPrefixOut.getText().length() != 0) {
+				// Send prefix command
+				try {
+					bol_prefix = true;
+					System.out.println("GG" + text_FieldPrefixOut.getText()
+							+ ";");
+					objectOutput.writeObject("GG"
+							+ text_FieldPrefixOut.getText() + ";");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}else if (evt.getSource() == button_prefixIn) {
+			// text_FieldPrefixOut
+			if (text_FieldPrefixIn.getText().length() != 0) {
+				// Send prefix command
+				try {
+					bol_prefix = true;
+					System.out.println("GG" + text_FieldPrefixIn.getText()
+							+ ";");
+					objectOutput.writeObject("GG"
+							+ text_FieldPrefixIn.getText() + ";");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		// Protocol
@@ -2529,6 +2614,7 @@ public class Client extends Thread implements ActionListener,
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
 		}
 		// Protocol
 		// client -> server: LO;
@@ -2606,7 +2692,7 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void mouseClicked(MouseEvent arg0) {
-
+		// TODO Auto-generated s[2 stub
 		// Attempt to join Game
 		// Join game GJgame_name;
 
@@ -2664,6 +2750,7 @@ public class Client extends Thread implements ActionListener,
 								&& (curText.charAt(curText.length() - 1) == ':')) {
 							System.out
 									.println("Already a private chat, add another user");
+							// Check if user is in private chat already
 							String[] arguments = curText.replace(":", "@")
 									.split("@");
 							boolean add = true;
@@ -2691,19 +2778,28 @@ public class Client extends Thread implements ActionListener,
 										.toString() + ":");
 					}
 				}
+
 			}
 		}
 	}
 
 	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
 	}
 }
