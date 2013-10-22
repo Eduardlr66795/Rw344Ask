@@ -74,6 +74,7 @@ public class Game extends Thread {
         this.lastBid = "none:none";
         this.lastCardPlayed = "";
         this.handsPlayed = 0;
+        this.nextPlayerToBid = "";
         this.restingState = false;
         this.cardsPlayedInTrick = 0;
         this.ledSuit = "";
@@ -101,7 +102,7 @@ public class Game extends Thread {
     	this.handsPlayed = 0;
         //iterate through all users and add card into hands
     	String [] AllCards = {"H2","H3","H4","H5","H6","H7","H8","H9","HT","HJ","HQ","HK","HA","S2","S3","S4","S5","S6","S7","S8","S9","ST","SJ","SQ","SK","SA",
-    	                   "D2","D3","D4","D5","D6","D7","D8","D9","DT","DJ","DQ","DK","DA","C2","C3","C4","C5","C6","D7","C8","C9","CT","CJ","CQ","CK","CA"};
+    	                      "D2","D3","D4","D5","D6","D7","D8","D9","DT","DJ","DQ","DK","DA","C2","C3","C4","C5","C6","C7","C8","C9","CT","CJ","CQ","CK","CA"};
 
     	for (int i = 51; i >= 0; i--) {
     		int rnd = (int) (Math.random() * i);

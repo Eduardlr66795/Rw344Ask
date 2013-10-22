@@ -32,7 +32,7 @@ public class ClientTest {
 	public void tearDown() throws Exception {
 		server.running = false;
 		server.end();
-		client.quitTheClient();
+		client.closeConnections();
 	}
 	
 	@Test

@@ -37,7 +37,7 @@ public class serverForClientTest extends Thread{
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+		
 		}
 	}
 	public void end() throws IOException{
