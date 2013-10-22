@@ -65,12 +65,12 @@ public class TestInvalidInput{
         	if(i<a.length){
         		end[i][0] = a[i];
         	}else{
-        		end[i][0] = "GNGamename;";
+        		end[i][0] = "LIusername:password;";
         	}
         	if(i<b.length){
 	        	end[i][1] = b[i];
         	}else{
-        		end[i][1] = "GNGamename;";
+        		end[i][1] = "LIusername:password;";
         	}
         	if(c.length>i){
 	        	end[i][2] = c[i];
