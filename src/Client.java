@@ -1407,6 +1407,7 @@ public class Client extends Thread implements ActionListener,
 						tableModel.setRowCount(0);
 						gameInProgress=false;
 						biddingActive = false;
+						playedCardsPlacekeeper=0;
 
 					} else if (command.equals("CM")) {// Chat to all recieved
 						// arguments[0]=sending player name
@@ -1432,6 +1433,7 @@ public class Client extends Thread implements ActionListener,
 						tableModel.setRowCount(0);
 						gameInProgress=false;
 						biddingActive = false;
+						playedCardsPlacekeeper=0;
 					} else if (command.equals("HI")) {
 						// argument[0]=round num;
 
@@ -1490,6 +1492,7 @@ public class Client extends Thread implements ActionListener,
 							// Bids finished and turn to play a card!
 							System.out.println();
 							System.out.println("All Bids Finished!!!");
+							
 							
 							for (int i = 0; i < playerCountemp; i++) {
 								int info = bids
@@ -2635,7 +2638,7 @@ public class Client extends Thread implements ActionListener,
 				e.printStackTrace();
 			}
 		} else {
-			if (turnToPlayCard) {
+			if (turnToPlayCard&&gameInProgress) {
 				// A card has been played
 				for (int i = 0; i < 15; i++) {
 					for (int j = 0; j < 10; j++) {
