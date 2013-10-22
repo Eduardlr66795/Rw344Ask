@@ -258,4 +258,61 @@ public class ServerTest {
         assertTrue(passed + "/" + clientsOut.size() + " passed the test" ,passed == clientsOut.size());
         testAfterLoginBreakdown();
     }
+    
+    @Test
+    public void testLogoffInGame() throws Exception{
+    	testAfterGamePhaseSetup();
+    	clientsOut.get(0).writeObject("LO;");
+    	clientsOut.get(0).flush();
+    	String msg = (String) clientsIn.get(0).readObject();
+    	assertTrue("Logoff fail, recieved " + msg + "Instead of LM;",msg.equals("LM;"));
+    	objectOutput.writeObject("HW;");
+    	objectOutput.flush();
+    	msg = (String) objectInput.readObject();
+    	assertTrue("Logoff fail, recieved " + msg + "Instead of QP;",msg.equals("QPGamer0;"));
+    	for(int i = 1; i < clients.size();i++){
+    		clientsOut.get(i).writeObject("HW;");
+    		clientsOut.get(i).flush();
+        	msg = (String) clientsIn.get(i).readObject();
+        	assertTrue("Logoff fail, recieved " + msg + "Instead of QP;",msg.equals("QPGamer0;"));
+    	}
+    }
+    
+    @Test
+    public void testQuitGame() throws Exception{
+    	testAfterGamePhaseSetup();
+    	clientsOut.get(0).writeObject("QTGame;");
+    	clientsOut.get(0).flush();
+    	String msg = (String) clientsIn.get(0).readObject();
+    	assertTrue("Logoff fail, recieved " + msg + "Instead of QK;",msg.equals("QK;"));
+    	objectOutput.writeObject("HAGame;");
+    	objectOutput.flush();
+    	msg = (String) objectInput.readObject();
+    	assertTrue("Logoff fail, recieved " + msg + "Instead of QP;",msg.equals("QPGamer0;"));
+    	for(int i = 1; i < clients.size();i++){
+    		clientsOut.get(i).writeObject("HAGame;");
+    		clientsOut.get(i).flush();
+        	msg = (String) clientsIn.get(i).readObject();
+        	assertTrue("Logoff fail, recieved " + msg + "Instead of QP;",msg.equals("QPGamer0;"));
+    	}
+    }
+    
+    private void testAfterGamePhaseSetup() throws Exception{
+    	testAfterLoginPhaseSetup();
+    	objectOutput.writeObject("GSGame;");
+    	objectOutput.flush();
+    	
+    	String msg = (String) objectInput.readObject();
+    	assertTrue("Could not create game Game: " + msg,msg.equals("GK;"));
+    	for(int i = 0; i < clients.size(); i++){
+    		clientsOut.get(i).writeObject("GJGame;");
+    		clientsOut.get(i).flush();
+    		msg = (String)clientsIn.get(i).readObject();
+    		assertTrue("Could not join game Game: " + msg,msg.equals("GX;"));
+    		
+    		objectOutput.writeObject("GNGame;");
+    		objectOutput.flush();
+    		msg = (String) objectInput.readObject();
+    	}
+    }
 }
