@@ -431,7 +431,6 @@ public class Client extends Thread implements ActionListener,
 		frame_Welcome.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				// TODO: create window event
 				frame_Welcome.dispose();
 				System.exit(0);
 			}
@@ -507,24 +506,19 @@ public class Client extends Thread implements ActionListener,
 		tabOutside = new JTabbedPane();
 		tabOutside.setSize(150, 270);
 
-		// String arr2[] = { "asd", "asd", "aa", "dd", "arr2" };
 		JScrollPane sp2 = new JScrollPane(
 				jlist_contactsOutsideMain = new JList());
-		// jlist_contactsOutsideMain.setListData(arr2);
 		jlist_contactsOutsideMain.setVisibleRowCount(4);
 		jlist_contactsOutsideMain.addListSelectionListener(this);
 		jlist_contactsOutsideMain.addMouseListener(this);
 		sp2.setBounds(0, 0, 150, 270);
 		tabOutside.addTab("Clients", sp2);
 
-		// String arr3[] = { "asd", "asd", "aa", "ddxxxx", "arr3" };
 		JScrollPane sp3 = new JScrollPane(jlist_gmesListOutMain = new JList());
-		// jlist_gmesListOutMain.setListData(arr3);
 		jlist_gmesListOutMain.setVisibleRowCount(4);
 		jlist_gmesListOutMain.addListSelectionListener(this);
 		sp3.setBounds(0, 0, 150, 270);
 		tabOutside.addTab("Games", sp3);
-		// initialise
 		button_playedCards = new JButton[7];
 		label_playedCards = new JLabel[7];
 		for (int i = 0; i < 7; i++) {
@@ -553,10 +547,7 @@ public class Client extends Thread implements ActionListener,
 		frame_choice.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				// TODO: create window event
-				// frame_Welcome.dispose();
-				// System.exit(0);
-				quit();
+				logoutRequest();
 			}
 		});
 
@@ -568,7 +559,6 @@ public class Client extends Thread implements ActionListener,
 				objectOutput.flush();
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -648,8 +638,7 @@ public class Client extends Thread implements ActionListener,
 			@Override
 			public void windowClosing(WindowEvent e) {
 				bol_mainFrameActive = false;
-
-				quit();
+				logoutRequest();
 			}
 		});
 
@@ -1024,45 +1013,6 @@ public class Client extends Thread implements ActionListener,
 				break;
 			}
 		}
-	}
-
-	public void quit() {
-		try {
-			objectOutput.writeObject("GO;");// TODO: LOGOFF for LO?
-			objectOutput.flush();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		// if (frame_choice.isActive()) {
-		// // frame_choice.dispose();
-		// // connected = false;
-		//
-		// } else if (frame_main.isActive()) {
-		//
-		// }
-		// try {
-		// if(client.isConnected()){
-		// client.close();
-		// } else if(frame_choice.isActive()) {
-		//
-		// }
-
-		// else if(frame_main.isActive()) {
-		//
-		// }
-
-		// TODO
-		// frameMain.dispose();
-		// threadMessage.interrupt();
-		// System.exit(0);
-
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// // e.printStackTrace();
-		// }
-		// threadMessage.destroy()
 	}
 
 	/**
@@ -1720,10 +1670,8 @@ public class Client extends Thread implements ActionListener,
 									objectOutput.writeObject("HS"
 											+ tempGameName + ";");
 									objectOutput.flush();
-									System.out.println("HA" + tempGameName
-											+ ";");
-									objectOutput.writeObject("HA"
-											+ tempGameName + ";");
+									System.out.println("HA" + tempGameName + ";");
+									objectOutput.writeObject("HA" + tempGameName + ";");
 									objectOutput.flush();
 									// thread
 									threadHN = true;
@@ -2031,7 +1979,6 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.flush();
 						}
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -2369,7 +2316,6 @@ public class Client extends Thread implements ActionListener,
 				frame_enterBid.dispose();
 			}
 			tempGameName = "";
-			// close mainframe
 			frame_main.dispose();
 			closeConnections();
 
@@ -2380,7 +2326,7 @@ public class Client extends Thread implements ActionListener,
 	}
 
 	public void closeConnections() {
-		// if
+		
 
 	}
 
