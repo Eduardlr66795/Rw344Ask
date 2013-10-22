@@ -1431,6 +1431,7 @@ public class Client extends Thread implements ActionListener,
 						tableModel.setRowCount(0);
 						gameInProgress = false;
 						biddingActive = false;
+						bidding=false;
 						playedCardsPlacekeeper = 0;
 						label_waitingToJoin.setVisible(false);
 						pleaseWork.setVisible(false);
@@ -1466,6 +1467,7 @@ public class Client extends Thread implements ActionListener,
 						endGame(tempGameName);
 						tableModel.setRowCount(0);
 						gameInProgress = false;
+						bidding=false;
 						biddingActive = false;
 						playedCardsPlacekeeper = 0;
 						label_waitingToJoin.setVisible(true);
@@ -1691,12 +1693,6 @@ public class Client extends Thread implements ActionListener,
 						// turnToPlayCard
 						if (arguments.length == 2) {
 							// End of hand
-							// remove previous played cards
-							for (int y = 0; y < playerCountemp; y++) {
-								System.out.print(y + " ");
-								button_playedCards[y].setVisible(false);
-								label_playedCards[y].setVisible(false);
-							}
 							
 							onlyEndOfTrick = false;
 							if (lastRound) {
@@ -2288,7 +2284,7 @@ public class Client extends Thread implements ActionListener,
 			panel_roundWinner.add(text_roundWinner[i][4]);
 			tableModel.setValueAt("0", i - 1, 1);
 			plabel_playersScores[i - 1].setText("0");
-			tempLastTrickScore[i - 1] = Integer.parseInt(info[3]);
+			tempLastTrickScore[i - 1] = Integer.parseInt(info[2]);
 			System.out.println("tempScore at i=" + i + " is "
 					+ tempLastTrickScore[i - 1]);
 
