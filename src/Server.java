@@ -450,15 +450,16 @@ public class Server implements Runnable {
 			Game game = gamesList.get(nxt);
 
 			if (game.playerList.containsKey(username)) {
-				for (Enumeration e2 = game.getPlayerList().keys(); e
+				for (Enumeration e2 = game.getPlayerList().keys(); e2
 						.hasMoreElements();) {
 					String playerName = (String) e2.nextElement();
 					for (Entry<ObjectOutputStream, String> c : clientList
 							.entrySet()) {
 
-						if (c.getValue().equals(playerName)) {
+						if (c.getValue().equals(playerName) && (!c.getValue().equals(username))) {
 							ObjectOutputStream tmp = c.getKey();
 							try {
+								System.out.println("sent to " + c.getValue());
 								tmp.writeObject("QP" + username + ";");
 								tmp.flush();
 							} catch (IOException e1) {
@@ -1154,6 +1155,12 @@ public class Server implements Runnable {
 						nextplayernumber);
 				
 				game.lastBid = getUsername(socket) + ":" + bid;
+				
+				if (game.nextPlayerToBid.equals(game.nextPlayerToPlay)) {
+					for (int i = 0; i < game.playerCount; i++) {
+						game.handsWon[i] = 0;
+					}
+				}
 
 				o.writeObject("HC" + getUsername(socket) + ":" + bid + ":"
 						+ game.nextPlayerToBid + ";");
@@ -1312,9 +1319,6 @@ public class Server implements Runnable {
 			game.playerCards[playerNumber][cardposition] = "";
 			
 			game.state = "playing";
-			for (int i = 0; i < game.playerCount; i++) {
-				game.handsWon[i] = 0;
-			}
 
 			int nextplayernumber = (playerNumber + 1) % game.playerCount;
 

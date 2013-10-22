@@ -9,9 +9,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +23,7 @@ import org.junit.runners.Parameterized.Parameters;
 
 /**
  *
- * @author 16579070
+ * @author //Ask
  */
 @RunWith(Parameterized.class)
 public class TestInvalidInput{
@@ -48,7 +45,8 @@ public class TestInvalidInput{
 	private ObjectInputStream objectInput3;
 	private String input5;
     
-    @Parameters
+    @SuppressWarnings("rawtypes")
+	@Parameters
    public static Collection messageInputs() throws FileNotFoundException, IOException {
     	BufferedReader read = new BufferedReader(new FileReader("./src/InvalidInput1"));
         String[] a = read.readLine().split(",");
@@ -101,7 +99,8 @@ public class TestInvalidInput{
     }
     
 
-    @Before
+    @SuppressWarnings("unused")
+	@Before
          public void setUp() throws Exception {
     	server = new Server();
     	serverThread = new Thread(server);
@@ -140,12 +139,12 @@ public class TestInvalidInput{
         
     }
     
-    @Test
+    @SuppressWarnings("unused")
+	@Test
     public void testInvalidInputsBeforeGame() throws Exception{
     	objectOutput.writeObject("LIusername:password;");
     	objectOutput.flush();
     	String rd = (String)objectInput.readObject();
-    	
         objectOutput.writeObject(input2);
         objectOutput.flush();
 
@@ -153,7 +152,8 @@ public class TestInvalidInput{
         assertTrue("recieved \'" + error + "\' instead of \'ER901;\' @ "+ input2, error.equals("ER901;"));
     }
     
-    @Test
+    @SuppressWarnings("unused")
+	@Test
     public void testInvalidInputsAfterGameCreation() throws Exception{
     	objectOutput.writeObject("LIusername:Password;");
     	objectOutput.flush();
