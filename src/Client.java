@@ -875,6 +875,7 @@ public class Client extends Thread implements ActionListener,
 		label_gameName = new JLabel(gName);
 		label_gameName.setFont(new java.awt.Font("Tahoma", 0, 24));
 		label_gameName.setBounds(340, 2, 180, 40);
+		label_gameName.setForeground(Color.white);
 		panel_bigframe[gameNumber].add(label_gameName);
 
 		// Add 10 facedown cards
@@ -899,10 +900,12 @@ public class Client extends Thread implements ActionListener,
 		turnToPlay = new JLabel();
 		usernameForMainFrame.setSize(180, 20);
 		usernameForMainFrame.setLocation(50, 40);
+		usernameForMainFrame.setForeground(Color.white);
 		usernameForMainFrame.setText(username);
 		turnToPlay.setSize(160, 25);
 		turnToPlay.setLocation(200, 5);
 		turnToPlay.setText("TURN TO PLAY!!");
+		turnToPlay.setForeground(Color.white);
 		turnToPlay.setVisible(false);
 		panel_bigframe[gameNumber].add(usernameForMainFrame);
 		panel_bigframe[gameNumber].add(turnToPlay);
@@ -1977,6 +1980,8 @@ public class Client extends Thread implements ActionListener,
 				e.printStackTrace();
 				// TODO : What frame are we disposing here??
 				// dispose();
+				//close everything
+				logoutConfirmed();
 				System.out.println("ERROR");
 				System.exit(0);
 			}
