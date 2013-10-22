@@ -8,8 +8,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,7 +29,7 @@ public class Server implements Runnable {
 	private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>();
 	@SuppressWarnings("rawtypes")
 	private Hashtable Messages = new Hashtable();
-	// TODO
+
 
 	// Gui
 	private JTextArea textAreaServer;
