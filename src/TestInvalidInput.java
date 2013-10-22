@@ -246,9 +246,6 @@ public class TestInvalidInput{
     	objectOutput.writeObject("GPgamename;");
     	objectOutput.flush();
     	rd = (String)objectInput.readObject();
-    	
-    	
-		
 	}
     
 }
