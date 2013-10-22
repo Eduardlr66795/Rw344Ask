@@ -26,7 +26,7 @@ import javax.swing.UnsupportedLookAndFeelException;
  */
 public class Server implements Runnable {
 	@SuppressWarnings("rawtypes")
-	private Hashtable<Socket,ObjectOutputStream> outputStreams = new Hashtable();
+	private Hashtable<Socket, ObjectOutputStream> outputStreams = new Hashtable();
 	Hashtable<String, Game> gamesList = new Hashtable<String, Game>();
 	private Hashtable<ObjectOutputStream, String> clientList = new Hashtable<ObjectOutputStream, String>();
 	@SuppressWarnings("rawtypes")
@@ -42,9 +42,9 @@ public class Server implements Runnable {
 	private JPanel panelGame;
 	private JFrame frameMain;
 	private boolean listening = true;
-	private ServerSocket server_Socket; 
-	
-	public void closeServer(){
+	private ServerSocket server_Socket;
+
+	public void closeServer() {
 		frameMain.dispose();
 		listening = false;
 		try {
@@ -54,8 +54,8 @@ public class Server implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
-	public Server(){
+
+	public Server() {
 		buildGui();
 	}
 
@@ -323,7 +323,7 @@ public class Server implements Runnable {
 		while (itr.hasNext()) {
 			usernamelist += itr.next() + "~";
 		}
-		
+
 		for (Enumeration e = getOutputStreams(); e.hasMoreElements();) {
 			ObjectOutputStream output = (ObjectOutputStream) e.nextElement();
 			try {
@@ -375,41 +375,65 @@ public class Server implements Runnable {
 	 * @param username
 	 * @param password
 	 * @param socket
-         * @return true if login was a success
+	 * @return true if login was a success
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public boolean login(String username, String password, Socket socket) {
+	public void login(String username, String password, Socket socket) {
+
 		Collection Users = clientList.values();
 		ObjectOutputStream o = null;
-                boolean success = false;
+
 		o = (ObjectOutputStream) outputStreams.get(socket);
-		Iterator itr = Users.iterator();
-		while (itr.hasNext()) {
-			if (username.equals(itr.next())) {
-				try {
-					o.writeObject("ER100;");
-					o.flush();
-					
-				} catch (IOException e) {
-					System.out.println("Exception in login " + e);
+
+		// Check if username exists
+		synchronized (clientList) {
+			for (Entry<ObjectOutputStream, String> entry : clientList
+					.entrySet()) {
+				
+				if (entry.getValue().equals(username)) {
+
+					// If username is logged in already with another client
+					if (!clientList.containsKey(o)) {
+						try {
+							o.writeObject("ER100;");
+							o.flush();
+							return;
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+						// Else user is trying to log in more than once
+					} else {
+						try {
+							o.writeObject("ER901;");
+							o.flush();
+							return;
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
 				}
 			}
+			try {
+				clientList.put(o, username);
+				LinkedList<String> messages = new LinkedList<String>();
+				Messages.put(username, messages);
+
+				o.writeObject("LK;");
+				o.flush();
+
+				textAreaClient.append("New client: " + username);
+				textAreaClient.append(" at " + getTimeAndDate());
+				textAreaClient.append("\n");
+
+			} catch (IOException e) {
+				System.out.println("Exception in login " + e);
+			}
+			return;
 		}
-		try {
-			clientList.put(o, username);
-			LinkedList<String> messages = new LinkedList<String>();
-			Messages.put(username, messages);
-			o.writeObject("LK;");
-			o.flush();
-                        success = true;
-			textAreaClient.append("New client: " + username);
-			textAreaClient.append(" at " + getTimeAndDate());
-			textAreaClient.append("\n");
-			
-		} catch (IOException e) {
-			System.out.println("Exception in login " + e);
-		}
-                return success;
 	}
 
 	/**
@@ -420,27 +444,28 @@ public class Server implements Runnable {
 		ObjectOutputStream o = null;
 		o = (ObjectOutputStream) outputStreams.get(socket);
 		String username = getUsername(socket);
-		
+
 		for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
 			String nxt = (String) e.nextElement();
 			Game game = gamesList.get(nxt);
-			
+
 			if (game.playerList.containsKey(username)) {
-				for (Enumeration e2 = game.getPlayerList().keys(); e.hasMoreElements();) {
+				for (Enumeration e2 = game.getPlayerList().keys(); e
+						.hasMoreElements();) {
 					String playerName = (String) e2.nextElement();
 					for (Entry<ObjectOutputStream, String> c : clientList
-                            .entrySet()) {
+							.entrySet()) {
 
-	                    if (c.getValue().equals(playerName)) {
-	                        ObjectOutputStream tmp = c.getKey();
-	                        try {
+						if (c.getValue().equals(playerName)) {
+							ObjectOutputStream tmp = c.getKey();
+							try {
 								tmp.writeObject("QP" + username + ";");
 								tmp.flush();
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
-	                        
-	                    }
+
+						}
 					}
 				}
 			}
@@ -471,15 +496,29 @@ public class Server implements Runnable {
 	public void createGame(String gameName, Socket socket) {
 
 		// handle the creation of a game object and add to the HashSet.
-		Game newGame = new Game(gameName, getUsername(socket));
+
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+
+		// If not logged in
+		if (!clientList.containsKey(o)) {
+			try {
+				o.writeObject("ER901;");
+				o.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+
+		Game newGame = new Game(gameName, getUsername(socket));
 
 		try {
 			if (!gamesList.containsKey(gameName)) {
 				// game is unique and was created
-                            synchronized (gamesList){
-				gamesList.put(gameName, newGame);
-                            }
+				synchronized (gamesList) {
+					gamesList.put(gameName, newGame);
+				}
 
 				o.writeObject("GK;");
 				o.flush();
@@ -507,6 +546,18 @@ public class Server implements Runnable {
 		try {
 			ObjectOutputStream o = (ObjectOutputStream) outputStreams
 					.get(socket);
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -556,6 +607,17 @@ public class Server implements Runnable {
 		try {
 			ObjectOutputStream o = (ObjectOutputStream) outputStreams
 					.get(socket);
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
@@ -610,20 +672,35 @@ public class Server implements Runnable {
 		try {
 			ObjectOutputStream o = (ObjectOutputStream) outputStreams
 					.get(socket);
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
 				o.flush();
 				return;
 			}
-			if(clientList.containsKey(o)){
-				
-			}
+
 			Game game = gamesList.get(gameName);
+			if (!game.state.equals("joining")) {
+				o.writeObject("ER901;");
+				o.flush();
+				return;
+			}
 			if (game.getPlayerList().containsKey(playerName)) {
 				game.getPlayerList().remove(playerName);
 				game.playerCount--;
-				synchronized(clientList){
+				synchronized (clientList) {
 					for (Entry<ObjectOutputStream, String> i : clientList
 							.entrySet()) {
 						if (i.getValue().equals(playerName)) {
@@ -657,6 +734,18 @@ public class Server implements Runnable {
 	@SuppressWarnings("rawtypes")
 	public void getGamesList(Socket socket, String prefix) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+
+		// If not logged in
+		if (!clientList.containsKey(o)) {
+			try {
+				o.writeObject("ER901;");
+				o.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
 		String gameslist = "GU";
 		int count = 0;
 		for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
@@ -687,7 +776,19 @@ public class Server implements Runnable {
 	 */
 	public void joinGame(Socket socket, String gameName) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+
 		try {
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			String playerName = getUsername(socket);
 
 			// if game does not exist
@@ -713,6 +814,18 @@ public class Server implements Runnable {
 	public void waitForGame(Socket socket, String gameName) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -750,6 +863,17 @@ public class Server implements Runnable {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
 
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -773,7 +897,8 @@ public class Server implements Runnable {
 				return;
 			}
 			int count = 0;
-			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e
+					.hasMoreElements();) {
 				if (count != 0) {
 					message += ":";
 				}
@@ -797,6 +922,18 @@ public class Server implements Runnable {
 	public void quitGame(Socket socket, String gameName) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -816,7 +953,8 @@ public class Server implements Runnable {
 			o.flush();
 
 			// Send quit message only to other players in game
-			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e
+					.hasMoreElements();) {
 				String playerName = (String) e.nextElement();
 				for (Entry<ObjectOutputStream, String> i : clientList
 						.entrySet()) {
@@ -825,11 +963,11 @@ public class Server implements Runnable {
 						ObjectOutputStream o2 = i.getKey();
 						o2.writeObject("QP" + getUsername(socket) + ";");
 						o2.flush();
-						
+
 					}
 				}
 			}
-			
+
 			gamesList.remove(gameName);
 
 		} catch (Exception e) {
@@ -845,6 +983,18 @@ public class Server implements Runnable {
 	public void handRequest(Socket socket, String gameName) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -859,6 +1009,13 @@ public class Server implements Runnable {
 				o.flush();
 				return;
 			}
+
+			// If game is not in 'playing' state
+			if (!game.state.equals("playing")) {
+				o.writeObject("ER901;");
+				o.flush();
+				return;
+			}
 			// if game is being played and user requests a hand TODO
 			if (!game.restingState) {
 				String roundnumber = "" + game.round;
@@ -869,8 +1026,9 @@ public class Server implements Runnable {
 				for (int i = 0; i < 10; i++) {
 					if (!game.playerCards[game.playerList.get(playername)][i]
 							.equals("")) {
-						cards += game.playerCards[game.getPlayerList()
-								.get(playername)][i] + ":";
+						cards += game.playerCards[game.getPlayerList().get(
+								playername)][i]
+								+ ":";
 					}
 				}
 				String message = "HI" + roundnumber + ":" + cards
@@ -886,6 +1044,18 @@ public class Server implements Runnable {
 	public void bidRequest(Socket socket, String gameName) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -899,6 +1069,14 @@ public class Server implements Runnable {
 				o.flush();
 				return;
 			}
+			
+			// if game is not in bidding state
+			if (!game.state.equals("bidding")) {
+				o.writeObject("ER901;");
+				o.flush();
+				return;
+			}
+			
 			String message = "HC";
 			String lastbid = game.lastBid;
 			if (lastbid.equals("none:none")) {
@@ -916,6 +1094,18 @@ public class Server implements Runnable {
 	public void bidPlay(Socket socket, String gameName, String bidstring) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -926,6 +1116,13 @@ public class Server implements Runnable {
 			// if not part of a game
 			if (!game.playerList.containsKey(getUsername(socket))) {
 				o.writeObject("ER110;");
+				o.flush();
+				return;
+			}
+			
+			// if game is not in bidding state
+			if (!game.state.equals("bidding")) {
+				o.writeObject("ER901;");
 				o.flush();
 				return;
 			}
@@ -943,8 +1140,9 @@ public class Server implements Runnable {
 				}
 				game.playerBids[game.getPlayerList().get(getUsername(socket))] = bid;
 
-				int nextplayernumber = (game.getPlayerList()
-						.get(getUsername(socket)) + 1) % game.playerCount;
+				int nextplayernumber = (game.getPlayerList().get(
+						getUsername(socket)) + 1)
+						% game.playerCount;
 
 				game.nextPlayerToBid = getPlayerNameFromNumber(gameName,
 						nextplayernumber);
@@ -968,6 +1166,17 @@ public class Server implements Runnable {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
 
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -980,6 +1189,13 @@ public class Server implements Runnable {
 			// if not part of a game
 			if (!game.playerList.containsKey(getUsername(socket))) {
 				o.writeObject("ER110;");
+				o.flush();
+				return;
+			}
+			
+			// If game is not in 'playing' state
+			if (!game.state.equals("playing")) {
+				o.writeObject("ER901;");
 				o.flush();
 				return;
 			}
@@ -1004,6 +1220,17 @@ public class Server implements Runnable {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
 
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -1021,6 +1248,13 @@ public class Server implements Runnable {
 			}
 			String playerName = getUsername(socket);
 			int playerNumber = game.getPlayerList().get(playerName);
+			
+			// If game is not in 'playing' state
+			if (!game.state.equals("playing")) {
+				o.writeObject("ER901;");
+				o.flush();
+				return;
+			}
 
 			// Check if player has this card and find position of card
 			boolean hasCard = false;
@@ -1188,6 +1422,17 @@ public class Server implements Runnable {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
 
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -1196,6 +1441,13 @@ public class Server implements Runnable {
 			}
 
 			Game game = gamesList.get(gameName);
+			
+			// If game is not in 'resting' state
+			if (!game.state.equals("resting")) {
+				o.writeObject("ER901;");
+				o.flush();
+				return;
+			}
 
 			// if not part of a game
 			if (!game.playerList.containsKey(getUsername(socket))) {
@@ -1238,6 +1490,17 @@ public class Server implements Runnable {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
 
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -1245,23 +1508,35 @@ public class Server implements Runnable {
 				return;
 			}
 			Game game = gamesList.get(gameName);
+			
 			// if not part of a game
 			if (!game.playerList.containsKey(getUsername(socket))) {
 				o.writeObject("ER110;");
 				o.flush();
 				return;
 			}
+			
+			// if game is still in 'joining' state
+			if (game.state.equals("joining")) {
+				o.writeObject("ER901;");
+				o.flush();
+				return;
+			}
+			
 			String message = "HO";
 			boolean firstitr = true;
-			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e
+					.hasMoreElements();) {
 				if (!firstitr) {
 					message += ":";
 				}
 				String playerName = (String) e.nextElement();
 				message += playerName;
-				message += ":" + game.handsWon[game.getPlayerList().get(playerName)];
 				message += ":"
-						+ game.playerScores[game.getPlayerList().get(playerName)];
+						+ game.handsWon[game.getPlayerList().get(playerName)];
+				message += ":"
+						+ game.playerScores[game.getPlayerList()
+								.get(playerName)];
 				firstitr = false;
 			}
 			o.writeObject(message + ";");
@@ -1279,7 +1554,31 @@ public class Server implements Runnable {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void chatToPlayers(Socket socket, String[] arguments) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
+
 		try {
+			
+			// if too few arguments / blank message
+			if (arguments.length == 1) {
+				try {
+					o.writeObject("ER900;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			for (int i = 0; i < arguments.length - 1; i++) {
 
 				String playerName = arguments[i];
@@ -1304,6 +1603,18 @@ public class Server implements Runnable {
 	public void chatToGame(Socket socket, String gameName, String message) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
 			// if game does not exist
 			if (!gamesList.containsKey(gameName)) {
 				o.writeObject("ER133;");
@@ -1311,6 +1622,7 @@ public class Server implements Runnable {
 				return;
 			}
 			Game game = gamesList.get(gameName);
+			
 			// if not part of a game
 			if (!game.playerList.containsKey(getUsername(socket))) {
 				o.writeObject("ER110;");
@@ -1318,7 +1630,8 @@ public class Server implements Runnable {
 				return;
 			}
 			// Send message only to other players in game
-			for (Enumeration e = game.getPlayerList().keys(); e.hasMoreElements();) {
+			for (Enumeration e = game.getPlayerList().keys(); e
+					.hasMoreElements();) {
 				String playerName = (String) e.nextElement();
 				LinkedList link = (LinkedList) Messages.get(playerName);
 				link.addLast(getUsername(socket) + ":" + message);
@@ -1327,77 +1640,108 @@ public class Server implements Runnable {
 			System.out.println("Exception in chatToPlayers " + e);
 		}
 	}
-	
+
 	public void modeConfusion(Socket socket) {
 		String username = getUsername(socket);
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+
 			boolean isInGame = false;
-			
+
 			for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
 				String nxt = (String) e.nextElement();
 				Game game = gamesList.get(nxt);
-				
+
 				if (game.playerList.containsKey(username)) {
 					isInGame = true;
 					String state = game.state;
-					
+
 					if (state.equals("joining")) {
 						if (game.creatorName.equals(username)) {
-							o.writeObject("MLGW" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLGW" + game.gameName + ":QT"
+									+ game.gameName + ":LO:CP:CC;");
 							o.flush();
 							return;
 						} else {
-							o.writeObject("MLGN" + game.gameName + ":GF" + game.gameName + ":GO" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLGN" + game.gameName + ":GF"
+									+ game.gameName + ":GO" + game.gameName
+									+ ":QT" + game.gameName + ":LO:CP:CC;");
 							o.flush();
 							return;
 						}
 					} else if (state.equals("bidding")) {
 						if (game.nextPlayerToBid.equals(username)) {
-							o.writeObject("MLHN" + game.gameName + ":HB" + game.gameName + ":HD" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName  + ":LO:CP:CC;");
+							o.writeObject("MLHN" + game.gameName + ":HB"
+									+ game.gameName + ":HD" + game.gameName
+									+ ":CA" + game.gameName + ":QT"
+									+ game.gameName + ":LO:CP:CC;");
 							o.flush();
 							return;
 						} else {
-							o.writeObject("MLHN" + game.gameName + ":HB" + game.gameName +":CA" + game.gameName  + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLHN" + game.gameName + ":HB"
+									+ game.gameName + ":CA" + game.gameName
+									+ ":QT" + game.gameName + ":LO:CP:CC;");
 							o.flush();
 							return;
 						}
 					} else if (state.equals("playing")) {
 						if (game.nextPlayerToPlay.equals(username)) {
-							o.writeObject("MLHN" + game.gameName + ":HP" + game.gameName + ":HR" + game.gameName + ":HS" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLHN" + game.gameName + ":HP"
+									+ game.gameName + ":HR" + game.gameName
+									+ ":HS" + game.gameName + ":CA"
+									+ game.gameName + ":QT" + game.gameName
+									+ ":LO:CP:CC;");
 							o.flush();
 							return;
 						} else {
-							o.writeObject("MLHN" + game.gameName + ":HP" + game.gameName + ":HS" + game.gameName +":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLHN" + game.gameName + ":HP"
+									+ game.gameName + ":HS" + game.gameName
+									+ ":CA" + game.gameName + ":QT"
+									+ game.gameName + ":LO:CP:CC;");
 							o.flush();
 							return;
 						}
-						
+
 					} else if (state.equals("resting")) {
 						int playerNumber = game.getPlayerList().get(username);
-						
+
 						if (game.playAnotherRound[playerNumber]) {
-							o.writeObject("MLHN" + game.gameName + ":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLHN" + game.gameName + ":CA"
+									+ game.gameName + ":QT" + game.gameName
+									+ ":LO:CP:CC;");
 							o.flush();
 							return;
 						} else {
-							o.writeObject("MLHA" + game.gameName + ":CA" + game.gameName + ":QT" + game.gameName + ":LO:CP:CC;");
+							o.writeObject("MLHA" + game.gameName + ":CA"
+									+ game.gameName + ":QT" + game.gameName
+									+ ":LO:CP:CC;");
 							o.flush();
 							return;
 						}
 					}
 				}
 			}
-			
+
 			if (!isInGame) {
-				o.writeObject("MLGS:GL:GG:LO:CP:CC;");
+				// Check if logged in
+				Collection Users = clientList.values();
+				o = (ObjectOutputStream) outputStreams.get(socket);
+				Iterator itr = Users.iterator();
+				while (itr.hasNext()) {
+					if (username.equals(itr.next())) {
+						o.writeObject("MLGS:GL:GG:LO:CP:CC;");
+						o.flush();
+						return;
+					}
+				}
+				// Not logged in
+				o.writeObject("MLLI;");
 				o.flush();
-				return;
 			}
 		} catch (Exception e) {
 			System.out.println("Exception in modeConfusion " + e);
 		}
-		
+
 	}
 
 	/**
@@ -1408,13 +1752,25 @@ public class Server implements Runnable {
 	public void collectMessages(Socket socket) {
 		ObjectOutputStream o = (ObjectOutputStream) outputStreams.get(socket);
 		try {
+			
+			// If not logged in
+			if (!clientList.containsKey(o)) {
+				try {
+					o.writeObject("ER901;");
+					o.flush();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
 			String playerName = getUsername(socket);
 			LinkedList link = (LinkedList) Messages.get(playerName);
 			if (link.isEmpty()) {
 				o.writeObject("CN;");
 				o.flush();
 			} else {
-				o.writeObject("CM"+(String) link.pop());
+				o.writeObject("CM" + (String) link.pop());
 				o.flush();
 			}
 		} catch (Exception e) {
