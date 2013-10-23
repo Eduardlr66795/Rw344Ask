@@ -42,6 +42,7 @@ public class HandleClient extends Thread {
 						server.badMessageFormat(socket);
 					} else {
 						server.logoff(socket);
+						disconnected = true;
 					}
 
 				} else if (command.equals("GS")) {
