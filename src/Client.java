@@ -76,7 +76,7 @@ public class Client extends Thread implements ActionListener,
 	public String tempLastPlayer = "";
 	public String[] tempLastGU;
 	String[][] data = { { " ", " ", " " }, { " ", " ", " " }, { " ", " ", " " } };
-	String colNames[] = { "Username", "Tricks For Hand", "Bid" };
+	String colNames[] = { "Username", "Tricks For Hand", "Bid","Total Score" };
 	DefaultTableModel tableModel = new DefaultTableModel();
 	public JTable table_scores = new JTable(tableModel);
 	public JLabel label_waitingToJoin = new JLabel();
@@ -747,6 +747,7 @@ public class Client extends Thread implements ActionListener,
 		text_FieldPrefixIn.setBounds(165, 360, 45, 25);
 		// table for scores;
 		tableModel.setColumnIdentifiers(colNames);
+		//tableModel.setC
 		table_scores.setSize(400, 100);
 		table_scores.setLocation(0, 0);
 		spScores = new JScrollPane(table_scores);
@@ -939,7 +940,7 @@ public class Client extends Thread implements ActionListener,
 			// panel_bigframe[gameNumber].add(plabel_playersScores[k]);
 			scores.put(pNames[k], "0:0:0:0");
 			// update table
-			tableModel.addRow(new Object[] { pNames[k], "0", "0" });
+			tableModel.addRow(new Object[] { pNames[k], "0", "0","0" });
 		}
 		if (k == 7) {
 			totalrounds = 7;
@@ -956,10 +957,17 @@ public class Client extends Thread implements ActionListener,
 		spScores.setSize(spScores.getWidth(), lengt);
 	}
 
-	public void updateScoresInGame(String[] currentScores) {
+	public void updateScoresInGame(String[] currentScores,boolean end) {
 		for (int i = 0; i < playerCountemp; i++) {
+			int cScore2 = Integer.parseInt(currentScores[3 * i + 2]);
 			int cScore = Integer.parseInt(currentScores[3 * i + 1]);
-			tableModel.setValueAt(cScore + "", i, 1);
+			if(end){
+				tableModel.setValueAt(cScore2 + "", i, 3);
+				tableModel.setValueAt(0 + "", i, 1);
+			}else{
+				tableModel.setValueAt((cScore+cScore2) + "", i, 3);
+				tableModel.setValueAt(cScore + "", i, 1);
+			}
 		}
 
 	}
@@ -1508,6 +1516,7 @@ public class Client extends Thread implements ActionListener,
 								}
 								// set placekeeper to zero
 								playedCardsPlacekeeper = 0;
+								
 							}
 							int gameNumber = 0;
 							for (int i = 0; i < 15; i++) {
@@ -1561,6 +1570,14 @@ public class Client extends Thread implements ActionListener,
 								gameInProgress = false;
 							} else {
 								gameInProgress = false;
+								//Take out if out of sync again
+								//-----------------------------------------------------------------
+								for (int y = 0; y < playerCountemp; y++) {
+									System.out.print(y + " ");
+									button_playedCards[y].setVisible(false);
+									label_playedCards[y].setVisible(false);
+								}
+								//-----------------------------------------------------------------
 								try {
 									objectOutput.writeObject("HS"
 											+ tempGameName + ";");
@@ -1607,9 +1624,10 @@ public class Client extends Thread implements ActionListener,
 						}
 					} else if (command.equals("HW")) {						
 					} else if (command.equals("HO")) {
-						for (int i = 0; i < arguments.length; i = i + 3) {
+						String[] tempMoving= new String[4];
+						int i;
+						for ( i = 0; i < arguments.length; i = i + 3) {
 
-							String[] tempMoving = new String[4];
 							
 							tempMoving = scores.get(arguments[i]).split(":");
 							System.out.println("Temp Moving:"+tempMoving[0]+","+tempMoving[1]+","+tempMoving[2]+","+tempMoving[3]);
@@ -1617,7 +1635,8 @@ public class Client extends Thread implements ActionListener,
 								tempMoving[0] = tempMoving[1];
 								tempMoving[1] = (Integer.parseInt(arguments[i + 2]))+"";
 								tempMoving[2] = arguments[i + 1];
-								tempMoving[3] = (Integer.parseInt(tempMoving[3])+Integer.parseInt(tempMoving[2]))+"";								
+								tempMoving[3] = (Integer.parseInt(tempMoving[3])+Integer.parseInt(tempMoving[2]))+"";	
+								System.out.println("Temp Moving After:"+tempMoving[0]+","+tempMoving[1]+","+tempMoving[2]+","+tempMoving[3]);
 							}
 							StringBuilder s = new StringBuilder();
 							s.append(tempMoving[0]);
@@ -1628,10 +1647,16 @@ public class Client extends Thread implements ActionListener,
 							s.append(":");
 							s.append(tempMoving[3]);
 							scores.put(arguments[i], s.toString());
+							System.out.println("I is:"+i);
+							System.out.println("i+2 is:"+(i+2));
+							arguments[i+2]=tempMoving[1];
 						}
 						if (onlyEndOfTrick) {
-							updateScoresInGame(arguments);
+							updateScoresInGame(arguments,false);
 						} else {
+							
+
+							updateScoresInGame(arguments,true);
 							if (!lastRound) {
 								if (roundWinnerFrame) {
 									roundWinner();
@@ -1900,8 +1925,8 @@ public class Client extends Thread implements ActionListener,
 		}
 		roundWinnerFrame = false;
 
-		winnerOfRound.setSize(200, 30);
-		winnerOfRound.setLocation(130, 0);
+		winnerOfRound.setSize(250, 30);
+		winnerOfRound.setLocation(100, 0);
 		int tempRoundWinnerScore = 0;
 		int winners = 0;
 
@@ -1923,7 +1948,7 @@ public class Client extends Thread implements ActionListener,
 
 		text_roundWinner[0][1].setText("Bid");
 		text_roundWinner[0][1].setSize(150, 30);
-		text_roundWinner[0][1].setLocation(80, 10);
+		text_roundWinner[0][1].setLocation(105, 10);
 		panel_roundWinner.add(text_roundWinner[0][1]);
 
 		text_roundWinner[0][2].setText("Tricks Won");
@@ -1966,7 +1991,7 @@ public class Client extends Thread implements ActionListener,
 
 			text_roundWinner[i][1].setText(bids.get(names[i - 1]) + "");
 			text_roundWinner[i][1].setSize(100, 30);
-			text_roundWinner[i][1].setLocation(80, 10 + i * 20);
+			text_roundWinner[i][1].setLocation(105, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][1]);
 
 			text_roundWinner[i][2].setText((Integer.parseInt(info[2]) ) + "");
