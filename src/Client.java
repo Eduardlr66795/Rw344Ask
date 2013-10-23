@@ -301,7 +301,7 @@ public class Client extends Thread implements ActionListener,
 		frame_Welcome.setSize(400, 300);
 		frame_Welcome.setLocation(400, 100);
 		frame_Welcome.setEnabled(true);
-		frame_Welcome.setTitle("//Ask Login");
+		frame_Welcome.setTitle("//Ask Inniebos Game");
 
 		panel_welcome = new JPanel() {
 			public void paintComponent(Graphics g) {
@@ -1242,7 +1242,7 @@ public class Client extends Thread implements ActionListener,
 											objectOutput.flush();
 										} catch (Exception e) {
 											 
-											logoutConfirmed();
+											//logoutConfirmed();
 											System.out.println("ERROR");
 											System.exit(0);
 										}

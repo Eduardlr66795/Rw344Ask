@@ -151,9 +151,7 @@ public class TestInvalidInput{
         String error = (String) objectInput.readObject();
         assertTrue("recieved \'" + error + "\' instead of \'ER901;\' @ "+ input2, error.equals("ER901;"));
     }
-    
-    @SuppressWarnings("unused")
-	@Test
+    @Test
     public void testInvalidInputsAfterGameCreation() throws Exception{
     	objectOutput.writeObject("LIusername:Password;");
     	objectOutput.flush();
