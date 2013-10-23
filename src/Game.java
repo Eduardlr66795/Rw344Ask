@@ -131,8 +131,14 @@ public class Game extends Thread {
     			if (i < this.playerCount * 10 - ((this.round - 1)*this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
-    				this.trumpSuit = AllCards[i].substring(0,1);
     				this.cardsThisHand = 10 - this.round + 1;
+    				
+    				// if there is no trump suit in this hand (4 or 7)
+    				if ((this.cardsThisHand == 7) || (this.cardsThisHand == 4)) {
+    					this.trumpSuit = "X";
+    				} else {
+    					this.trumpSuit = AllCards[i].substring(0,1);
+    				}
     				return;
     			}
     		}
@@ -141,9 +147,15 @@ public class Game extends Thread {
     			if (i < 48 - ((this.round - 1) * this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
-    				this.trumpSuit = AllCards[i].substring(0,1);
+    				
     				this.cardsThisHand = 8 - this.round + 1;
-    				return;
+    				
+    				// if there is no trump suit in this hand (4 or 7)
+    				if ((this.cardsThisHand == 7) || (this.cardsThisHand == 4)) {
+    					this.trumpSuit = "X";
+    				} else {
+    					this.trumpSuit = AllCards[i].substring(0,1);
+    				}
     			}
     		}
     		
@@ -151,9 +163,15 @@ public class Game extends Thread {
     			if (i < 49 - ((this.round - 1) * this.playerCount)) {
     				this.playerCards[i % this.playerCount][i/this.playerCount] = AllCards[i];
     			} else {
-    				this.trumpSuit = AllCards[i].substring(0,1);
+    				
     				this.cardsThisHand = 7 - this.round + 1;
-    				return;
+    				
+    				// if there is no trump suit in this hand (4 or 7)
+    				if ((this.cardsThisHand == 7) || (this.cardsThisHand == 4)) {
+    					this.trumpSuit = "X";
+    				} else {
+    					this.trumpSuit = AllCards[i].substring(0,1);
+    				}
     			}
     		}
     		
