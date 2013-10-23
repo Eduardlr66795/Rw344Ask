@@ -197,7 +197,7 @@ public class Client extends Thread implements ActionListener,
 		try {
 			new Client();
 		} catch (Exception e) {
-			e.printStackTrace();
+			 
 		}
 	}
 
@@ -218,11 +218,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 		defaultList_players = new DefaultListModel();
 		button_startCreatedGame = new JButton();
@@ -285,11 +285,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 		// for constantly updating active games
 		tempLastGU = new String[30];
@@ -451,11 +451,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 
 		frame_choice = new JFrame();
@@ -563,7 +563,7 @@ public class Client extends Thread implements ActionListener,
 				objectOutput.flush();
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			 
 		}
 
 	}
@@ -581,7 +581,7 @@ public class Client extends Thread implements ActionListener,
 			objectOutput.writeObject("LC;");
 			objectOutput.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			 
 		}
 
 	}
@@ -602,11 +602,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 
 		string_games = new String[15];
@@ -1029,7 +1029,7 @@ public class Client extends Thread implements ActionListener,
 			objectInput = new ObjectInputStream(client.getInputStream());
 
 		} catch (Exception e) {
-//			e.printStackTrace();
+//			 
 			JOptionPane.showMessageDialog(null, "Server Error..", "Error!",
 					JOptionPane.ERROR_MESSAGE);
 		}
@@ -1065,9 +1065,9 @@ public class Client extends Thread implements ActionListener,
 			objectOutput.flush();
 			msg = (String) objectInput.readObject();
 		} catch (IOException e) {
-			e.printStackTrace();
+			 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			 
 		}
 		if (msg.compareTo("LK;") == 0) {
 			return true;
@@ -1089,7 +1089,7 @@ public class Client extends Thread implements ActionListener,
 				objectOutput.writeObject(text);
 				objectOutput.flush();
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 		} else {
 			text_message_in.setText("");
@@ -1150,24 +1150,25 @@ public class Client extends Thread implements ActionListener,
 											try {
 												Thread.sleep(500);
 											} catch (InterruptedException e) {
-												e.printStackTrace();
+												 
 											}
 											if (gameNotStarted) {
 												objectOutput.writeObject("GN"
 														+ tempGameName + ";");
 												objectOutput.flush();
 											}
-										} catch (SocketException e) {
-											e.printStackTrace();
-										} catch (IOException e) {
-											e.printStackTrace();
+										} catch (Exception e) {
+											 
+											logoutConfirmed();
+											System.out.println("ERROR");
+											System.exit(0);
 										}
 									}
 								}
 							}).start();
 
 						} catch (IOException e) {
-							e.printStackTrace();
+							 
 						}
 					} else if (command.equals("GP")) {
 						if (arguments.length == 1) {
@@ -1187,7 +1188,7 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.writeObject("HN" + tempGameName + ";");
 							objectOutput.flush();
 						} catch (Exception e) {
-							e.printStackTrace();
+							 
 							System.out.println(e);
 						}
 					} else if (command.equals("GQ")) {// Confirm that player has
@@ -1239,12 +1240,11 @@ public class Client extends Thread implements ActionListener,
 											objectOutput.flush();
 											objectOutput.writeObject("CC;");
 											objectOutput.flush();
-										} catch (SocketException e) {
-											e.printStackTrace();
-										} catch (IOException e) {
-											e.printStackTrace();
-										} catch (InterruptedException e) {
-											e.printStackTrace();
+										} catch (Exception e) {
+											 
+											logoutConfirmed();
+											System.out.println("ERROR");
+											System.exit(0);
 										}
 									}
 								}).start();
@@ -1301,7 +1301,10 @@ public class Client extends Thread implements ActionListener,
 											objectOutput.flush();
 										}
 									} catch (Exception e) {
-										e.printStackTrace();
+										 
+										logoutConfirmed();
+										System.out.println("ERROR");
+										System.exit(0);
 									}
 								}
 							}
@@ -1321,7 +1324,7 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.flush();
 							// Ask player for bid
 						} catch (Exception e) {
-							e.printStackTrace();
+							 
 							System.out.println(e);
 						}
 					} else if (command.equals("GZ")) {// Game not ready yet, can
@@ -1484,7 +1487,10 @@ public class Client extends Thread implements ActionListener,
 												objectOutput.flush();
 											}
 										} catch (Exception e) {
-											e.printStackTrace();
+											 
+											logoutConfirmed();
+											System.out.println("ERROR");
+											System.exit(0);
 										}
 									}
 								}
@@ -1602,6 +1608,8 @@ public class Client extends Thread implements ActionListener,
 							onlyEndOfTrick = false;
 							if (lastRound) {
 								gameInProgress = false;
+								//End of Game
+								
 							} else {
 								gameInProgress = false;
 								//Take out if out of sync again
@@ -1633,7 +1641,10 @@ public class Client extends Thread implements ActionListener,
 														objectOutput.flush();
 													}
 												} catch (Exception e) {
-													e.printStackTrace();
+													 
+													logoutConfirmed();
+													System.out.println("ERROR");
+													System.exit(0);
 												}
 											}
 										}
@@ -1801,7 +1812,7 @@ public class Client extends Thread implements ActionListener,
 					}
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				 
 				logoutConfirmed();
 				System.out.println("ERROR");
 				System.exit(0);
@@ -1826,7 +1837,10 @@ public class Client extends Thread implements ActionListener,
 							objectOutput.flush();
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						 
+						logoutConfirmed();
+						System.out.println("ERROR");
+						System.exit(0);
 					}
 				}
 			}
@@ -1860,11 +1874,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 
 		frame_enterBid = new JFrame();
@@ -1915,11 +1929,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 
 		frame_CreateGame = new JFrame();
@@ -1969,11 +1983,11 @@ public class Client extends Thread implements ActionListener,
 		} catch (ClassNotFoundException e1) {
 			e1.printStackTrace();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			 
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			 
 		} catch (UnsupportedLookAndFeelException e) {
-			e.printStackTrace();
+			 
 		}
 		roundWinnerFrame = false;
 
@@ -2115,7 +2129,7 @@ public class Client extends Thread implements ActionListener,
 			objectOutput.flush();
 		} catch (IOException e) {
 			System.out.println("Logoff fail");
-			e.printStackTrace();
+			 
 		}
 	}
 
@@ -2155,6 +2169,8 @@ public class Client extends Thread implements ActionListener,
 
 		} catch (Exception e) {
 			closeConnections();
+		}finally{
+			welcomeScreen(0);
 		}
 
 	}
@@ -2170,7 +2186,7 @@ public class Client extends Thread implements ActionListener,
 			}
 			interrupt();
 		} catch (Exception e) {
-			e.printStackTrace();
+			 
 		}
 	}
 
@@ -2227,7 +2243,7 @@ public class Client extends Thread implements ActionListener,
 						objectOutput.writeObject(sb.toString());
 						objectOutput.flush();
 					} catch (IOException e) {
-						e.printStackTrace();
+						 
 					}
 					text_message_in.setText("");
 				} else {
@@ -2244,7 +2260,7 @@ public class Client extends Thread implements ActionListener,
 						objectOutput.flush();
 						textArea_display_in.append("<"+username+">"+text);
 					} catch (IOException e) {
-						e.printStackTrace();
+						 
 						textArea_display_in.append("Error");
 					}
 					text_message_in.setText("");
@@ -2279,7 +2295,7 @@ public class Client extends Thread implements ActionListener,
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 
 			// getClients();
@@ -2303,7 +2319,7 @@ public class Client extends Thread implements ActionListener,
 				objectOutput.writeObject(sb.toString());
 				objectOutput.flush();
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 
 		} else if (evt.getSource() == button_newGame_out) {
@@ -2330,7 +2346,7 @@ public class Client extends Thread implements ActionListener,
 							+ text_FieldPrefixOut.getText() + ";");
 					objectOutput.flush();
 				} catch (IOException e) {
-					e.printStackTrace();
+					 
 				}
 			}
 		} else if (evt.getSource() == button_prefixIn) {
@@ -2345,7 +2361,7 @@ public class Client extends Thread implements ActionListener,
 							+ text_FieldPrefixIn.getText() + ";");
 					objectOutput.flush();
 				} catch (IOException e) {
-					e.printStackTrace();
+					 
 				}
 			}
 		}
@@ -2361,7 +2377,7 @@ public class Client extends Thread implements ActionListener,
 				objectOutput.flush();
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 
 		} else if (evt.getSource() == button_kickPlayer) {
@@ -2385,7 +2401,7 @@ public class Client extends Thread implements ActionListener,
 				}
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 
 		}
@@ -2412,7 +2428,7 @@ public class Client extends Thread implements ActionListener,
 						objectOutput.writeObject(sb.toString());
 						objectOutput.flush();
 					} catch (IOException e) {
-						e.printStackTrace();
+						 
 					}
 					text_message_out.setText("");
 				} else {
@@ -2443,7 +2459,7 @@ public class Client extends Thread implements ActionListener,
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 		} else if (evt.getSource() == button_history) {
 			textArea_display_in.append("History Pressed\n");
@@ -2479,7 +2495,7 @@ public class Client extends Thread implements ActionListener,
 				System.out.println("GF" + tempGameName);
 
 			} catch (IOException e) {
-				e.printStackTrace();
+				 
 			}
 		} else if (evt.getSource() == button_logoff) {
 			logoutRequest();
@@ -2506,7 +2522,7 @@ public class Client extends Thread implements ActionListener,
 					objectOutput.flush();
 					System.out.println(sb.toString());
 				} catch (IOException e) {
-					e.printStackTrace();
+					 
 				}
 				turnToPlay.setVisible(false);
 				turnToPlayCard = false;

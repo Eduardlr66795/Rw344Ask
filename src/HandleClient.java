@@ -42,6 +42,7 @@ public class HandleClient extends Thread {
 					if (arguments.length != 1) {
 						server.badMessageFormat(socket);
 					} else {
+						System.out.println("Logoff in handle client");
 						server.logoff(socket);
 						disconnected = true;
 					}
@@ -209,6 +210,7 @@ public class HandleClient extends Thread {
 
 		finally {
 			if (!disconnected) {
+				System.out.println("Logoff in finally");
 				server.logoff(socket);
 			}
 		}
