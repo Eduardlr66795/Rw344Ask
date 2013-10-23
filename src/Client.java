@@ -525,6 +525,7 @@ public class Client extends Thread implements ActionListener,
 		for (int i = 0; i < 7; i++) {
 			label_playedCards[i] = new JLabel();
 			button_playedCards[i] = new JButton();
+			label_playedCards[i].setForeground(Color.white);
 		}
 		JPanel test = new JPanel();
 		test.setLayout(null);
@@ -862,6 +863,7 @@ public class Client extends Thread implements ActionListener,
 		}
 		usernameForMainFrame = new JLabel();
 		text_fieldTrumpSuite.setText("Trump Suite: ");
+		text_fieldTrumpSuite.setForeground(Color.white);
 		text_fieldTrumpSuite.setSize(150, 20);
 		text_fieldTrumpSuite.setLocation(500, 8);
 		button_exitGame.setText("Exit Game");
@@ -2163,8 +2165,10 @@ public class Client extends Thread implements ActionListener,
 						System.out.println(sb.toString());
 						objectOutput.writeObject(sb.toString());
 						objectOutput.flush();
+						textArea_display_in.append("<"+username+">"+text);
 					} catch (IOException e) {
 						e.printStackTrace();
+						textArea_display_in.append("Error");
 					}
 					text_message_in.setText("");
 				}

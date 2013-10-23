@@ -752,12 +752,13 @@ public class Server implements Runnable {
 		String gameslist = "GU";
 		int count = 0;
 		for (Enumeration e = gamesList.keys(); e.hasMoreElements();) {
-			if (count > 0) {
-				gameslist += ":";
-			}
+			
 			String nextgame = (String) e.nextElement();
 			if (nextgame.startsWith(prefix)) {
-				gameslist += nextgame;
+				if (count > 0) {
+					gameslist += ":";
+				}
+				gameslist +=  nextgame;
 				count++;
 			}
 		}
