@@ -1092,6 +1092,7 @@ public class Client extends Thread implements ActionListener,
 		while (connected) {
 			try {
 				String line = (String) objectInput.readObject();
+				System.out.println(line);
 				String msg = "!~:;~!";
 				if (line.contains(msg)) {
 					if (choice) {
@@ -1607,13 +1608,13 @@ public class Client extends Thread implements ActionListener,
 						for (int i = 0; i < arguments.length; i = i + 3) {
 
 							String[] tempMoving = new String[4];
-
+							
 							tempMoving = scores.get(arguments[i]).split(":");
 							System.out.println("Temp Moving:"+tempMoving[0]+","+tempMoving[1]+","+tempMoving[2]+","+tempMoving[3]);
 							if (!onlyEndOfTrick) {
-								tempMoving[1] = (Integer.parseInt(arguments[i + 2])+Integer.parseInt(tempMoving[1]))+"";
-								tempMoving[2] = arguments[i + 1];
 								tempMoving[0] = tempMoving[1];
+								tempMoving[1] = (Integer.parseInt(arguments[i + 2]))+"";
+								tempMoving[2] = arguments[i + 1];
 								tempMoving[3] = (Integer.parseInt(tempMoving[3])+Integer.parseInt(tempMoving[2]))+"";								
 							}
 							StringBuilder s = new StringBuilder();
@@ -1973,12 +1974,12 @@ public class Client extends Thread implements ActionListener,
 			panel_roundWinner.add(text_roundWinner[i][2]);
 
 
-			text_roundWinner[i][3].setText((Integer.parseInt(info[0]) ) + "");
+			text_roundWinner[i][3].setText(Integer.parseInt(info[1])-(Integer.parseInt(info[0]) ) + "");
 			text_roundWinner[i][3].setSize(100, 30);
 			text_roundWinner[i][3].setLocation(210, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][3]);
 
-			text_roundWinner[i][4].setText(Integer.parseInt(info[3]) + "");
+			text_roundWinner[i][4].setText(Integer.parseInt(info[1]) + "");
 			text_roundWinner[i][4].setSize(100, 30);
 			text_roundWinner[i][4].setLocation(300, 10 + i * 20);
 			panel_roundWinner.add(text_roundWinner[i][4]);
