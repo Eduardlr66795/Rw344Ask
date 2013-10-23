@@ -1750,6 +1750,8 @@ public class Client extends Thread implements ActionListener,
 							System.out.println("Logoff unsuccessful, not logged in.");
 
 						} else if (arguments[0].equals("110")) {
+							//tempGameName="";
+							gameInProgress=false;
 							System.out.println("Not part of a game.");
 						} else if (arguments[0].equals("120")) {
 							System.out.println("Game identifier already taken");
@@ -1758,12 +1760,15 @@ public class Client extends Thread implements ActionListener,
 						} else if (arguments[0].equals("131")) {
 							System.out.println("Game has too few players.");
 						} else if (arguments[0].equals("132")) {
+							gameInProgress=false;
 							pleaseWork.setVisible(false);
 							System.out.println("Kicked out player not part of game");
 						} else if (arguments[0].equals("133")) {
 							System.out.println("No such game identifier");
 						} else if (arguments[0].equals("134")) {
+							gameInProgress=false;
 							pleaseWork.setVisible(false);
+							tempGameName="";
 							System.out.println("Player has been kicked out of game.");
 						} else if (arguments[0].equals("139")) {
 							System.out.println("Player in game has closed connection. Game abandoned.");
@@ -2426,7 +2431,7 @@ public class Client extends Thread implements ActionListener,
 							&& (!gameInProgress)) {
 						tempGameName = jlist_gameMain.getSelectedValue()
 								.toString();
-
+						System.out.println("gameInProgress: "+gameInProgress);
 						System.out.println(tempGameName);
 						objectOutput.writeObject("GJ"
 								+ jlist_gameMain.getSelectedValue().toString()
