@@ -44,6 +44,8 @@ public class Client extends Thread implements ActionListener,
 	public JList jlist_playersJoiningGame;
 	public JLabel label_NameOfGameToBeCreated;
 	public JButton button_kickPlayer;
+	public JLabel label_nextToPlay=new JLabel();
+	
 	public JPanel panel_waitingToStartGame;
 	public JFrame frame_waitingToStartGame;
 	public DefaultListModel defaultList_players;
@@ -758,6 +760,8 @@ public class Client extends Thread implements ActionListener,
 		panel_side.add(button_prefixIn);
 		panel_side.add(text_FieldPrefixIn);
 
+		label_nextToPlay.setSize(200, 30);
+		label_nextToPlay.setForeground(Color.yellow);
 		
 		pleaseWork.setBounds(200, 100, 400, 30);
 		pleaseWork.setFont(new Font("Serif", Font.BOLD, 26));
@@ -877,11 +881,13 @@ public class Client extends Thread implements ActionListener,
 		usernameForMainFrame.setLocation(50, 40);
 		usernameForMainFrame.setForeground(Color.white);
 		usernameForMainFrame.setText(username);
+		label_nextToPlay.setLocation(200, 5);
 		turnToPlay.setSize(160, 25);
 		turnToPlay.setLocation(200, 5);
 		turnToPlay.setText("TURN TO PLAY!!");
 		turnToPlay.setForeground(Color.white);
 		turnToPlay.setVisible(false);
+		panel_bigframe[gameNumber].add(label_nextToPlay);
 		panel_bigframe[gameNumber].add(usernameForMainFrame);
 		panel_bigframe[gameNumber].add(turnToPlay);		// plabel_layers = new JLabel[7];
 		panel_bigframe[gameNumber].add(text_fieldTrumpSuite);
@@ -969,9 +975,7 @@ public class Client extends Thread implements ActionListener,
 				tableModel.setValueAt(cScore + "", i, 1);
 			}
 		}
-
 	}
-
 	public void updateGame(String gName, String[] pCards, int[] pScores) {
 		// Find gameNumber
 		int gameNumber = 0;
@@ -1447,6 +1451,16 @@ public class Client extends Thread implements ActionListener,
 							// Bids finished and turn to play a card!
 //							System.out.println();
 //							System.out.println("All Bids Finished!!!");
+							label_nextToPlay.setText("Next to play: "+arguments[2]);
+							if(turnToPlayCard){
+								System.out.println("false");
+								label_nextToPlay.setVisible(false);
+							}else{
+								System.out.println("true");
+								label_nextToPlay.setVisible(true);
+							}
+							
+							
 
 							for (int i = 0; i < playerCountemp; i++) {
 								int info = bids
@@ -1477,13 +1491,19 @@ public class Client extends Thread implements ActionListener,
 							}).start();
 
 						} else if (arguments[2].equals(username)) {
+							
 							if (!biddingActive) {
+								label_nextToPlay.setVisible(false);
 								enterBid(tempGameName);
 							}
 						}
 						if (username.equals(firstPlayerToPlay)) {
+							
+							
 							turnToPlay.setVisible(true);
 							turnToPlayCard = true;
+						}else{
+							
 						}
 
 					} else if (command.equals("HL")) {
@@ -1496,19 +1516,33 @@ public class Client extends Thread implements ActionListener,
 						}
 						if (line.equals(tempLastPlayer)) {
 						} else {
+							if (arguments.length == 3) {
+								label_nextToPlay.setText("Next to play: "+arguments[2]);
+								if(turnToPlayCard){
+									System.out.println("false");
+									label_nextToPlay.setVisible(false);
+								}else{
+									System.out.println("true");
+									label_nextToPlay.setVisible(true);
+								}
+							}
+							
 							if (playedCardsPlacekeeper == playerCountemp) {
 
 								if (arguments.length == 3) {
 									onlyEndOfTrick = true;
 									if (arguments[2].equals(username)) {
+										
 										turnToPlayCard = true;
 									} else {
+										
 										turnToPlayCard = false;
 									}
 									objectOutput.writeObject("HS"
 											+ tempGameName + ";");
 									objectOutput.flush();
 								}
+								
 								for (int y = 0; y < playerCountemp; y++) {
 									System.out.print(y + " ");
 									button_playedCards[y].setVisible(false);
@@ -1612,15 +1646,28 @@ public class Client extends Thread implements ActionListener,
 								}
 							}
 							if (username.equals(firstPlayerToPlay)) {
+								
 								turnToPlay.setVisible(true);
 								turnToPlayCard = true;
 							}
 						} else if (username.equals(arguments[2])) {
+							
 							turnToPlay.setVisible(true);
 							turnToPlayCard = true;
 						} else {
+							
 							turnToPlayCard = false;
 							turnToPlay.setVisible(false);
+						}
+						if (arguments.length == 3) {
+							label_nextToPlay.setText("Next to play: "+arguments[2]);
+							if(turnToPlayCard){
+								System.out.println("false");
+								label_nextToPlay.setVisible(false);
+							}else{
+								System.out.println("true");
+								label_nextToPlay.setVisible(true);
+							}
 						}
 					} else if (command.equals("HW")) {						
 					} else if (command.equals("HO")) {
